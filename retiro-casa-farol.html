@@ -1858,7 +1858,11 @@
         );
       }
       const volWaMessage = volWaMessageLines.join('\n');
-      const volWaUrl = 'https://wa.me/?text=' + encodeURIComponent(volWaMessage);
+      const volWaPhoneRaw = tel.replace(/\D/g, '');
+      const volWaPhone = volWaPhoneRaw ? ('55' + volWaPhoneRaw.replace(/^55/, '')) : '';
+      const volWaUrl = volWaPhone
+        ? ('https://wa.me/' + volWaPhone + '?text=' + encodeURIComponent(volWaMessage))
+        : ('https://wa.me/?text=' + encodeURIComponent(volWaMessage));
       document.getElementById('volSendWhatsappBtn').onclick = () => window.open(volWaUrl, '_blank');
       document.getElementById('volNextTicketId').textContent = 'Nº ' + volTicket;
       document.getElementById('volNextOverlay').classList.add('active');
