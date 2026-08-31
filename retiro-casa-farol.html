@@ -1081,9 +1081,12 @@
         <div class="loading-state">Carregando inscrições...</div>
       </div>
 
-      <div class="next-card-head" style="margin:26px 0 10px;">
-        <span class="ic">🙋</span>
-        <h3>Voluntários</h3>
+      <div class="next-card-head" style="margin:26px 0 10px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="ic">🙋</span>
+          <h3>Voluntários</h3>
+        </div>
+        <button id="exportVolPdfBtn" style="background:#fff; border:2.5px solid var(--ink); color:var(--ink); border-radius:11px; padding:9px 14px; font-family:'Space Grotesk', sans-serif; font-size:0.78rem; font-weight:700; cursor:pointer;">Exportar PDF</button>
       </div>
       <div class="reg-list" id="volList">
         <div class="loading-state">Carregando voluntários...</div>
@@ -2226,6 +2229,141 @@
       }
     }catch(err){
       console.error('Erro ao gerar PDF:', err);
+      alert('Não foi possível gerar o PDF agora. Tenta de novo em instantes.');
+    }finally{
+      btn.disabled = false;
+      btn.textContent = textoOriginal;
+    }
+  });
+
+  function gerarVolPdfBlob(){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({unit:'mm', format:'a4'});
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const marginX = 14;
+    let y = 18;
+
+    const simNaoPdf = v => v === 'sim' ? 'Sim' : (v === 'nao' ? 'Não' : '-');
+    const sorted = [...allVols].sort((a,b) => new Date(b.criadoEm) - new Date(a.criadoEm));
+
+    function checkPageBreak(altura){
+      if(y + altura > pageH - 14){
+        doc.addPage();
+        y = 18;
+      }
+    }
+    function linha(label, valor, x, largura){
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(90,90,97);
+      doc.text(label, x, y);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(20,20,26);
+      const texto = doc.splitTextToSize(String(valor || '-'), largura - 2);
+      doc.text(texto, x, y + 4);
+      return texto.length;
+    }
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.setTextColor(20,20,26);
+    doc.text('Voluntários — Retiro Casa Farol', marginX, y);
+    y += 6;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(90,90,97);
+    doc.text('Gerado em ' + new Date().toLocaleString('pt-BR') + ' · ' + sorted.length + ' voluntário(s)', marginX, y);
+    y += 10;
+
+    const colW = (pageW - marginX*2 - 6) / 2;
+
+    sorted.forEach(r => {
+      const area = r.areaVoluntario + (r.areaVoluntarioOutra ? (' — ' + r.areaVoluntarioOutra) : '');
+      const dorme = r.dormeNoRetiro === 'sim' ? 'Dorme no retiro (R$65)' : (r.dormeNoRetiro === 'nao' ? 'Vai pra casa' : '-');
+
+      checkPageBreak(50);
+      const cardTop = y;
+      doc.setDrawColor(20,20,26);
+      doc.setLineWidth(0.4);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(20,20,26);
+      doc.text(r.nome || '-', marginX + 4, y + 7);
+      y += 13;
+
+      let l1 = linha('TICKET', r.ticket, marginX + 4, colW);
+      let l2 = linha('DATA INSCRIÇÃO', new Date(r.criadoEm).toLocaleDateString('pt-BR'), marginX + 8 + colW, colW);
+      y += 4 + Math.max(l1, l2) * 4 + 3;
+
+      l1 = linha('WHATSAPP', r.telAdolescente, marginX + 4, colW);
+      l2 = linha('CONGREGA NA CASA FAROL', simNaoPdf(r.congregaCasaFarol), marginX + 8 + colW, colW);
+      y += 4 + Math.max(l1, l2) * 4 + 3;
+
+      l1 = linha('ÁREA(S) PARA AJUDAR', area, marginX + 4, colW*2 + 4);
+      y += 4 + l1 * 4 + 3;
+
+      l1 = linha('DORMIDA', dorme, marginX + 4, colW);
+      l2 = linha('DISPONIBILIDADE', r.disponibilidade, marginX + 8 + colW, colW);
+      y += 4 + Math.max(l1, l2) * 4 + 3;
+
+      if(r.infoImportante){
+        doc.setFillColor(255, 225, 201);
+        const alertaTexto = doc.splitTextToSize('⚠ Alergia/restrição/medicamento: ' + r.infoImportante, colW*2 + 4 - 6);
+        const alertaAltura = alertaTexto.length * 4 + 4;
+        doc.roundedRect(marginX + 4, y, colW*2 + 4, alertaAltura, 1.5, 1.5, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8.5);
+        doc.setTextColor(161, 61, 0);
+        doc.text(alertaTexto, marginX + 7, y + 5);
+        y += alertaAltura + 3;
+      }
+
+      doc.roundedRect(marginX, cardTop, pageW - marginX*2, y - cardTop + 2, 2, 2, 'S');
+      y += 8;
+    });
+
+    return doc.output('blob');
+  }
+
+  document.getElementById('exportVolPdfBtn').addEventListener('click', async () => {
+    if(allVols.length === 0) return;
+    const btn = document.getElementById('exportVolPdfBtn');
+    btn.disabled = true;
+    const textoOriginal = btn.textContent;
+    btn.textContent = 'Gerando...';
+
+    try{
+      const blob = gerarVolPdfBlob();
+      const nomeArquivo = 'voluntarios-retiro-casa-farol.pdf';
+      const file = new File([blob], nomeArquivo, {type: 'application/pdf'});
+
+      if(navigator.canShare && navigator.canShare({files: [file]})){
+        try{
+          await navigator.share({
+            files: [file],
+            title: 'Voluntários Retiro Casa Farol',
+            text: 'Segue o relatório de voluntários do Retiro Casa Farol.'
+          });
+        }catch(shareErr){
+          if(shareErr.name !== 'AbortError'){
+            console.error('Erro ao compartilhar:', shareErr);
+          }
+        }
+      }else{
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nomeArquivo;
+        a.click();
+        URL.revokeObjectURL(url);
+        const waMsg = 'Segue o relatório de voluntários do Retiro Casa Farol em PDF — é só anexar o arquivo que acabou de baixar 📎';
+        window.open('https://wa.me/?text=' + encodeURIComponent(waMsg), '_blank');
+        alert('Seu navegador não permite anexar automaticamente. O PDF foi baixado e o WhatsApp abriu — só anexar o arquivo baixado na conversa.');
+      }
+    }catch(err){
+      console.error('Erro ao gerar PDF de voluntários:', err);
       alert('Não foi possível gerar o PDF agora. Tenta de novo em instantes.');
     }finally{
       btn.disabled = false;
