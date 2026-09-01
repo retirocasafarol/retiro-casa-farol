@@ -385,7 +385,12 @@
   .login-error{color:var(--red-d); font-weight:700; font-size:0.82rem; margin-top:10px; display:none;}
 
   .admin-body{padding:22px 18px 60px; max-width:760px; margin:0 auto;}
+  .stat-group-label{
+    font-family:'Space Grotesk', sans-serif; font-size:0.78rem; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.03em; color:var(--muted); margin:0 0 10px;
+  }
   .stat-row{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:22px;}
+  .stat-row-3{grid-template-columns:repeat(3,1fr);}
   .stat-card{padding:14px 12px; text-align:center; background:#fff;}
   .stat-card .num{font-family:'Archivo Black', sans-serif; font-size:1.5rem; color:var(--violet);}
   .stat-card .lab{font-family:'Space Grotesk', sans-serif; font-size:0.66rem; font-weight:700; text-transform:uppercase; color:var(--muted); margin-top:2px;}
@@ -1092,10 +1097,15 @@
     </div>
 
     <div class="admin-body" id="adminBody" style="display:none;">
-      <div class="stat-row">
+      <div class="stat-group-label">🧑‍🎓 Adolescentes</div>
+      <div class="stat-row stat-row-3">
         <div class="stat-card hard-sm"><div class="num" id="statTotal">–</div><div class="lab">Inscritos</div></div>
         <div class="stat-card hard-sm"><div class="num" id="statAutorizados">–</div><div class="lab">Autorizados</div></div>
         <div class="stat-card hard-sm"><div class="num" id="statRestricoes">–</div><div class="lab">C/ restrição</div></div>
+      </div>
+
+      <div class="stat-group-label">🙋 Voluntários</div>
+      <div class="stat-row">
         <div class="stat-card hard-sm"><div class="num" id="statVoluntarios">–</div><div class="lab">Voluntários</div></div>
         <div class="stat-card hard-sm"><div class="num" id="statVolDorme">–</div><div class="lab">Voluntários que dormem</div></div>
       </div>
