@@ -1952,12 +1952,15 @@
     box.innerHTML = sorted.map(r => {
       const area = areaLabels[r.areaVoluntario] || r.areaVoluntario || '-';
       const areaFull = (r.areaVoluntario === 'outro' && r.areaVoluntarioOutra) ? area + ' — ' + escapeHtml(r.areaVoluntarioOutra) : area;
+      const dorme = r.dormeNoRetiro === 'sim';
+      const statusPagVol = r.statusPagamentoVol || 'pendente';
+      const payVolLabel = statusPagVol === 'pago' ? '✅ Pago' : '⏳ Pendente';
       return `
       <div class="reg-card" data-id="${r.id}">
         <div class="top">
           <div class="nm">${escapeHtml(r.nome)}</div>
         </div>
-        ${r.dormeNoRetiro === 'sim'
+        ${dorme
           ? '<div class="status-pill st-pending">🛏️ Vai dormir no retiro (R$65)</div>'
           : (r.dormeNoRetiro === 'nao' ? '<div class="status-pill st-ok">🏠 Vai pra casa</div>' : '')}
         <div class="meta-grid">
@@ -1968,11 +1971,44 @@
           <div class="meta-item meta-item-wide"><span class="meta-lab">Ticket</span><span class="meta-val">${escapeHtml(r.ticket)} · ${new Date(r.criadoEm).toLocaleDateString('pt-BR')}</span></div>
         </div>
         ${r.infoImportante ? `<div class="attn-box">ℹ ${escapeHtml(r.infoImportante)}</div>` : ''}
+        ${dorme ? `
+        <div class="pay-status-box">
+          <div class="pay-status-top">
+            <span class="pay-status-label">Pagamento (R$65)</span>
+            <span class="pay-status-badge pay-${statusPagVol === 'pago' ? 'total_pago' : 'pendente'}">${payVolLabel}</span>
+          </div>
+          <div class="pay-status-btns">
+            <button class="pay-btn${statusPagVol === 'pendente' ? ' is-active' : ''}" data-payvolid="${r.id}" data-paystatus="pendente">Pendente</button>
+            <button class="pay-btn${statusPagVol === 'pago' ? ' is-active' : ''}" data-payvolid="${r.id}" data-paystatus="pago">Pago</button>
+          </div>
+          <div class="pay-status-note">Uso interno da liderança</div>
+        </div>` : ''}
         <div class="card-footer-row" style="justify-content:flex-end;">
           <button class="del" data-delvol="${r.id}">Remover</button>
         </div>
       </div>
     `; }).join('');
+
+    box.querySelectorAll('[data-payvolid]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-payvolid');
+        const novoStatus = btn.getAttribute('data-paystatus');
+        const vol = allVols.find(r => r.id === id);
+        if(!vol) return;
+        btn.disabled = true;
+        const dadosAtualizados = Object.assign({}, vol, {statusPagamentoVol: novoStatus});
+        delete dadosAtualizados.id;
+        delete dadosAtualizados.criadoEm;
+        const ok = await updateSupabaseData(id, dadosAtualizados);
+        btn.disabled = false;
+        if(ok){
+          vol.statusPagamentoVol = novoStatus;
+          renderVolList(allVols);
+        }else{
+          alert('Não foi possível salvar agora. Tenta de novo em instantes.');
+        }
+      });
+    });
 
     box.querySelectorAll('[data-delvol]').forEach(btn => {
       btn.addEventListener('click', async () => {
