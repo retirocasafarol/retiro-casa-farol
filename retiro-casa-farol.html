@@ -400,6 +400,14 @@
     padding:11px 16px; font-family:'Space Grotesk', sans-serif; font-size:0.8rem; font-weight:700; cursor:pointer;
   }
 
+  .admin-tabs{display:flex; gap:10px; margin:26px 0 18px; flex-wrap:wrap;}
+  .admin-tab-btn{
+    flex:1; min-width:140px; background:#fff; border:2.5px solid var(--ink); color:var(--ink);
+    border-radius:100px; padding:11px 16px; font-family:'Space Grotesk', sans-serif;
+    font-size:0.85rem; font-weight:700; cursor:pointer; text-align:center;
+  }
+  .admin-tab-btn.is-active{background:var(--ink); color:#fff;}
+
   .reg-list{display:flex; flex-direction:column; gap:14px;}
   .reg-card{
     padding:18px 18px 16px; background:#fff; border:2px solid var(--ink);
@@ -1092,28 +1100,29 @@
         <div class="stat-card hard-sm"><div class="num" id="statVoluntarios">–</div><div class="lab">Voluntários</div></div>
       </div>
 
-      <div class="next-card-head" style="margin:26px 0 10px; display:flex; align-items:center; gap:8px;">
-        <span class="ic">🧑‍🎓</span>
-        <h3>Adolescentes</h3>
-      </div>
-      <div class="toolbar">
-        <input type="text" id="searchBox" placeholder="Buscar por nome...">
-        <button id="exportPdfBtn">Exportar PDF</button>
-        <button id="refreshBtn">Atualizar</button>
-      </div>
-      <div class="reg-list" id="regList">
-        <div class="loading-state">Carregando inscrições...</div>
+      <div class="admin-tabs">
+        <button type="button" class="admin-tab-btn is-active" id="tabBtnAdolescentes">🧑‍🎓 Adolescentes</button>
+        <button type="button" class="admin-tab-btn" id="tabBtnVoluntarios">🙋 Voluntários</button>
       </div>
 
-      <div class="next-card-head" style="margin:26px 0 10px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span class="ic">🙋</span>
-          <h3>Voluntários</h3>
+      <div class="admin-tab-panel" id="tabAdolescentes">
+        <div class="toolbar">
+          <input type="text" id="searchBox" placeholder="Buscar por nome...">
+          <button id="exportPdfBtn">Exportar PDF</button>
+          <button id="refreshBtn">Atualizar</button>
         </div>
-        <button id="exportVolPdfBtn" style="background:#fff; border:2.5px solid var(--ink); color:var(--ink); border-radius:11px; padding:9px 14px; font-family:'Space Grotesk', sans-serif; font-size:0.78rem; font-weight:700; cursor:pointer;">Exportar PDF</button>
+        <div class="reg-list" id="regList">
+          <div class="loading-state">Carregando inscrições...</div>
+        </div>
       </div>
-      <div class="reg-list" id="volList">
-        <div class="loading-state">Carregando voluntários...</div>
+
+      <div class="admin-tab-panel" id="tabVoluntarios" style="display:none;">
+        <div class="toolbar" style="justify-content:flex-end;">
+          <button id="exportVolPdfBtn" style="background:#fff; border:2.5px solid var(--ink); color:var(--ink); border-radius:11px; padding:9px 14px; font-family:'Space Grotesk', sans-serif; font-size:0.78rem; font-weight:700; cursor:pointer;">Exportar PDF</button>
+        </div>
+        <div class="reg-list" id="volList">
+          <div class="loading-state">Carregando voluntários...</div>
+        </div>
       </div>
     </div>
   </div>
@@ -2153,6 +2162,19 @@
     renderList(allRegs.filter(r => r.nome.toLowerCase().includes(q)));
   });
   document.getElementById('refreshBtn').addEventListener('click', renderDashboard);
+
+  document.getElementById('tabBtnAdolescentes').addEventListener('click', () => {
+    document.getElementById('tabBtnAdolescentes').classList.add('is-active');
+    document.getElementById('tabBtnVoluntarios').classList.remove('is-active');
+    document.getElementById('tabAdolescentes').style.display = 'block';
+    document.getElementById('tabVoluntarios').style.display = 'none';
+  });
+  document.getElementById('tabBtnVoluntarios').addEventListener('click', () => {
+    document.getElementById('tabBtnVoluntarios').classList.add('is-active');
+    document.getElementById('tabBtnAdolescentes').classList.remove('is-active');
+    document.getElementById('tabVoluntarios').style.display = 'block';
+    document.getElementById('tabAdolescentes').style.display = 'none';
+  });
 
   function gerarPdfBlob(){
     const { jsPDF } = window.jspdf;
