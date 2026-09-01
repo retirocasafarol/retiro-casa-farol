@@ -400,69 +400,89 @@
     padding:11px 16px; font-family:'Space Grotesk', sans-serif; font-size:0.8rem; font-weight:700; cursor:pointer;
   }
 
-  .reg-list{display:flex; flex-direction:column; gap:10px;}
-  .reg-card{padding:15px 17px; background:#fff; border-left:8px solid var(--violet);}
+  .reg-list{display:flex; flex-direction:column; gap:14px;}
+  .reg-card{
+    padding:18px 18px 16px; background:#fff; border:2px solid var(--ink);
+    border-radius:16px; box-shadow:3px 3px 0 var(--shadow-c);
+  }
   .reg-card .top{display:flex; justify-content:space-between; align-items:baseline; gap:10px;}
-  .reg-card .nm{font-weight:800; font-size:0.98rem;}
-  .reg-card .age{font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:0.76rem; color:var(--violet-d);}
-  .reg-card .meta{margin-top:7px; font-size:0.82rem; color:var(--muted); font-weight:600; line-height:1.6;}
+  .reg-card .nm{font-weight:800; font-size:1rem;}
+  .reg-card .age{font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:0.76rem; color:var(--violet-d); white-space:nowrap;}
+
+  .status-pill{
+    display:inline-flex; align-items:center; gap:5px; margin-top:8px;
+    font-size:0.72rem; font-weight:700; padding:5px 11px; border-radius:100px;
+  }
+  .status-pill.st-pending{background:#fff0d6; color:#8a5600;}
+  .status-pill.st-ok{background:#dcf7e3; color:#0a6b2f;}
+
   .meta-grid{
-    margin-top:9px; display:grid; grid-template-columns:1fr 1fr; gap:7px;
+    margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:8px;
   }
   .meta-item{
-    background:#f7f4ea; border-radius:9px; padding:7px 10px; display:flex; flex-direction:column; gap:2px;
-    min-width:0;
+    background:#f7f4ea; border:1px solid rgba(20,20,26,0.06); border-radius:10px; padding:8px 10px;
+    display:flex; flex-direction:column; gap:2px; min-width:0;
   }
   .meta-item-wide{grid-column:1 / -1;}
   .meta-lab{
-    font-family:'Space Grotesk', sans-serif; font-size:0.63rem; font-weight:700;
+    font-family:'Space Grotesk', sans-serif; font-size:0.62rem; font-weight:700;
     text-transform:uppercase; letter-spacing:0.03em; color:var(--muted);
   }
   .meta-val{
     font-size:0.82rem; font-weight:700; color:var(--ink); word-break:break-word;
   }
+  .reg-card .meta{margin-top:10px; font-size:0.82rem; color:var(--muted); font-weight:600; line-height:1.7;}
   .reg-card .meta b{color:var(--ink);}
-  .reg-card .restr{
-    margin-top:8px; font-size:0.78rem; font-weight:700; background:#ffe1c9; color:#a13d00;
-    padding:8px 10px; border-radius:8px;
+
+  .attn-box{
+    margin-top:11px; font-size:0.78rem; font-weight:700; background:#fff0d6; color:#8a5600;
+    padding:9px 11px; border-radius:10px; display:flex; flex-direction:column; gap:4px;
   }
-  .reg-card .del{
-    margin-top:9px; background:none; border:none; color:var(--muted); font-size:0.74rem;
-    text-decoration:underline; cursor:pointer; padding:0; font-weight:600;
-  }
-  .reg-card .ver-mais-btn{
-    margin-top:10px; background:#f4efe0; border:none; color:var(--violet-d); font-size:0.78rem;
-    font-family:'Space Grotesk', sans-serif; font-weight:700; cursor:pointer;
-    padding:7px 12px; border-radius:100px;
-  }
-  .reg-card .extra-details{
-    margin-top:10px; padding-top:10px; border-top:1.5px dashed rgba(20,20,26,0.15);
-  }
+
   .pay-status-box{
-    margin-top:10px; padding:12px; background:#f7f4ea; border-radius:10px;
+    margin-top:12px; padding:11px 12px; background:#f7f4ea; border-radius:12px;
   }
+  .pay-status-top{display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:8px;}
   .pay-status-label{
-    font-family:'Space Grotesk', sans-serif; font-size:0.7rem; font-weight:700;
-    text-transform:uppercase; letter-spacing:0.04em; color:var(--muted); margin-bottom:6px;
+    font-family:'Space Grotesk', sans-serif; font-size:0.68rem; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.04em; color:var(--muted);
   }
   .pay-status-badge{
-    display:inline-block; font-size:0.8rem; font-weight:700; padding:5px 10px;
-    border-radius:8px; margin-bottom:9px;
+    display:inline-block; font-size:0.75rem; font-weight:700; padding:4px 9px;
+    border-radius:100px;
   }
   .pay-status-badge.pay-pendente{background:#fff0d6; color:#8a5600;}
   .pay-status-badge.pay-confirmacao_paga{background:#e0edff; color:#1d4f9e;}
   .pay-status-badge.pay-total_pago{background:#dcf7e3; color:#0a6b2f;}
   .pay-status-btns{display:flex; gap:6px; flex-wrap:wrap;}
-  .pay-status-note{
-    margin-top:9px; font-size:0.7rem; font-weight:600; font-style:italic;
-    color:var(--muted); opacity:0.85;
-  }
   .pay-btn{
-    background:#fff; border:1.5px solid rgba(20,20,26,0.2); color:var(--ink);
-    font-family:'Space Grotesk', sans-serif; font-size:0.7rem; font-weight:700;
+    background:#fff; border:1.5px solid rgba(20,20,26,0.18); color:var(--muted);
+    font-family:'Space Grotesk', sans-serif; font-size:0.68rem; font-weight:700;
     padding:6px 10px; border-radius:100px; cursor:pointer;
   }
-  .pay-btn:hover{border-color:var(--violet);}
+  .pay-btn:hover{border-color:var(--violet); color:var(--ink);}
+  .pay-btn.is-active{background:var(--ink); border-color:var(--ink); color:#fff;}
+
+  .card-footer-row{
+    margin-top:12px; padding-top:10px; border-top:1.5px dashed rgba(20,20,26,0.14);
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .reg-card .ver-mais-btn{
+    background:#f4efe0; border:none; color:var(--violet-d); font-size:0.76rem;
+    font-family:'Space Grotesk', sans-serif; font-weight:700; cursor:pointer;
+    padding:7px 12px; border-radius:100px;
+  }
+  .reg-card .del{
+    background:none; border:none; color:var(--muted); font-size:0.72rem;
+    text-decoration:underline; cursor:pointer; padding:0; font-weight:600;
+  }
+  .reg-card .extra-details{
+    margin-top:10px; padding-top:10px; border-top:1.5px dashed rgba(20,20,26,0.15);
+  }
+  .pay-status-note{
+    margin-top:8px; font-size:0.68rem; font-weight:600; font-style:italic;
+    color:var(--muted); opacity:0.8;
+  }
   .empty-state, .loading-state{text-align:center; padding:50px 20px; color:var(--muted); font-weight:600;}
 
   @media(max-width:400px){
@@ -1937,15 +1957,20 @@
         <div class="top">
           <div class="nm">${escapeHtml(r.nome)}</div>
         </div>
-        <div class="meta">
-          <b>WhatsApp:</b> ${escapeHtml(r.telAdolescente||'')}<br>
-          <b>Congrega na Casa Farol:</b> ${r.congregaCasaFarol === 'sim' ? 'Sim' : 'Não'}<br>
-          <b>Área:</b> ${areaFull}<br>
-          <b>Disponibilidade:</b> ${r.disponibilidade ? escapeHtml(r.disponibilidade) : '-'}<br>
-          <b>Ticket:</b> ${escapeHtml(r.ticket)} · ${new Date(r.criadoEm).toLocaleDateString('pt-BR')}
+        ${r.dormeNoRetiro === 'sim'
+          ? '<div class="status-pill st-pending">🛏️ Vai dormir no retiro (R$65)</div>'
+          : (r.dormeNoRetiro === 'nao' ? '<div class="status-pill st-ok">🏠 Vai pra casa</div>' : '')}
+        <div class="meta-grid">
+          <div class="meta-item"><span class="meta-lab">WhatsApp</span><span class="meta-val">${escapeHtml(r.telAdolescente||'-')}</span></div>
+          <div class="meta-item"><span class="meta-lab">Congrega na Casa Farol</span><span class="meta-val">${r.congregaCasaFarol === 'sim' ? 'Sim' : 'Não'}</span></div>
+          <div class="meta-item meta-item-wide"><span class="meta-lab">Área(s) para ajudar</span><span class="meta-val">${areaFull}</span></div>
+          <div class="meta-item meta-item-wide"><span class="meta-lab">Disponibilidade</span><span class="meta-val">${r.disponibilidade ? escapeHtml(r.disponibilidade) : '-'}</span></div>
+          <div class="meta-item meta-item-wide"><span class="meta-lab">Ticket</span><span class="meta-val">${escapeHtml(r.ticket)} · ${new Date(r.criadoEm).toLocaleDateString('pt-BR')}</span></div>
         </div>
-        ${r.infoImportante ? `<div class="restr" style="background:#e8e0ff; color:#4a2f8f;">ℹ ${escapeHtml(r.infoImportante)}</div>` : ''}
-        <button class="del" data-delvol="${r.id}">Remover</button>
+        ${r.infoImportante ? `<div class="attn-box">ℹ ${escapeHtml(r.infoImportante)}</div>` : ''}
+        <div class="card-footer-row" style="justify-content:flex-end;">
+          <button class="del" data-delvol="${r.id}">Remover</button>
+        </div>
       </div>
     `; }).join('');
 
@@ -1975,13 +2000,16 @@
     }
     const sorted = [...list].sort((a,b) => new Date(b.criadoEm) - new Date(a.criadoEm));
     container.innerHTML = sorted.map(r => {
-      const alertas = [];
-      if(r.alergiaAlimentar === 'sim' && r.qualAlergia) alertas.push('Alergia: ' + r.qualAlergia);
-      if(r.restricaoAlimentar === 'sim' && r.qualRestricao) alertas.push('Restrição: ' + r.qualRestricao);
-      if(r.medicamentoContinuo === 'sim' && r.medicamentoDetalhe) alertas.push('Medicamento: ' + r.medicamentoDetalhe);
+      const attnLines = [];
+      if(r.alergiaAlimentar === 'sim' && r.qualAlergia) attnLines.push('⚠ Alergia: ' + escapeHtml(r.qualAlergia));
+      if(r.restricaoAlimentar === 'sim' && r.qualRestricao) attnLines.push('⚠ Restrição: ' + escapeHtml(r.qualRestricao));
+      if(r.medicamentoContinuo === 'sim' && r.medicamentoDetalhe) attnLines.push('⚠ Medicamento: ' + escapeHtml(r.medicamentoDetalhe));
+      if(r.infoImportante) attnLines.push('ℹ ' + escapeHtml(r.infoImportante));
       const loteLabel = r.lote === '2' ? '2º Lote (R$130)' : '1º Lote (R$100)';
       const simNao = v => v === 'sim' ? 'Sim' : (v === 'nao' ? 'Não' : '-');
       const statusPag = r.statusPagamento || 'pendente';
+      const payLabel = statusPag === 'confirmacao_paga' ? '💰 Confirmação (R$20) paga' :
+            statusPag === 'total_pago' ? '✅ Retiro pago por completo' : '⏳ Pendente';
       return `
       <div class="reg-card" data-id="${r.id}">
         <div class="top">
@@ -1989,8 +2017,8 @@
           <div class="age">${escapeHtml(r.idade)} anos</div>
         </div>
         ${r.autorizacaoRemota
-          ? '<div class="restr" style="background:#dcf7e3; color:#0a6b2f;">✅ Autorizado pelo responsável (link) em ' + new Date(r.autorizacaoRemotaEm).toLocaleDateString('pt-BR') + '</div>'
-          : '<div class="restr" style="background:#fff0d6; color:#8a5600;">⏳ Aguardando autorização do responsável pelo link</div>'}
+          ? '<div class="status-pill st-ok">✅ Autorizado pelo responsável em ' + new Date(r.autorizacaoRemotaEm).toLocaleDateString('pt-BR') + '</div>'
+          : '<div class="status-pill st-pending">⏳ Aguardando autorização do responsável</div>'}
         <div class="meta-grid">
           <div class="meta-item"><span class="meta-lab">Responsável</span><span class="meta-val">${escapeHtml(r.responsavel)}${r.parentesco ? ' (' + escapeHtml(r.parentesco) + ')' : ''}</span></div>
           <div class="meta-item"><span class="meta-lab">Tel. responsável</span><span class="meta-val">${escapeHtml(r.telResponsavel)}</span></div>
@@ -2002,25 +2030,25 @@
           <div class="meta-item"><span class="meta-lab">Imagem</span><span class="meta-val">${r.autorizacaoImagem === 'autorizo' ? 'Autorizada' : 'Não autorizada'}</span></div>
           <div class="meta-item"><span class="meta-lab">Ticket</span><span class="meta-val">${escapeHtml(r.ticket)} · ${new Date(r.criadoEm).toLocaleDateString('pt-BR')}</span></div>
         </div>
-        ${alertas.length ? `<div class="restr">⚠ ${escapeHtml(alertas.join(' · '))}</div>` : ''}
-        ${r.infoImportante ? `<div class="restr" style="background:#e8e0ff; color:#4a2f8f;">ℹ ${escapeHtml(r.infoImportante)}</div>` : ''}
+        ${attnLines.length ? `<div class="attn-box">${attnLines.join('<br>')}</div>` : ''}
 
         <div class="pay-status-box">
-          <div class="pay-status-label">Situação do pagamento:</div>
-          <div class="pay-status-badge pay-${statusPag}">${
-            statusPag === 'confirmacao_paga' ? '💰 Confirmação (R$20) paga' :
-            statusPag === 'total_pago' ? '✅ Retiro pago por completo' :
-            '⏳ Pendente'
-          }</div>
-          <div class="pay-status-btns">
-            <button class="pay-btn" data-payid="${r.id}" data-paystatus="pendente">Pendente</button>
-            <button class="pay-btn" data-payid="${r.id}" data-paystatus="confirmacao_paga">Confirmação paga</button>
-            <button class="pay-btn" data-payid="${r.id}" data-paystatus="total_pago">Retiro pago</button>
+          <div class="pay-status-top">
+            <span class="pay-status-label">Pagamento</span>
+            <span class="pay-status-badge pay-${statusPag}">${payLabel}</span>
           </div>
-          <div class="pay-status-note">Função para organização da líder Franciele</div>
+          <div class="pay-status-btns">
+            <button class="pay-btn${statusPag === 'pendente' ? ' is-active' : ''}" data-payid="${r.id}" data-paystatus="pendente">Pendente</button>
+            <button class="pay-btn${statusPag === 'confirmacao_paga' ? ' is-active' : ''}" data-payid="${r.id}" data-paystatus="confirmacao_paga">Confirmação paga</button>
+            <button class="pay-btn${statusPag === 'total_pago' ? ' is-active' : ''}" data-payid="${r.id}" data-paystatus="total_pago">Retiro pago</button>
+          </div>
+          <div class="pay-status-note">Uso interno da liderança</div>
         </div>
 
-        <button class="ver-mais-btn" data-toggle="${r.id}">Ver mais ▾</button>
+        <div class="card-footer-row">
+          <button class="ver-mais-btn" data-toggle="${r.id}">Ver mais ▾</button>
+          <button class="del" data-del="${r.id}">Remover inscrição</button>
+        </div>
         <div class="meta extra-details" id="extra-${r.id}" style="display:none;">
           <b>Nascimento:</b> ${r.dataNascimento ? new Date(r.dataNascimento + 'T00:00:00').toLocaleDateString('pt-BR') : '-'}<br>
           <b>Congrega na Casa Farol:</b> ${simNao(r.congregaCasaFarol)} · <b>2+ encontros:</b> ${simNao(r.participou2Encontros)}<br>
@@ -2033,8 +2061,6 @@
           <b>Autorizado por:</b> ${escapeHtml(r.nomeResponsavelAutoriza||'-')}<br>
           <b>Autorização via link:</b> ${r.autorizacaoRemota ? 'Sim, em ' + new Date(r.autorizacaoRemotaEm).toLocaleString('pt-BR') : 'Ainda não'}
         </div>
-
-        <button class="del" data-del="${r.id}">Remover inscrição</button>
       </div>
     `; }).join('');
 
