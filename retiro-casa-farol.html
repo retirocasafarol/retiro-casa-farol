@@ -385,7 +385,7 @@
   .login-error{color:var(--red-d); font-weight:700; font-size:0.82rem; margin-top:10px; display:none;}
 
   .admin-body{padding:22px 18px 60px; max-width:760px; margin:0 auto;}
-  .stat-row{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:22px;}
+  .stat-row{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:22px;}
   .stat-card{padding:14px 12px; text-align:center; background:#fff;}
   .stat-card .num{font-family:'Archivo Black', sans-serif; font-size:1.5rem; color:var(--violet);}
   .stat-card .lab{font-family:'Space Grotesk', sans-serif; font-size:0.66rem; font-weight:700; text-transform:uppercase; color:var(--muted); margin-top:2px;}
@@ -496,7 +496,6 @@
   @media(max-width:400px){
     .row2{grid-template-columns:1fr;}
     .bento{grid-template-columns:1fr 1fr;}
-    .stat-row{grid-template-columns:1fr 1fr 1fr;}
   }
   @media(prefers-reduced-motion:reduce){
     .floaty{animation:none;}
@@ -1098,6 +1097,7 @@
         <div class="stat-card hard-sm"><div class="num" id="statAutorizados">–</div><div class="lab">Autorizados</div></div>
         <div class="stat-card hard-sm"><div class="num" id="statRestricoes">–</div><div class="lab">C/ restrição</div></div>
         <div class="stat-card hard-sm"><div class="num" id="statVoluntarios">–</div><div class="lab">Voluntários</div></div>
+        <div class="stat-card hard-sm"><div class="num" id="statVolDorme">–</div><div class="lab">Voluntários que dormem</div></div>
       </div>
 
       <div class="admin-tabs">
@@ -1953,6 +1953,7 @@
     const box = document.getElementById('volList');
     if(!box) return;
     document.getElementById('statVoluntarios').textContent = list.length;
+    document.getElementById('statVolDorme').textContent = list.filter(r => r.dormeNoRetiro === 'sim').length;
     if(list.length === 0){
       box.innerHTML = '<div class="empty-state">Nenhum voluntário inscrito ainda.</div>';
       return;
