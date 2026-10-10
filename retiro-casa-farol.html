@@ -429,6 +429,14 @@
   .status-pill.st-pending{background:#fff0d6; color:#8a5600;}
   .status-pill.st-ok{background:#dcf7e3; color:#0a6b2f;}
 
+  .status-pill-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .confirm-aut-btn{
+    margin-top:8px; background:#fff; border:1.5px solid var(--violet); color:var(--violet-d);
+    font-family:'Space Grotesk', sans-serif; font-size:0.7rem; font-weight:700;
+    padding:5px 11px; border-radius:100px; cursor:pointer;
+  }
+  .confirm-aut-btn:hover{background:var(--violet); color:#fff;}
+
   .meta-grid{
     margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:8px;
   }
@@ -2073,8 +2081,8 @@
           <div class="age">${escapeHtml(r.idade)} anos</div>
         </div>
         ${r.autorizacaoRemota
-          ? '<div class="status-pill st-ok">✅ Autorizado pelo responsável em ' + new Date(r.autorizacaoRemotaEm).toLocaleDateString('pt-BR') + '</div>'
-          : '<div class="status-pill st-pending">⏳ Aguardando autorização do responsável</div>'}
+          ? '<div class="status-pill st-ok">✅ Autorizado' + (r.autorizadoManualmente ? ' manualmente pela liderança' : ' pelo responsável') + ' em ' + new Date(r.autorizacaoRemotaEm).toLocaleDateString('pt-BR') + '</div>'
+          : '<div class="status-pill-row"><div class="status-pill st-pending">⏳ Aguardando autorização do responsável</div><button class="confirm-aut-btn" data-confirmautid="' + r.id + '">Confirmar autorização</button></div>'}
         <div class="meta-grid">
           <div class="meta-item"><span class="meta-lab">Responsável</span><span class="meta-val">${escapeHtml(r.responsavel)}${r.parentesco ? ' (' + escapeHtml(r.parentesco) + ')' : ''}</span></div>
           <div class="meta-item"><span class="meta-lab">Tel. responsável</span><span class="meta-val">${escapeHtml(r.telResponsavel)}</span></div>
@@ -2115,7 +2123,7 @@
           <b>Medicamento contínuo:</b> ${simNao(r.medicamentoContinuo)}${r.medicamentoDetalhe ? ' — ' + escapeHtml(r.medicamentoDetalhe) : ''}<br>
           <b>Regras aceitas:</b> ${r.aceiteRegras ? 'Sim' : 'Não'} · <b>Participação autorizada:</b> ${r.autorizacaoParticipacao ? 'Sim' : 'Não'}<br>
           <b>Autorizado por:</b> ${escapeHtml(r.nomeResponsavelAutoriza||'-')}<br>
-          <b>Autorização via link:</b> ${r.autorizacaoRemota ? 'Sim, em ' + new Date(r.autorizacaoRemotaEm).toLocaleString('pt-BR') : 'Ainda não'}
+          <b>Autorização:</b> ${r.autorizacaoRemota ? ('Sim' + (r.autorizadoManualmente ? ' (confirmada manualmente pela liderança)' : ' (via link)') + ', em ' + new Date(r.autorizacaoRemotaEm).toLocaleString('pt-BR')) : 'Ainda não'}
         </div>
       </div>
     `; }).join('');
@@ -2127,6 +2135,35 @@
         const open = box.style.display === 'block';
         box.style.display = open ? 'none' : 'block';
         btn.textContent = open ? 'Ver mais ▾' : 'Ver menos ▴';
+      });
+    });
+
+    container.querySelectorAll('[data-confirmautid]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-confirmautid');
+        const reg = allRegs.find(r => r.id === id);
+        if(!reg) return;
+        if(!confirm('Confirmar que o responsável autorizou a participação de ' + reg.nome + '? Use só se o responsável já confirmou com você diretamente (WhatsApp, pessoalmente, etc.).')) return;
+        btn.disabled = true;
+        const agora = new Date().toISOString();
+        const dadosAtualizados = Object.assign({}, reg, {
+          autorizacaoRemota: true,
+          autorizacaoRemotaEm: agora,
+          autorizadoManualmente: true
+        });
+        delete dadosAtualizados.id;
+        delete dadosAtualizados.criadoEm;
+        const ok = await updateSupabaseData(id, dadosAtualizados);
+        btn.disabled = false;
+        if(ok){
+          reg.autorizacaoRemota = true;
+          reg.autorizacaoRemotaEm = agora;
+          reg.autorizadoManualmente = true;
+          updateStats(allRegs);
+          renderList(allRegs);
+        }else{
+          alert('Não foi possível salvar agora. Tenta de novo em instantes.');
+        }
       });
     });
 
@@ -2268,7 +2305,7 @@
       l2 = linha('IMAGEM', r.autorizacaoImagem === 'autorizo' ? 'Autorizada' : 'Não autorizada', marginX + 8 + colW, colW);
       y += 4 + Math.max(l1, l2) * 4 + 3;
 
-      l1 = linha('AUTORIZAÇÃO RESPONSÁVEL', r.autorizacaoRemota ? ('Confirmada em ' + new Date(r.autorizacaoRemotaEm).toLocaleString('pt-BR')) : 'Ainda não confirmada', marginX + 4, colW*2 + 4);
+      l1 = linha('AUTORIZAÇÃO RESPONSÁVEL', r.autorizacaoRemota ? ('Confirmada' + (r.autorizadoManualmente ? ' manualmente' : '') + ' em ' + new Date(r.autorizacaoRemotaEm).toLocaleString('pt-BR')) : 'Ainda não confirmada', marginX + 4, colW*2 + 4);
       y += 4 + l1 * 4 + 3;
 
       if(alertas.length){
