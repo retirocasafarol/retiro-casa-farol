@@ -385,6 +385,27 @@
   .login-error{color:var(--red-d); font-weight:700; font-size:0.82rem; margin-top:10px; display:none;}
 
   .admin-body{padding:22px 18px 60px; max-width:760px; margin:0 auto;}
+  .except-link-card{
+    padding:16px 18px; background:#fff; margin-bottom:24px;
+  }
+  .except-link-title{font-weight:800; font-size:0.95rem; margin-bottom:6px;}
+  .except-link-sub{color:var(--muted); font-weight:600; font-size:0.8rem; line-height:1.5; margin-bottom:12px;}
+  .except-link-card input[type="text"]{
+    width:100%; padding:10px 12px; border-radius:10px; border:2px solid var(--ink);
+    font-family:'Manrope', sans-serif; font-weight:600; font-size:0.85rem; background:#fff;
+    margin-bottom:10px; box-sizing:border-box;
+  }
+  .except-link-card input#exceptLinkOutput{
+    background:#f7f4ea; color:var(--ink); font-size:0.78rem; margin-bottom:0;
+  }
+  .except-link-row{display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;}
+  .except-link-row button{
+    background:var(--violet); border:2px solid var(--ink); color:#fff; border-radius:11px;
+    padding:10px 16px; font-family:'Space Grotesk', sans-serif; font-size:0.78rem; font-weight:700; cursor:pointer;
+  }
+  .except-link-row button:disabled{background:#cfc9e0; color:#fff; cursor:not-allowed;}
+  .except-link-row button#exceptCopiarBtn:not(:disabled){background:var(--ink);}
+
   .stat-group-label{
     font-family:'Space Grotesk', sans-serif; font-size:0.78rem; font-weight:700;
     text-transform:uppercase; letter-spacing:0.03em; color:var(--muted); margin:0 0 10px;
@@ -1145,6 +1166,17 @@
     </div>
 
     <div class="admin-body" id="adminBody" style="display:none;">
+      <div class="except-link-card hard-sm">
+        <div class="except-link-title">Link de inscrição por exceção</div>
+        <p class="except-link-sub">As inscrições gerais estão encerradas. Use isso só para liberar o cadastro de um adolescente específico que ficou de fora.</p>
+        <input type="text" id="exceptNomeInput" placeholder="Nome do adolescente (opcional)">
+        <div class="except-link-row">
+          <button type="button" id="exceptGerarBtn">Gerar link</button>
+          <button type="button" id="exceptCopiarBtn" disabled>Copiar link</button>
+        </div>
+        <input type="text" id="exceptLinkOutput" readonly placeholder="O link aparece aqui depois de gerado">
+      </div>
+
       <div class="stat-group-label">🧑‍🎓 Adolescentes</div>
       <div class="stat-row stat-row-3">
         <div class="stat-card hard-sm"><div class="num" id="statTotal">–</div><div class="lab">Inscritos</div></div>
@@ -1690,6 +1722,28 @@
 
   showStep(1);
 
+  // ---------- link de exceção (inscrição liberada individualmente pela liderança) ----------
+  (function initLinkExcecao(){
+    const params = new URLSearchParams(window.location.search);
+    if(params.get('vaga') !== 'excecao') return;
+
+    document.querySelector('.closed-screen').style.display = 'none';
+    document.getElementById('mainSiteContent').style.display = 'block';
+
+    const nomeConvidado = params.get('nome');
+    if(nomeConvidado){
+      const nomeInput = document.getElementById('nome');
+      if(nomeInput) nomeInput.value = nomeConvidado;
+    }
+
+    const avisoExcecao = document.createElement('div');
+    avisoExcecao.className = 'hard-sm';
+    avisoExcecao.style.cssText = 'max-width:600px; margin:18px auto 0; padding:12px 16px; background:#fff0d6; color:#8a5600; font-weight:700; font-size:0.85rem; text-align:center;';
+    avisoExcecao.textContent = 'Inscrição liberada como exceção, a convite da liderança. As inscrições gerais já estão encerradas.';
+    const heroSection = document.querySelector('.hero');
+    if(heroSection) heroSection.insertAdjacentElement('afterend', avisoExcecao);
+  })();
+
   // ---------- autorização remota do responsável ----------
   (async function initAutorizacaoRemota(){
     const params = new URLSearchParams(window.location.search);
@@ -1975,6 +2029,29 @@
   document.getElementById('openAdminFromClosed').addEventListener('click', () => adminOverlay.classList.add('active'));
   document.getElementById('closeAdmin').addEventListener('click', () => adminOverlay.classList.remove('active'));
   document.getElementById('loginBtn').addEventListener('click', handleLogin);
+
+  document.getElementById('exceptGerarBtn').addEventListener('click', () => {
+    const nome = document.getElementById('exceptNomeInput').value.trim();
+    let link = window.location.origin + window.location.pathname + '?vaga=excecao';
+    if(nome) link += '&nome=' + encodeURIComponent(nome);
+    const output = document.getElementById('exceptLinkOutput');
+    output.value = link;
+    document.getElementById('exceptCopiarBtn').disabled = false;
+  });
+
+  document.getElementById('exceptCopiarBtn').addEventListener('click', () => {
+    const output = document.getElementById('exceptLinkOutput');
+    if(!output.value) return;
+    const btn = document.getElementById('exceptCopiarBtn');
+    navigator.clipboard.writeText(output.value).then(() => {
+      const textoOriginal = btn.textContent;
+      btn.textContent = 'Copiado! ✓';
+      setTimeout(() => { btn.textContent = textoOriginal; }, 2000);
+    }).catch(() => {
+      output.select();
+      btn.textContent = 'Selecione e copie';
+    });
+  });
   document.getElementById('adminPass').addEventListener('keydown', (e) => { if(e.key === 'Enter') handleLogin(); });
 
   function handleLogin(){
