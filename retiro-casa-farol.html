@@ -396,15 +396,13 @@
     margin-bottom:10px; box-sizing:border-box;
   }
   .except-link-card input#exceptLinkOutput{
-    background:#f7f4ea; color:var(--ink); font-size:0.78rem; margin-bottom:0;
+    background:#f7f4ea; color:var(--ink); font-size:0.78rem;
   }
-  .except-link-row{display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;}
+  .except-link-row{display:flex; gap:8px; flex-wrap:wrap;}
   .except-link-row button{
-    background:var(--violet); border:2px solid var(--ink); color:#fff; border-radius:11px;
+    background:var(--ink); border:2px solid var(--ink); color:#fff; border-radius:11px;
     padding:10px 16px; font-family:'Space Grotesk', sans-serif; font-size:0.78rem; font-weight:700; cursor:pointer;
   }
-  .except-link-row button:disabled{background:#cfc9e0; color:#fff; cursor:not-allowed;}
-  .except-link-row button#exceptCopiarBtn:not(:disabled){background:var(--ink);}
 
   .stat-group-label{
     font-family:'Space Grotesk', sans-serif; font-size:0.78rem; font-weight:700;
@@ -1168,13 +1166,11 @@
     <div class="admin-body" id="adminBody" style="display:none;">
       <div class="except-link-card hard-sm">
         <div class="except-link-title">Link de inscrição por exceção</div>
-        <p class="except-link-sub">As inscrições gerais estão encerradas. Use isso só para liberar o cadastro de um adolescente específico que ficou de fora.</p>
-        <input type="text" id="exceptNomeInput" placeholder="Nome do adolescente (opcional)">
+        <p class="except-link-sub">As inscrições gerais estão encerradas. Use esse link só para liberar o cadastro de um adolescente específico que ficou de fora.</p>
+        <input type="text" id="exceptLinkOutput" readonly>
         <div class="except-link-row">
-          <button type="button" id="exceptGerarBtn">Gerar link</button>
-          <button type="button" id="exceptCopiarBtn" disabled>Copiar link</button>
+          <button type="button" id="exceptCopiarBtn">Copiar link</button>
         </div>
-        <input type="text" id="exceptLinkOutput" readonly placeholder="O link aparece aqui depois de gerado">
       </div>
 
       <div class="stat-group-label">🧑‍🎓 Adolescentes</div>
@@ -2030,14 +2026,7 @@
   document.getElementById('closeAdmin').addEventListener('click', () => adminOverlay.classList.remove('active'));
   document.getElementById('loginBtn').addEventListener('click', handleLogin);
 
-  document.getElementById('exceptGerarBtn').addEventListener('click', () => {
-    const nome = document.getElementById('exceptNomeInput').value.trim();
-    let link = window.location.origin + window.location.pathname + '?vaga=excecao';
-    if(nome) link += '&nome=' + encodeURIComponent(nome);
-    const output = document.getElementById('exceptLinkOutput');
-    output.value = link;
-    document.getElementById('exceptCopiarBtn').disabled = false;
-  });
+  document.getElementById('exceptLinkOutput').value = window.location.origin + window.location.pathname + '?vaga=excecao';
 
   document.getElementById('exceptCopiarBtn').addEventListener('click', () => {
     const output = document.getElementById('exceptLinkOutput');
