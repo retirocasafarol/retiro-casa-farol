@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Central do Retiro — Centralidade 2026</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#14141a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -261,6 +263,7 @@
         <a class="area-card hard-sm press" href="#palavras"><span class="ic">📖</span><span class="lab2">Palavras e ministrações</span></a>
         <a class="area-card hard-sm press" href="#equipes"><span class="ic">🧑‍🤝‍🧑</span><span class="lab2">Equipe e pendências</span></a>
         <a class="area-card hard-sm press" href="#comunicados"><span class="ic">📣</span><span class="lab2">Comunicados</span><span class="badge" id="comunicadosBadge" style="display:none;"></span></a>
+        <a class="area-card hard-sm press" href="#automacoes"><span class="ic">🔔</span><span class="lab2">Notificações</span></a>
       </div>
 
       <div class="section-label">Consulta rápida</div>
@@ -1131,44 +1134,121 @@
 
     <!-- ============ EQUIPE E PENDÊNCIAS ============ -->
     <div class="view" id="view-equipes" style="display:none;">
-      <div class="section-label">Quem é quem</div>
-      <div class="list-card hard-sm"><div class="ttl">Ander e Fran · Filipe e Daniela</div><div class="sub2">Liderança geral</div></div>
-      <div class="list-card hard-sm"><div class="ttl">Daniela</div><div class="sub2">Gerenciamento e acompanhamento do evento</div></div>
-      <div class="list-card hard-sm"><div class="ttl">Fran <span class="sub2" style="font-weight:600;">· apoio: Tainá e Jeni</span></div><div class="sub2">Produção, decoração e quartos</div></div>
-      <div class="list-card hard-sm"><div class="ttl">Filipe</div><div class="sub2">Louvor</div></div>
-      <div class="list-card hard-sm"><div class="ttl">Gustavo <span class="sub2" style="font-weight:600;">· apoio: Vilmar e Moisés</span></div><div class="sub2">Som e técnica</div></div>
-      <div class="list-card hard-sm"><div class="ttl">Phelps <span class="sub2" style="font-weight:600;">· apoio: Ander, Filipe, Joo e Gustavo</span></div><div class="sub2">Gincanas</div></div>
-      <div class="list-card hard-sm"><div class="ttl">Phelps</div><div class="sub2">Pequenos grupos</div></div>
-      <div class="list-card hard-sm"><div class="ttl">Renata e Jordana</div><div class="sub2">Alimentação e cozinha</div></div>
-      <div class="list-card hard-sm"><div class="ttl">Anderson</div><div class="sub2">Logística e suporte</div></div>
-      <div class="list-card hard-sm"><div class="ttl">Emili e Rogério</div><div class="sub2">Comunicação</div></div>
-      <div class="list-card hard-sm"><div class="ttl">Eder</div><div class="sub2">Transporte de domingo</div></div>
-      <div class="list-card hard-sm"><div class="ttl">Sabrina</div><div class="sub2">Intercessão</div></div>
-      <div class="list-card hard-sm"><div class="ttl">Daniela</div><div class="sub2">Devocional de sábado</div></div>
+      <p class="info-note">13 voluntários formalmente inscritos (PDF de 12/10/2026) + líderes e colaboradores adicionais da coordenação.</p>
 
-      <div class="section-label">Convidados</div>
-      <div class="list-card hard-sm"><div class="ttl">Banda convidada de Gramado · Vânios</div><div class="sub2">Pregadores das seis ministrações: a confirmar (ver Palavras e Ministrações)</div></div>
+      <div class="resumo-row">
+        <div class="resumo-card hard-sm"><div class="resumo-num">13</div><div class="resumo-lab">inscritos no PDF</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="eqStatColaboradores">–</div><div class="resumo-lab">colaboradores adicionais</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="eqStatTarefasPend">–</div><div class="resumo-lab">tarefas pendentes</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="eqStatTarefasConc">–</div><div class="resumo-lab">tarefas concluídas</div></div>
+      </div>
 
-      <div class="section-label">Pendências da equipe</div>
-      <div id="equipesList"></div>
-      <button class="add-btn press" id="toggleEquipeForm">+ Nova tarefa</button>
-      <div class="add-form hard-sm" id="equipeForm">
-        <input type="text" id="equipeTituloInput" placeholder="O que precisa ser feito">
-        <select id="equipeAreaInput">
-          <option value="equipes">Equipe (geral)</option>
-          <option value="alimentacao">Alimentação</option>
-          <option value="producao">Produção e decoração</option>
-          <option value="gincanas">Gincanas</option>
-          <option value="louvor">Louvor</option>
-          <option value="palavras">Palavras</option>
-          <option value="comunicados">Comunicados</option>
-        </select>
-        <input type="text" id="equipeRespInput" placeholder="Responsável (opcional)">
-        <input type="text" id="equipePrazoInput" placeholder="Prazo (opcional, ex: 20/10)">
-        <div class="form-actions">
-          <button class="btn-cancel press" id="cancelEquipeBtn" type="button">Cancelar</button>
-          <button class="btn-save press" id="saveEquipeBtn" type="button">Salvar</button>
+      <div class="tabs" style="flex-wrap:wrap;">
+        <button type="button" class="tab-btn is-active" data-eq-tab="coordenacao">Coordenação</button>
+        <button type="button" class="tab-btn" data-eq-tab="voluntarios">Voluntários</button>
+        <button type="button" class="tab-btn" data-eq-tab="equipes">Equipes</button>
+        <button type="button" class="tab-btn" data-eq-tab="disponibilidade">Disponibilidade</button>
+        <button type="button" class="tab-btn" data-eq-tab="colaboradores">Colaboradores</button>
+        <button type="button" class="tab-btn" data-eq-tab="tarefas">Tarefas</button>
+        <button type="button" class="tab-btn" data-eq-tab="checklist">Checklist</button>
+      </div>
+
+      <!-- TAB: COORDENAÇÃO -->
+      <div class="tab-panel is-active" id="eqTab-coordenacao">
+        <div id="coordenacaoCard"></div>
+      </div>
+
+      <!-- TAB: VOLUNTÁRIOS INSCRITOS -->
+      <div class="tab-panel" id="eqTab-voluntarios">
+        <p class="info-note">Base oficial: PDF de 12/10/2026. Áreas de interesse não significam escala confirmada.</p>
+        <div class="day-card hard-sm" id="voluntariosCard" style="margin-bottom:18px;"></div>
+        <div class="section-label">Pernoite (conforme o PDF)</div>
+        <div class="day-card hard-sm" id="pernoiteCard"></div>
+      </div>
+
+      <!-- TAB: EQUIPES CONSOLIDADAS -->
+      <div class="tab-panel" id="eqTab-equipes">
+        <p class="info-note">Toque numa equipe pra ver coordenação, integrantes, interessados e observações.</p>
+        <div class="day-card hard-sm" id="equipesConsolidadasCard"></div>
+      </div>
+
+      <!-- TAB: DISPONIBILIDADE -->
+      <div class="tab-panel" id="eqTab-disponibilidade">
+        <div class="day-card hard-sm" id="disponibilidadeCard" style="margin-bottom:18px;"></div>
+        <div class="list-card hard-sm" style="background:var(--amber-bg);">
+          <ul class="sched-bullets" style="color:var(--amber); font-weight:700; font-size:0.8rem;">
+            <li>Rogério: coordenação confirmou presença nos três dias — preservar escalas de baixo na sexta e no domingo.</li>
+            <li>Vilmar: considerar exclusivamente o sábado, inclusive para apoio técnico.</li>
+            <li>Não escalar voluntários fora da disponibilidade declarada sem nova confirmação.</li>
+          </ul>
         </div>
+      </div>
+
+      <!-- TAB: COLABORADORES ADICIONAIS -->
+      <div class="tab-panel" id="eqTab-colaboradores">
+        <p class="info-note">Pessoas além dos 13 inscritos do PDF, acrescentadas pela coordenação. Confira se a pessoa já existe antes de cadastrar de novo.</p>
+        <div class="day-card hard-sm" style="margin-bottom:18px;">
+          <div class="sched-row"><div class="sched-desc">Filipe · Daniela · Fran · Ander · Juliano · Jordana · Diego · Rodrigo · Jair · Sabrina · Phelps · Gustavo · Joo · Anderson · Eder · Samir (conforme confirmação)</div></div>
+        </div>
+        <div class="section-label">Cadastro adicional</div>
+        <div id="colaboradoresList"></div>
+        <button class="add-btn press" id="toggleColaboradorForm">+ Adicionar colaborador</button>
+        <div class="add-form hard-sm" id="colaboradorForm">
+          <input type="text" id="colabNomeInput" placeholder="Nome">
+          <input type="text" id="colabAreaInput" placeholder="Área / função">
+          <input type="text" id="colabDisponibilidadeInput" placeholder="Disponibilidade (opcional)">
+          <textarea id="colabObsInput" placeholder="Observações (opcional)"></textarea>
+          <div class="form-actions">
+            <button class="btn-cancel press" id="cancelColaboradorBtn" type="button">Cancelar</button>
+            <button class="btn-save press" id="saveColaboradorBtn" type="button">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: TAREFAS -->
+      <div class="tab-panel" id="eqTab-tarefas">
+        <div id="equipesList"></div>
+        <button class="add-btn press" id="toggleEquipeForm">+ Nova tarefa</button>
+        <div class="add-form hard-sm" id="equipeForm">
+          <input type="text" id="equipeTituloInput" placeholder="O que precisa ser feito">
+          <select id="equipeAreaInput">
+            <option value="equipes">Equipe (geral)</option>
+            <option value="alimentacao">Alimentação e cozinha</option>
+            <option value="producao">Produção e decoração</option>
+            <option value="gincanas">Gincanas e dinâmicas</option>
+            <option value="louvor">Louvor e som</option>
+            <option value="palavras">Palavras e intercessão</option>
+            <option value="recepcao">Recepção</option>
+            <option value="midia">Mídia</option>
+            <option value="saude">Saúde e segurança</option>
+            <option value="logistica">Logística e transporte</option>
+            <option value="comunicados">Comunicados</option>
+          </select>
+          <div class="form-row">
+            <input type="text" id="equipeRespInput" placeholder="Responsável">
+            <input type="text" id="equipeApoioInput" placeholder="Apoio (opcional)">
+          </div>
+          <div class="form-row">
+            <input type="text" id="equipePrazoInput" placeholder="Prazo (ex: 20/10)">
+            <select id="equipePrioridadeInput">
+              <option value="normal">Prioridade normal</option>
+              <option value="alta">Prioridade alta</option>
+            </select>
+          </div>
+          <div class="form-actions">
+            <button class="btn-cancel press" id="cancelEquipeBtn" type="button">Cancelar</button>
+            <button class="btn-save press" id="saveEquipeBtn" type="button">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: CHECKLIST -->
+      <div class="tab-panel" id="eqTab-checklist">
+        <p class="info-note">Toque num item pra marcar como feito. Fica salvo pra toda a equipe.</p>
+        <div class="section-label">Cadastros</div>
+        <div class="list-card hard-sm" id="checkGrupoCadastros"></div>
+        <div class="section-label">Escalas</div>
+        <div class="list-card hard-sm" id="checkGrupoEscalas"></div>
       </div>
     </div>
 
@@ -1185,6 +1265,41 @@
           <button class="btn-cancel press" id="cancelComunicadoBtn" type="button">Cancelar</button>
           <button class="btn-save press" id="saveComunicadoBtn" type="button">Publicar</button>
         </div>
+      </div>
+    </div>
+
+    <!-- ============ AUTOMAÇÕES / NOTIFICAÇÕES ============ -->
+    <div class="view" id="view-automacoes" style="display:none;">
+      <p class="info-note">Receba um aviso no celular pouco antes de cada atividade importante da sua área — mesmo com o app fechado.</p>
+
+      <div class="list-card hard-sm" id="notifStatusCard">
+        <div class="ttl" id="notifStatusTitulo">Verificando este dispositivo...</div>
+        <div class="sub2" id="notifStatusDesc"></div>
+      </div>
+
+      <div class="section-label">Minha área</div>
+      <select id="notifPerfilInput" style="width:100%; padding:11px 14px; border-radius:11px; border:2.5px solid var(--ink); font-family:'Manrope',sans-serif; font-weight:600; font-size:0.88rem; background:#fff; margin-bottom:14px;">
+        <option value="geral">Geral (todos os avisos de liderança)</option>
+        <option value="lideranca">Liderança / coordenação</option>
+        <option value="cozinha">Cozinha e alimentação</option>
+        <option value="louvor">Louvor e técnica</option>
+        <option value="producao">Produção e decoração</option>
+        <option value="gincanas">Gincanas e dinâmicas</option>
+        <option value="recepcao">Recepção</option>
+        <option value="logistica">Logística e transporte</option>
+      </select>
+
+      <button class="add-btn press" id="ativarNotifBtn">Ativar notificações nesse celular</button>
+      <button class="add-btn press" id="desativarNotifBtn" style="display:none; background:#fff; color:var(--ink);">Desativar notificações nesse celular</button>
+
+      <div class="section-label">Como funciona</div>
+      <div class="list-card hard-sm">
+        <ul class="sched-bullets">
+          <li>Avisos chegam pouco antes de cada atividade da sua área (ex: cozinha recebe aviso antes das refeições, louvor antes de cada momento musical).</li>
+          <li>Funciona mesmo com o app fechado, desde que você tenha tocado em "Ativar" pelo menos uma vez neste celular.</li>
+          <li>No iPhone, primeiro adicione esta página à Tela de Início (compartilhar → Adicionar à Tela de Início) e abra por esse ícone antes de ativar.</li>
+          <li>Pode desativar a qualquer momento nesta mesma tela.</li>
+        </ul>
       </div>
     </div>
 
@@ -2677,6 +2792,204 @@
       });
     });
   }
+
+  // ---------- EQUIPE E PENDÊNCIAS (ETAPA 8) ----------
+  document.querySelectorAll('[data-eq-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-eq-tab]').forEach(b => b.classList.toggle('is-active', b === btn));
+      document.querySelectorAll('[id^="eqTab-"]').forEach(p => p.classList.toggle('is-active', p.id === 'eqTab-' + btn.dataset.eqTab));
+    });
+  });
+
+  const COORDENACAO_GERAL = [
+    { nome:'Filipe', papel:'Louvor e direcionamento geral', itens:['Escalas de louvor','Repertórios e ensaios','Alinhamento com a banda de Gramado','Acompanhamento da equipe técnica','Preparação musical do culto de encerramento','Direcionamentos gerais','Acompanhamento das camisetas','Alinhamento com Samir'] },
+    { nome:'Daniela', papel:'Gerenciamento do evento e cuidado espiritual', itens:['Gerenciamento geral do evento','Definição de responsáveis por período','Organização dos pregadores','Devocional','Fluxo de saúde e emergências','Acompanhamento da intercessão','Comunicação entre as equipes','Encaminhamento de situações que exijam liderança'] },
+    { nome:'Fran', papel:'Produção, decoração e acomodação', itens:['Produção e decoração','Identidade visual dos ambientes','Materiais impressos','Crachás e sinalização','Espaço de fotos','Palco e ambientes','Mapa dos quartos','Acomodação','Montagem e desmontagem'], obs:'Apoio previsto: Tainá e Jenifer.' },
+    { nome:'Ander', papel:'Programação, compras e operação', itens:['Programação operacional','Compras e suprimentos','Alinhamento com a cozinha','Apoio à gincana','Organização das necessidades de cada atividade','Acompanhamento de pendências operacionais'] }
+  ];
+  let coordCounter = 0;
+  document.getElementById('coordenacaoCard').innerHTML = COORDENACAO_GERAL.map(c => {
+    const id = 'coord-' + (coordCounter++);
+    return `<div class="sched-row sched-row-click" data-toggle-act="${id}">
+        <div class="sched-desc"><b>${escapeHtml(c.nome)}</b><span class="sub">${escapeHtml(c.papel)}</span></div>
+      </div>
+      <div class="sched-detail" id="${id}" style="display:none; padding-left:18px;">
+        <ul class="sched-bullets">${c.itens.map(i=>`<li>${escapeHtml(i)}</li>`).join('')}</ul>
+        ${c.obs ? `<p class="sched-obs">${escapeHtml(c.obs)}</p>` : ''}
+      </div>`;
+  }).join('');
+  document.querySelectorAll('#coordenacaoCard [data-toggle-act]').forEach(row => {
+    row.addEventListener('click', () => {
+      const detail = document.getElementById(row.dataset.toggleAct);
+      detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
+    });
+  });
+
+  const VOLUNTARIOS_INSCRITOS = [
+    ['Emilly Emanuelly Ferreira dos Santos','Mídia e saúde'], ['Keli Daiane dos Santos Ramm','Louvor e intercessão'],
+    ['Adriana Martins','Cozinha e recepção'], ['Micaele Tenedini','Louvor, dinâmicas e recepção'],
+    ['Felipe dos Santos Herrmann','Louvor e dinâmicas'], ['Francieli','Cozinha, louvor, dinâmicas, recepção, saúde e intercessão'],
+    ['Moise Soares','Louvor, segurança, saúde e som'], ['Renata Regina Clara Ferreira','Cozinha'],
+    ['Dionata Nascimento dos Santos','Cozinha e dinâmicas'], ['Tainá Suelen Nantal','Cozinha e recepção'],
+    ['Vilmar da Silva Brando','Louvor e recepção'], ['Jenifer Silveira Konrad','Cozinha e recepção'],
+    ['Rogério Oliveira','Louvor, recepção e mídia']
+  ];
+  document.getElementById('voluntariosCard').innerHTML = VOLUNTARIOS_INSCRITOS.map(([nome,area]) =>
+    `<div class="sched-row"><div class="sched-desc"><b>${escapeHtml(nome)}</b><span class="sub">${escapeHtml(area)}</span></div></div>`
+  ).join('');
+
+  const PERNOITE_DORME = ['Emilly','Adriana','Felipe Herrmann','Renata Regina'];
+  const PERNOITE_CASA = ['Keli','Micaele','Francieli','Moise Soares','Dionata','Tainá','Vilmar','Jenifer','Rogério'];
+  document.getElementById('pernoiteCard').innerHTML =
+    `<div class="period-label">Dormem no retiro</div><div class="sched-row"><div class="sched-desc">${escapeHtml(PERNOITE_DORME.join(' · '))}</div></div>` +
+    `<div class="period-label">Vão para casa</div><div class="sched-row"><div class="sched-desc">${escapeHtml(PERNOITE_CASA.join(' · '))}</div></div>` +
+    `<div class="sched-row"><div class="sched-desc" style="font-style:italic; color:var(--muted);">A atualização da disponibilidade de Rogério para os três dias não altera automaticamente sua informação de pernoite.</div></div>`;
+
+  const EQUIPES_CONSOLIDADAS = [
+    { nome:'Cozinha e alimentação', coord:'Renata Regina Clara Ferreira e Jordana', acrescentados:'Juliano, Jordana',
+      interessados:'Adriana Martins, Francieli, Renata Regina, Dionata, Tainá, Jenifer',
+      obs:'Tainá e Jenifer podem conciliar cozinha com recepção e produção, evitando conflitos de horário.', integracao:'Etapa 3 — Alimentação e Cozinha' },
+    { nome:'Louvor', coord:'Filipe', acrescentados:'Diego, Rodrigo',
+      integrantes:'Filipe, Rodrigo, Rogério, Phelps, Diego, banda de adolescentes (a confirmar), banda de Gramado (a confirmar)',
+      interessados:'Keli, Micaele, Felipe Herrmann, Francieli, Moise Soares, Vilmar, Rogério',
+      obs:'Preservar as escalas musicais da Etapa 6 — os demais interessados não entram automaticamente nas formações já definidas.', integracao:'Etapa 6 — Louvor e Técnica' },
+    { nome:'Som e técnica', coord:'Gustavo', apoio:'Moisés · Vilmar (somente sábado)',
+      interessados:'Moise Soares', obs:'Conferir se "Moise Soares" (PDF) e "Moisés" (planejamento) são a mesma pessoa antes de duplicar cadastro. Vilmar não deve ser escalado na sexta ou domingo.', integracao:'Etapa 6 — Louvor e Técnica' },
+    { nome:'Gincanas e dinâmicas', coord:'Phelps', apoio:'Ander, Filipe, Joo, Gustavo, Jair',
+      interessados:'Micaele, Felipe Herrmann, Francieli, Dionata', obs:'Jair: preparação de materiais e apoio às provas.', integracao:'Etapa 5 — Gincanas e Dinâmicas' },
+    { nome:'Intercessão', coord:'Sabrina', interessados:'Keli, Francieli',
+      obs:'As duas interessadas ainda precisam ter participação e horários confirmados.', integracao:'Etapa 7 — Palavras e Ministrações' },
+    { nome:'Produção, decoração e materiais', coord:'Fran', apoio:'Tainá, Jenifer',
+      obs:'Tainá e Jenifer também disponíveis para recepção e cozinha, respeitando horários sem sobreposição.', integracao:'Etapa 4 — Produção e Decoração' },
+    { nome:'Recepção e credenciamento', coord:'A definir',
+      interessados:'Adriana, Micaele, Francieli, Tainá, Vilmar, Jenifer, Rogério',
+      obs:'Vilmar só sábado. Rogério disponível nos 3 dias, mas com compromissos musicais.' },
+    { nome:'Mídia — fotos e vídeos', coord:'Emilly e Rogério',
+      obs:'Rogério toca baixo na sexta e domingo de manhã — não deve receber tarefas de mídia durante os compromissos musicais.', integracao:'Etapas 4, 6, 9 e culto de encerramento' },
+    { nome:'Saúde e apoio', coord:'Daniela (operacional)', interessados:'Emilly, Francieli, Moise Soares',
+      obs:'Interesse em saúde não significa habilitação profissional — verificar formação e autorizações antes de atribuir procedimentos. Não expor dados médicos de adolescentes.' },
+    { nome:'Segurança', coord:'A definir', interessados:'Moise Soares',
+      obs:'Não atribuir responsabilidades especializadas sem confirmação da coordenação.' },
+    { nome:'Pequenos grupos', coord:'Phelps', obs:'Líderes a confirmar. Momento principal: sexta, 22h30–23h00. Não registrar conversas confidenciais.', integracao:'Etapa 7 — Palavras e Ministrações' },
+    { nome:'Logística e transporte', coord:'Anderson (logística e suporte) · Ander (acompanhamento) · Eder (transporte de domingo)',
+      obs:'Veículos, motoristas, horários e pontos de embarque ainda a confirmar.' }
+  ];
+  let eqConsCounter = 0;
+  document.getElementById('equipesConsolidadasCard').innerHTML = EQUIPES_CONSOLIDADAS.map(e => {
+    const id = 'eqc-' + (eqConsCounter++);
+    const lines = [];
+    if(e.integrantes) lines.push(`<p><b>Integrantes:</b> ${escapeHtml(e.integrantes)}</p>`);
+    if(e.acrescentados) lines.push(`<p><b>Acrescentados pela coordenação:</b> ${escapeHtml(e.acrescentados)}</p>`);
+    if(e.apoio) lines.push(`<p><b>Apoio:</b> ${escapeHtml(e.apoio)}</p>`);
+    if(e.interessados) lines.push(`<p><b>Interessados (inscritos):</b> ${escapeHtml(e.interessados)}</p>`);
+    if(e.obs) lines.push(`<p class="sched-obs">${escapeHtml(e.obs)}</p>`);
+    if(e.integracao) lines.push(`<p style="color:var(--violet-d); font-weight:700;">Integração: ${escapeHtml(e.integracao)}</p>`);
+    return `<div class="sched-row sched-row-click" data-toggle-act="${id}">
+        <div class="sched-desc"><b>${escapeHtml(e.nome)}</b><span class="sub">Coordenação: ${escapeHtml(e.coord)}</span></div>
+      </div>
+      <div class="sched-detail" id="${id}" style="display:none;">${lines.join('')}</div>`;
+  }).join('');
+  document.querySelectorAll('#equipesConsolidadasCard [data-toggle-act]').forEach(row => {
+    row.addEventListener('click', () => {
+      const detail = document.getElementById(row.dataset.toggleAct);
+      detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
+    });
+  });
+
+  const DISPONIBILIDADE = [
+    ['Emilly','Dia todo','Dia todo','Dia todo'], ['Keli','—','Dia todo','—'], ['Adriana','Noite','Dia todo','Dia todo'],
+    ['Micaele','Dia todo','Dia todo','—'], ['Felipe Herrmann','Noite','Dia todo','Dia todo'], ['Francieli','Noite','Noite','Dia todo'],
+    ['Moise Soares','Noite','Dia todo','Dia todo'], ['Renata Regina','Dia todo','Dia todo','Dia todo'], ['Dionata','Noite','Noite','Dia todo'],
+    ['Tainá','Noite','Dia todo','—'], ['Vilmar','—','Dia todo','—'], ['Jenifer','Noite','Dia todo','Dia todo'], ['Rogério','Disponível','Disponível','Disponível']
+  ];
+  document.getElementById('disponibilidadeCard').innerHTML =
+    '<table class="ingred-table" style="width:100%;"><tr><td><b>Voluntário</b></td><td style="text-align:center;"><b>Sex</b></td><td style="text-align:center;"><b>Sáb</b></td><td style="text-align:center;"><b>Dom</b></td></tr>' +
+    DISPONIBILIDADE.map(([n,s,sa,d]) => `<tr><td>${escapeHtml(n)}</td><td style="text-align:center; font-size:0.72rem;">${escapeHtml(s)}</td><td style="text-align:center; font-size:0.72rem;">${escapeHtml(sa)}</td><td style="text-align:center; font-size:0.72rem;">${escapeHtml(d)}</td></tr>`).join('') +
+    '</table>';
+
+  // ---------- Colaboradores adicionais ----------
+  function renderColaboradores(){
+    const docs = porTipo('colaborador');
+    const host = document.getElementById('colaboradoresList');
+    if(docs.length === 0){ host.innerHTML = '<div class="empty-state">Nenhum colaborador adicional cadastrado ainda.</div>'; }
+    else{
+      host.innerHTML = docs.map(c => `
+        <div class="list-card hard-sm">
+          <div class="ttl">${escapeHtml(c.nome)}</div>
+          <div class="sub2">${escapeHtml(c.area||'-')}${c.disponibilidade ? ' · ' + escapeHtml(c.disponibilidade) : ''}</div>
+          ${c.observacoes ? `<div class="sub2">${escapeHtml(c.observacoes)}</div>` : ''}
+          <button class="delete-x" data-del-colab="${c.id}">Remover</button>
+        </div>
+      `).join('');
+      host.querySelectorAll('[data-del-colab]').forEach(btn => {
+        btn.addEventListener('click', async () => { await sbDelete(btn.dataset.delColab); await loadAllDados(); });
+      });
+    }
+    document.getElementById('eqStatColaboradores').textContent = docs.length;
+  }
+  document.getElementById('toggleColaboradorForm').addEventListener('click', () => document.getElementById('colaboradorForm').classList.add('is-open'));
+  document.getElementById('cancelColaboradorBtn').addEventListener('click', () => document.getElementById('colaboradorForm').classList.remove('is-open'));
+  document.getElementById('saveColaboradorBtn').addEventListener('click', async () => {
+    const nome = document.getElementById('colabNomeInput').value.trim();
+    const area = document.getElementById('colabAreaInput').value.trim();
+    const disponibilidade = document.getElementById('colabDisponibilidadeInput').value.trim();
+    const observacoes = document.getElementById('colabObsInput').value.trim();
+    if(!nome) return;
+    await sbInsert('colaborador', { nome, area, disponibilidade, observacoes, criadoEm: new Date().toISOString() });
+    ['colabNomeInput','colabAreaInput','colabDisponibilidadeInput','colabObsInput'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('colaboradorForm').classList.remove('is-open');
+    await loadAllDados();
+  });
+
+  function renderEquipesStats(){
+    const tarefas = porTipo('tarefa');
+    document.getElementById('eqStatTarefasPend').textContent = tarefas.filter(t => (t.status||'pendente') !== 'concluido').length;
+    document.getElementById('eqStatTarefasConc').textContent = tarefas.filter(t => t.status === 'concluido').length;
+  }
+
+  // ---------- Checklist equipes ----------
+  const CHECKLIST_EQUIPES_GRUPOS = {
+    cadastros: { elId:'checkGrupoCadastros', itens: [
+      ['ca1','Identificar os 13 inscritos do PDF.', true], ['ca2','Preservar as áreas de interesse.', true],
+      ['ca3','Incorporar as lideranças.', true], ['ca4','Acrescentar Juliano e Jordana à cozinha.', true],
+      ['ca5','Acrescentar Diego e Rodrigo ao louvor.', true], ['ca6','Acrescentar Jair às dinâmicas.', true],
+      ['ca7','Definir Sabrina como coordenadora da intercessão.', true], ['ca8','Vincular Tainá e Jenifer à produção.', true],
+      ['ca9','Atualizar Rogério para os três dias.', true], ['ca10','Restringir Vilmar ao sábado.', true],
+      ['ca11','Confirmar os cadastros complementares.', false], ['ca12','Conferir se Moise Soares e Moisés são a mesma pessoa.', false]
+    ]},
+    escalas: { elId:'checkGrupoEscalas', itens: [
+      ['es1','Distribuir voluntários por área.', false], ['es2','Confirmar disponibilidade de colaboradores adicionais.', false],
+      ['es3','Confirmar responsáveis pela recepção.', false], ['es4','Confirmar integrantes da banda de adolescentes.', false],
+      ['es5','Confirmar escalas da cozinha por refeição.', false], ['es6','Confirmar equipe de intercessão.', false],
+      ['es7','Confirmar equipe de saúde e segurança.', false], ['es8','Conferir conflitos de horário.', false],
+      ['es9','Confirmar responsáveis pela limpeza.', false], ['es10','Confirmar logística e transporte.', false]
+    ]}
+  };
+  function getChecklistEquipesDoc(){ return porTipo('checklist_equipes')[0]; }
+  function renderChecklistEquipes(){
+    const reg = getChecklistEquipesDoc();
+    Object.values(CHECKLIST_EQUIPES_GRUPOS).forEach(grupo => {
+      const host = document.getElementById(grupo.elId);
+      host.innerHTML = grupo.itens.map(([key, texto, padrao]) => {
+        const checked = reg ? !!reg[key] : padrao;
+        return `<div class="sched-row sched-row-click" data-check3-key="${key}" data-default="${padrao}" style="gap:10px;">
+          <div style="flex-shrink:0; width:20px; height:20px; border:2px solid var(--ink); border-radius:5px; background:${checked ? 'var(--green)' : '#fff'}; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:0.7rem;">${checked ? '✓' : ''}</div>
+          <div class="sched-desc" style="${checked ? 'text-decoration:line-through; color:var(--muted);' : ''}">${escapeHtml(texto)}</div>
+        </div>`;
+      }).join('');
+    });
+    document.querySelectorAll('[data-check3-key]').forEach(row => {
+      row.addEventListener('click', async () => {
+        const key = row.dataset.check3Key;
+        const current = getChecklistEquipesDoc();
+        const currentVal = current ? !!current[key] : (row.dataset.default === 'true');
+        const payload = Object.assign({}, current ? stripMeta(current) : {}, {[key]: !currentVal});
+        if(current) await sbUpdate(current.id, payload);
+        else await sbInsert('checklist_equipes', Object.assign({criadoEm: new Date().toISOString()}, payload));
+        await loadAllDados();
+      });
+    });
+  }
   document.querySelectorAll('[data-alim-tab]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('[data-alim-tab]').forEach(b => b.classList.toggle('is-active', b === btn));
@@ -2961,7 +3274,7 @@
   const AREA_TITLES = {
     cronograma:'Cronograma geral', alimentacao:'Alimentação e cozinha', producao:'Produção e decoração',
     gincanas:'Gincanas e dinâmicas', louvor:'Louvor e técnica', palavras:'Palavras e ministrações',
-    equipes:'Equipe e pendências', comunicados:'Comunicados', documentos:'Documentos'
+    equipes:'Equipe e pendências', comunicados:'Comunicados', documentos:'Documentos', automacoes:'Notificações'
   };
   function showView(name){
     document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
@@ -3068,6 +3381,9 @@
     renderIntercessores();
     renderGrupos();
     renderChecklistMinistracoes();
+    renderColaboradores();
+    renderEquipesStats();
+    renderChecklistEquipes();
   }
   loadAllDados();
   setInterval(loadAllDados, 45000);
@@ -3149,7 +3465,7 @@
   // ---------- TAREFAS (produção + equipes, mesma collection "tarefas", campo area) ----------
   const TAREFA_STATUSES = ['pendente','andamento','concluido'];
   const TAREFA_LABELS = {pendente:'Pendente', andamento:'Em andamento', concluido:'Concluído'};
-  const AREA_NOMES = {producao:'Produção', equipes:'Equipe', alimentacao:'Alimentação', gincanas:'Gincanas', louvor:'Louvor', palavras:'Palavras', comunicados:'Comunicados'};
+  const AREA_NOMES = {producao:'Produção', equipes:'Equipe', alimentacao:'Alimentação', gincanas:'Gincanas', louvor:'Louvor', palavras:'Palavras', comunicados:'Comunicados', recepcao:'Recepção', midia:'Mídia', saude:'Saúde e segurança', logistica:'Logística'};
   function renderTarefas(area, listElId, showArea){
     const docs = area ? porTipo('tarefa').filter(d => d.area === area) : porTipo('tarefa');
     const host = document.getElementById(listElId);
@@ -3158,8 +3474,8 @@
       <div class="list-card hard-sm">
         <div class="row-top">
           <div>
-            <div class="ttl">${escapeHtml(d.titulo)}</div>
-            <div class="sub2">${[showArea ? (AREA_NOMES[d.area]||d.area) : null, d.responsavel, d.local, d.prazo].filter(Boolean).map(escapeHtml).join(' · ') || '-'}</div>
+            <div class="ttl">${d.prioridade === 'alta' ? '🔺 ' : ''}${escapeHtml(d.titulo)}</div>
+            <div class="sub2">${[showArea ? (AREA_NOMES[d.area]||d.area) : null, d.responsavel, d.apoio ? 'Apoio: '+d.apoio : null, d.local, d.prazo].filter(Boolean).map(escapeHtml).join(' · ') || '-'}</div>
             ${d.descricao ? `<div class="sub2">${escapeHtml(d.descricao)}</div>` : ''}
             ${d.materiais ? `<div class="sub2">Materiais: ${escapeHtml(d.materiais)}</div>` : ''}
             ${d.observacoes ? `<div class="sub2">${escapeHtml(d.observacoes)}</div>` : ''}
@@ -3240,15 +3556,128 @@
     const titulo = document.getElementById('equipeTituloInput').value.trim();
     const area = document.getElementById('equipeAreaInput').value;
     const responsavel = document.getElementById('equipeRespInput').value.trim();
+    const apoio = document.getElementById('equipeApoioInput').value.trim();
     const prazo = document.getElementById('equipePrazoInput').value.trim();
+    const prioridade = document.getElementById('equipePrioridadeInput').value;
     if(!titulo) return;
-    await sbInsert('tarefa', { area, titulo, responsavel, prazo, status:'pendente', criadoEm: new Date().toISOString() });
-    document.getElementById('equipeTituloInput').value = '';
-    document.getElementById('equipeRespInput').value = '';
-    document.getElementById('equipePrazoInput').value = '';
+    await sbInsert('tarefa', { area, titulo, responsavel, apoio, prazo, prioridade, status:'pendente', criadoEm: new Date().toISOString() });
+    ['equipeTituloInput','equipeRespInput','equipeApoioInput','equipePrazoInput'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('equipeForm').classList.remove('is-open');
     await loadAllDados();
   });
+
+  // ---------- NOTIFICAÇÕES PUSH ----------
+  const VAPID_PUBLIC_KEY = 'BBTeQMFhJF7hiyf2bztNZium8eqPXDr_f8uACWFV7ZyDr34sQBTthYL-fjps_3Tu3eXgyCZgveSTkgxUXhrbXyM';
+
+  function urlBase64ToUint8Array(base64String){
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for(let i = 0; i < rawData.length; i++) outputArray[i] = rawData.charCodeAt(i);
+    return outputArray;
+  }
+
+  let swRegistration = null;
+  async function initNotificacoes(){
+    const statusTitulo = document.getElementById('notifStatusTitulo');
+    const statusDesc = document.getElementById('notifStatusDesc');
+    const btnAtivar = document.getElementById('ativarNotifBtn');
+    const btnDesativar = document.getElementById('desativarNotifBtn');
+
+    if(!('serviceWorker' in navigator) || !('PushManager' in window)){
+      statusTitulo.textContent = 'Notificações não disponíveis neste navegador';
+      statusDesc.textContent = 'Tenta abrir pelo Safari (iPhone) ou Chrome (Android), de preferência depois de adicionar à Tela de Início.';
+      btnAtivar.style.display = 'none';
+      return;
+    }
+
+    try{
+      swRegistration = await navigator.serviceWorker.register('./sw.js');
+    }catch(e){
+      statusTitulo.textContent = 'Não consegui registrar o serviço de notificações';
+      statusDesc.textContent = 'Verifica se o arquivo sw.js foi publicado junto com a página.';
+      btnAtivar.style.display = 'none';
+      return;
+    }
+
+    const existing = await swRegistration.pushManager.getSubscription();
+    if(existing && Notification.permission === 'granted'){
+      statusTitulo.textContent = '✅ Notificações ativadas neste celular';
+      statusDesc.textContent = 'Você vai receber avisos da sua área pouco antes de cada atividade.';
+      btnAtivar.style.display = 'none';
+      btnDesativar.style.display = 'block';
+    }else{
+      statusTitulo.textContent = 'Notificações ainda não ativadas';
+      statusDesc.textContent = 'Escolha sua área abaixo e toque em "Ativar".';
+      btnAtivar.style.display = 'block';
+      btnDesativar.style.display = 'none';
+    }
+  }
+
+  document.getElementById('ativarNotifBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('ativarNotifBtn');
+    const statusTitulo = document.getElementById('notifStatusTitulo');
+    const statusDesc = document.getElementById('notifStatusDesc');
+    btn.disabled = true; btn.textContent = 'Ativando...';
+    try{
+      const permissao = await Notification.requestPermission();
+      if(permissao !== 'granted'){
+        statusTitulo.textContent = 'Permissão não concedida';
+        statusDesc.textContent = 'Pra ativar, permita notificações nas configurações do navegador pra esse site.';
+        btn.disabled = false; btn.textContent = 'Ativar notificações nesse celular';
+        return;
+      }
+      if(!swRegistration) swRegistration = await navigator.serviceWorker.register('./sw.js');
+      let sub = await swRegistration.pushManager.getSubscription();
+      if(!sub){
+        sub = await swRegistration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+        });
+      }
+      const perfil = document.getElementById('notifPerfilInput').value;
+      const subJson = sub.toJSON();
+      await sbInsert('push_subscription', {
+        endpoint: subJson.endpoint, p256dh: subJson.keys.p256dh, auth: subJson.keys.auth,
+        perfil, ativo: true, criadoEm: new Date().toISOString()
+      });
+      statusTitulo.textContent = '✅ Notificações ativadas neste celular';
+      statusDesc.textContent = 'Você vai receber avisos da sua área pouco antes de cada atividade.';
+      btn.style.display = 'none';
+      document.getElementById('desativarNotifBtn').style.display = 'block';
+    }catch(e){
+      console.error('Erro ao ativar notificações:', e);
+      statusTitulo.textContent = 'Não foi possível ativar agora';
+      statusDesc.textContent = 'Tenta de novo em instantes, ou confere se o site está rodando em HTTPS.';
+    }
+    btn.disabled = false; btn.textContent = 'Ativar notificações nesse celular';
+  });
+
+  document.getElementById('desativarNotifBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('desativarNotifBtn');
+    btn.disabled = true;
+    try{
+      if(swRegistration){
+        const sub = await swRegistration.pushManager.getSubscription();
+        if(sub){
+          const endpoint = sub.endpoint;
+          await sub.unsubscribe();
+          const existentes = porTipo('push_subscription').filter(s => s.endpoint === endpoint);
+          for(const ex of existentes) await sbDelete(ex.id);
+        }
+      }
+      document.getElementById('notifStatusTitulo').textContent = 'Notificações desativadas';
+      document.getElementById('notifStatusDesc').textContent = 'Escolha sua área e toque em "Ativar" quando quiser receber avisos de novo.';
+      btn.style.display = 'none';
+      document.getElementById('ativarNotifBtn').style.display = 'block';
+    }catch(e){
+      console.error('Erro ao desativar notificações:', e);
+    }
+    btn.disabled = false;
+  });
+
+  initNotificacoes();
 </script>
 </body>
 </html>
