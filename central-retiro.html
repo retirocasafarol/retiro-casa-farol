@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Central do Retiro — Centralidade 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14141a; --paper:#fffcf4; --paper-2:#fff5e0;
+    --violet:#7b2ff7; --violet-d:#5a17c4; --yellow:#ffcc00;
+    --green:#1a9c53; --green-bg:#dcf7e3; --amber:#8a5600; --amber-bg:#fff0d6;
+    --red:#c4102c; --red-bg:#ffe1e1;
+    --muted:#565661; --shadow-c:var(--ink);
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+    box-sizing:border-box;
+  }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --paper:#fffcf4; --paper-2:#fff5e0; --ink:#14141a; } }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink); font-family:'Manrope',sans-serif;
+    background-image:radial-gradient(circle, rgba(20,20,26,0.06) 1px, transparent 1.3px); background-size:22px 22px;
+    padding-bottom:40px;
+  }
+  button{font-family:inherit;}
+  .hard{border:3px solid var(--ink); box-shadow:6px 6px 0 var(--shadow-c); border-radius:18px;}
+  .hard-sm{border:2.5px solid var(--ink); box-shadow:4px 4px 0 var(--shadow-c); border-radius:14px;}
+  .press{transition:transform .1s ease, box-shadow .1s ease; cursor:pointer;}
+  .press:active{transform:translate(4px,4px); box-shadow:2px 2px 0 var(--shadow-c) !important;}
+
+  .topbar{
+    position:sticky; top:0; z-index:20; background:var(--paper); border-bottom:3px solid var(--ink);
+    padding:14px 16px; display:flex; align-items:center; gap:10px;
+  }
+  .topbar .back{
+    background:#fff; border:2px solid var(--ink); border-radius:10px; width:36px; height:36px;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+  }
+  .topbar .back svg{width:16px; height:16px;}
+  .topbar h1{font-family:'Archivo Black',sans-serif; font-size:1.05rem; margin:0; text-transform:uppercase;}
+
+  .wrap{max-width:720px; margin:0 auto; padding:20px 16px 10px;}
+
+  /* ---------- HOME ---------- */
+  .home-hero{background:#fff; padding:26px 22px; margin-bottom:18px;}
+  .home-hero .eyebrow{font-family:'Space Grotesk',sans-serif; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--violet-d); margin:0 0 6px;}
+  .home-hero h1{font-family:'Archivo Black',sans-serif; font-size:clamp(1.7rem,7vw,2.3rem); margin:0 0 8px; text-transform:uppercase; line-height:1.05;}
+  .home-hero .tagline{font-weight:700; font-size:0.86rem; margin:0 0 8px; color:var(--violet-d);}
+  .home-hero .meta{color:var(--muted); font-weight:700; font-size:0.84rem; margin:0;}
+  .home-hero .meta-note{color:var(--muted); font-weight:600; font-size:0.74rem; margin:8px 0 0; font-style:italic;}
+
+  .resumo-row{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;}
+  .resumo-card{background:#fff; padding:14px 12px; text-align:center;}
+  .resumo-num{font-family:'Archivo Black',sans-serif; font-size:1.5rem; color:var(--violet);}
+  .resumo-lab{font-family:'Space Grotesk',sans-serif; font-size:0.66rem; font-weight:700; text-transform:uppercase; color:var(--muted); margin-top:2px;}
+  .edit-resumo-btn{
+    display:block; margin:0 0 18px; background:none; border:none; color:var(--violet-d);
+    font-family:'Space Grotesk',sans-serif; font-size:0.76rem; font-weight:700; text-decoration:underline; cursor:pointer; padding:0;
+  }
+  #resumoForm.add-form{margin-bottom:18px;}
+
+  .next-card{background:var(--ink); color:var(--paper); padding:18px 20px; margin-bottom:18px;}
+  .next-card .lab{font-family:'Space Grotesk',sans-serif; font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--yellow); margin:0 0 6px;}
+  .next-card .act{font-weight:800; font-size:1.05rem; margin:0 0 3px;}
+  .next-card .time{font-weight:600; font-size:0.84rem; color:#d8d5e6; margin:0;}
+  .next-card .next-extra{font-weight:600; font-size:0.78rem; color:#bdb8d4; margin-top:8px; line-height:1.5;}
+  .next-card .next-extra span{display:block;}
+  .ver-cronograma-btn{
+    display:inline-block; margin-top:14px; background:var(--paper); color:var(--ink); text-decoration:none;
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:0.76rem; padding:9px 14px; border-radius:100px;
+  }
+
+  .section-label{font-family:'Space Grotesk',sans-serif; font-size:0.74rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin:22px 0 10px;}
+  .section-label:first-of-type{margin-top:0;}
+  .compra-cat-label{font-family:'Space Grotesk',sans-serif; font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--violet-d); margin:14px 2px 6px;}
+  .compra-cat-label:first-child{margin-top:0;}
+  .checklist-phase{font-family:'Space Grotesk',sans-serif; font-size:0.74rem; font-weight:700; margin:14px 0 4px; color:var(--ink);}
+  .checklist-phase:first-child{margin-top:0;}
+  .estoque-row{background:#fff; margin-bottom:8px; padding:12px 14px;}
+  .estoque-row .row-top{display:flex; justify-content:space-between; align-items:center; gap:8px;}
+  .estoque-bar{height:6px; border-radius:4px; background:var(--paper-2); margin-top:8px; overflow:hidden;}
+  .estoque-bar-fill{height:100%; background:var(--green);}
+  .pendente-tag{font-family:'Space Grotesk',sans-serif; font-size:0.7rem; font-weight:700; padding:3px 9px; border-radius:100px;}
+  .pendente-tag.zerado{background:var(--green-bg); color:var(--green);}
+  .pendente-tag.aberto{background:var(--amber-bg); color:var(--amber);}
+
+  .avisos-list{display:flex; flex-direction:column; gap:8px; margin-bottom:6px;}
+  .aviso-row{background:#fff; padding:11px 14px; display:flex; gap:10px; align-items:flex-start;}
+  .aviso-row.urgente{background:var(--red-bg);}
+  .aviso-row .dot{width:7px; height:7px; border-radius:50%; background:var(--violet); margin-top:6px; flex-shrink:0;}
+  .aviso-row.urgente .dot{background:var(--red);}
+  .aviso-row .t{font-weight:800; font-size:0.86rem;}
+  .aviso-row .m{font-weight:600; font-size:0.8rem; color:var(--muted); margin-top:2px;}
+
+  .grid-menu{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;}
+  .area-card{
+    background:#fff; padding:16px 14px; text-decoration:none; color:var(--ink);
+    display:flex; flex-direction:column; gap:8px; min-height:92px; position:relative;
+  }
+  .area-card .ic{font-size:1.5rem;}
+  .area-card .lab2{font-weight:800; font-size:0.84rem; line-height:1.2;}
+  .area-card .badge{
+    position:absolute; top:10px; right:10px; background:var(--violet); color:#fff;
+    font-family:'Space Grotesk',sans-serif; font-size:0.66rem; font-weight:700;
+    padding:2px 7px; border-radius:100px;
+  }
+
+  .empty-state{text-align:center; padding:34px 16px; color:var(--muted); font-weight:600; font-size:0.85rem;}
+  .info-note{color:var(--muted); font-weight:600; font-size:0.78rem; line-height:1.5; margin:8px 2px 18px; font-style:italic;}
+
+  /* ---------- CRONOGRAMA ---------- */
+  .day-tabs{display:flex; gap:8px; margin-bottom:16px;}
+  .day-tab-btn{flex:1; background:#fff; border:2.5px solid var(--ink); color:var(--ink); border-radius:100px; padding:10px; font-family:'Space Grotesk',sans-serif; font-size:0.78rem; font-weight:700; cursor:pointer; text-align:center;}
+  .tabs{display:flex; gap:8px; margin-bottom:16px;}
+  .tab-btn{flex:1; min-width:110px; background:#fff; border:2.5px solid var(--ink); color:var(--ink); border-radius:100px; padding:9px 10px; font-family:'Space Grotesk',sans-serif; font-size:0.74rem; font-weight:700; cursor:pointer; text-align:center;}
+  .tab-btn.is-active{background:var(--ink); color:var(--paper);}
+  .tab-panel{display:none;}
+  .tab-panel.is-active{display:block;}
+  .day-tab-btn.is-active{background:var(--ink); color:var(--paper);}
+  .day-panel{display:none;}
+  .day-panel.is-active{display:block;}
+  .day-card{background:#fff; overflow:hidden;}
+  .period-label{background:var(--paper-2); padding:6px 18px; font-family:'Space Grotesk',sans-serif; font-size:0.66rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); border-top:1.5px solid rgba(20,20,26,0.1); border-bottom:1.5px solid rgba(20,20,26,0.1);}
+  .sched-row{display:flex; gap:14px; padding:11px 18px; border-top:1px solid rgba(20,20,26,0.08); align-items:flex-start;}
+  .sched-row:first-of-type{border-top:none;}
+  .sched-row-click{cursor:pointer;}
+  .sched-row-click:active{background:var(--paper-2);}
+  .sched-time{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:0.76rem; color:var(--violet-d); white-space:nowrap; min-width:88px; flex-shrink:0;}
+  .sched-desc{font-size:0.84rem; font-weight:600; line-height:1.4; flex:1; min-width:0;}
+  .sched-desc .sub{display:block; color:var(--muted); font-size:0.76rem; font-weight:600; margin-top:2px;}
+  .sched-row-top{display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;}
+  .sched-detail{
+    padding:4px 18px 14px 120px; font-size:0.8rem; color:var(--muted); font-weight:600; line-height:1.55;
+    border-top:1px dashed rgba(20,20,26,0.1); margin-top:-1px;
+  }
+  .sched-detail p{margin:6px 0;}
+  .sched-detail b{color:var(--ink);}
+  .sched-detail .sched-obs{color:var(--amber); font-weight:700;}
+  .sched-bullets{margin:6px 0; padding-left:18px;}
+  .sched-bullets li{margin-bottom:2px;}
+  .ingred-table{width:100%; border-collapse:collapse; margin:8px 0; font-size:0.8rem;}
+  .ingred-table tr{border-top:1px solid rgba(20,20,26,0.08);}
+  .ingred-table tr:first-child{border-top:none;}
+  .ingred-table td{padding:6px 4px; vertical-align:top;}
+  .ingred-table td:last-child{text-align:right; font-weight:700; color:var(--violet-d); white-space:nowrap; padding-left:10px;}
+  @media(max-width:420px){ .sched-detail{padding-left:18px;} }
+
+  /* ---------- CARDS GENERIC LIST (tarefas / compras / equipes) ---------- */
+  .list-card{background:#fff; margin-bottom:10px; padding:14px 16px;}
+  .list-card .row-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .list-card .ttl{font-weight:800; font-size:0.9rem;}
+  .list-card .sub2{color:var(--muted); font-weight:600; font-size:0.78rem; margin-top:3px;}
+  .status-chip{font-family:'Space Grotesk',sans-serif; font-size:0.66rem; font-weight:700; padding:4px 9px; border-radius:100px; white-space:nowrap; cursor:pointer; border:none;}
+  .status-chip.pendente{background:var(--amber-bg); color:var(--amber);}
+  .status-chip.andamento{background:#e0edff; color:#1d4f9e;}
+  .status-chip.concluido{background:var(--green-bg); color:var(--green);}
+  .status-chip.comprado{background:var(--green-bg); color:var(--green);}
+  .status-chip.doado{background:#e0edff; color:#1d4f9e;}
+
+  .add-btn{
+    width:100%; background:var(--ink); color:var(--paper); border:2.5px solid var(--ink); border-radius:14px;
+    padding:13px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:0.85rem; cursor:pointer; margin-top:8px;
+  }
+  .add-form{background:#fff; padding:16px; margin-top:10px; display:none;}
+  .add-form.is-open{display:block;}
+  .add-form input, .add-form textarea, .add-form select{
+    width:100%; padding:10px 12px; border-radius:10px; border:2px solid var(--ink);
+    font-family:'Manrope',sans-serif; font-weight:600; font-size:0.85rem; background:#fff; margin-bottom:9px;
+  }
+  .add-form textarea{resize:vertical; min-height:70px;}
+  .add-form .form-row{display:flex; gap:8px;}
+  .add-form .form-actions{display:flex; gap:8px; margin-top:4px;}
+  .add-form .form-actions button{
+    flex:1; border-radius:10px; padding:10px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:0.8rem; cursor:pointer;
+  }
+  .btn-save{background:var(--violet); border:2px solid var(--ink); color:#fff;}
+  .btn-cancel{background:#fff; border:2px solid var(--ink); color:var(--ink);}
+  .urgente-toggle{display:flex; align-items:center; gap:8px; font-size:0.82rem; font-weight:700; margin-bottom:9px;}
+
+  .placeholder-card{background:#fff; padding:30px 22px; text-align:center;}
+  .placeholder-card .ic{font-size:2rem; margin-bottom:10px;}
+  .placeholder-card h3{font-family:'Archivo Black',sans-serif; font-size:1rem; margin:0 0 8px; text-transform:uppercase;}
+  .placeholder-card p{color:var(--muted); font-weight:600; font-size:0.85rem; line-height:1.5; margin:0;}
+
+  .delete-x{background:none; border:none; color:var(--muted); font-size:0.7rem; font-weight:700; text-decoration:underline; cursor:pointer; padding:0; margin-top:8px;}
+
+  footer.appfoot{text-align:center; margin-top:28px; color:var(--muted); font-size:0.74rem; font-weight:600;}
+
+  @media(max-width:380px){ .grid-menu{gap:8px;} }
+</style>
+</head>
+<body>
+
+  <div class="topbar" id="topbar" style="display:none;">
+    <button class="back" id="backBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg></button>
+    <h1 id="topbarTitle">Área</h1>
+  </div>
+
+  <div class="wrap">
+
+    <!-- ============ HOME ============ -->
+    <div class="view" id="view-home">
+      <div class="home-hero hard">
+        <p class="eyebrow">Casa Farol Teens</p>
+        <h1>Centralidade 2026</h1>
+        <p class="tagline">23–25 Outubro · "O Propósito Eterno de Deus"</p>
+        <p class="meta">Sítio Comunhão Familiar, Três Coroas/RS — em frente à Heineken</p>
+        <p class="meta-note">Aplicativo exclusivo para a organização do retiro</p>
+      </div>
+
+      <div class="resumo-row" id="resumoRow">
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="resumoDias">3</div><div class="resumo-lab">dias de retiro</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="resumoAdols">30</div><div class="resumo-lab">adolescentes previstos</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="resumoVols">20</div><div class="resumo-lab">voluntários previstos</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="resumoRefeicoes">8</div><div class="resumo-lab">refeições programadas</div></div>
+      </div>
+      <button class="edit-resumo-btn press" id="toggleResumoEdit">Editar números</button>
+      <div class="add-form hard-sm" id="resumoForm">
+        <div class="form-row">
+          <input type="number" id="resumoDiasInput" placeholder="Dias">
+          <input type="number" id="resumoAdolsInput" placeholder="Adolescentes">
+        </div>
+        <div class="form-row">
+          <input type="number" id="resumoVolsInput" placeholder="Voluntários">
+          <input type="number" id="resumoRefeicoesInput" placeholder="Refeições">
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel press" id="cancelResumoBtn" type="button">Cancelar</button>
+          <button class="btn-save press" id="saveResumoBtn" type="button">Salvar</button>
+        </div>
+      </div>
+
+      <div class="next-card hard-sm" id="nextActivityCard">
+        <p class="lab">Próxima atividade</p>
+        <p class="act">Carregando...</p>
+        <p class="time"></p>
+        <div class="next-extra" id="nextActivityExtra"></div>
+        <a class="ver-cronograma-btn press" href="#cronograma">Ver cronograma completo</a>
+      </div>
+
+      <div class="section-label">Avisos da organização</div>
+      <div class="avisos-list" id="homeAvisosList">
+        <div class="empty-state">Nenhum aviso ainda.</div>
+      </div>
+
+      <div class="section-label">Pendências do retiro</div>
+      <div class="avisos-list" id="homePendenciasList">
+        <div class="empty-state">Nenhuma pendência cadastrada ainda.</div>
+      </div>
+
+      <div class="section-label">Áreas</div>
+      <div class="grid-menu">
+        <a class="area-card hard-sm press" href="#cronograma"><span class="ic">🗓️</span><span class="lab2">Cronograma geral</span></a>
+        <a class="area-card hard-sm press" href="#alimentacao"><span class="ic">🍽️</span><span class="lab2">Alimentação e cozinha</span></a>
+        <a class="area-card hard-sm press" href="#producao"><span class="ic">🎨</span><span class="lab2">Produção e decoração</span></a>
+        <a class="area-card hard-sm press" href="#gincanas"><span class="ic">🎲</span><span class="lab2">Gincanas e dinâmicas</span></a>
+        <a class="area-card hard-sm press" href="#louvor"><span class="ic">🎤</span><span class="lab2">Louvor e técnica</span></a>
+        <a class="area-card hard-sm press" href="#palavras"><span class="ic">📖</span><span class="lab2">Palavras e ministrações</span></a>
+        <a class="area-card hard-sm press" href="#equipes"><span class="ic">🧑‍🤝‍🧑</span><span class="lab2">Equipe e pendências</span></a>
+        <a class="area-card hard-sm press" href="#comunicados"><span class="ic">📣</span><span class="lab2">Comunicados</span><span class="badge" id="comunicadosBadge" style="display:none;"></span></a>
+      </div>
+
+      <div class="section-label">Consulta rápida</div>
+      <div class="placeholder-card hard-sm" id="infoOperacionaisCard" style="text-align:left; cursor:pointer;">
+        <h3 style="margin-bottom:10px;">Informações operacionais</h3>
+        <p style="margin-bottom:6px;"><b>Sexta 23/10</b> — 19h credenciamento e quartos · 19h30 jantar · 20h30 abertura · 21h louvor · 21h30 primeira ministração.</p>
+        <p style="margin-bottom:6px;"><b>Sábado 24/10</b> — 7h30 devocional · 8h café · manhã ministrações · 12h30 almoço · 14h30 gincana · 19h jantar · 20h louvor e ministração da noite.</p>
+        <p style="margin-bottom:0;"><b>Domingo 25/10</b> — 8h café · manhã ministrações e oração · 13h30 almoço · tarde encerramento e saída · 19h culto final na Casa Farol.</p>
+      </div>
+      <a class="edit-resumo-btn press" href="#documentos" style="margin-top:14px; display:inline-block;">📁 Documentos</a>
+
+      <footer class="appfoot">Central do Retiro Centralidade · Casa Farol Teens</footer>
+    </div>
+
+    <!-- ============ CRONOGRAMA ============ -->
+    <div class="view" id="view-cronograma" style="display:none;">
+      <div class="day-tabs">
+        <button type="button" class="day-tab-btn is-active" data-day="sex">Sex 23</button>
+        <button type="button" class="day-tab-btn" data-day="sab">Sáb 24</button>
+        <button type="button" class="day-tab-btn" data-day="dom">Dom 25</button>
+      </div>
+      <div id="cronogramaDays"></div>
+
+      <div class="section-label">Pontos a confirmar antes da publicação definitiva</div>
+      <div class="list-card hard-sm" style="background:var(--amber-bg);">
+        <ul class="sched-bullets" id="pontosConfirmarList" style="color:var(--amber); font-weight:700; font-size:0.82rem;"></ul>
+      </div>
+    </div>
+
+    <!-- ============ ALIMENTAÇÃO ============ -->
+    <div class="view" id="view-alimentacao" style="display:none;">
+      <p class="info-note">Base: 50 pessoas (30 adolescentes e 20 voluntários) · Responsáveis: Renata e Jordana · Apoio logístico: Anderson · Cardápio versão 11/10/2026</p>
+
+      <div class="resumo-row">
+        <div class="resumo-card hard-sm"><div class="resumo-num">8</div><div class="resumo-lab">refeições programadas</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num">50</div><div class="resumo-lab">pessoas previstas</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="statComprasPendentes">–</div><div class="resumo-lab">compras pendentes</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="statDoacoesRecebidas">–</div><div class="resumo-lab">doações recebidas</div></div>
+      </div>
+
+      <div class="tabs" style="flex-wrap:wrap;">
+        <button type="button" class="tab-btn is-active" data-alim-tab="cardapio">Cardápio</button>
+        <button type="button" class="tab-btn" data-alim-tab="ingredientes">Ingredientes</button>
+        <button type="button" class="tab-btn" data-alim-tab="compras">Compras/doações</button>
+        <button type="button" class="tab-btn" data-alim-tab="materiais">Materiais</button>
+        <button type="button" class="tab-btn" data-alim-tab="equipe">Equipe</button>
+      </div>
+
+      <!-- TAB: CARDÁPIO POR DIA -->
+      <div class="tab-panel is-active" id="alimTab-cardapio">
+        <div class="section-label">Visão geral dos horários</div>
+        <div class="day-card hard-sm" style="margin-bottom:18px;">
+          <div class="sched-row"><div class="sched-time">Sex 19h30</div><div class="sched-desc">Jantar — Cachorro-quente</div></div>
+          <div class="sched-row"><div class="sched-time">Sáb 08h00</div><div class="sched-desc">Café da manhã — Pão, queijo, mortadela, bolo e banana</div></div>
+          <div class="sched-row"><div class="sched-time">Sáb 12h30</div><div class="sched-desc">Almoço — Carreteiro só de carne + salada e farofa</div></div>
+          <div class="sched-row"><div class="sched-time">Sáb tarde</div><div class="sched-desc">Lanche da gincana — Bolo, bolachas e banana</div></div>
+          <div class="sched-row"><div class="sched-time">Sáb 19h00</div><div class="sched-desc">Jantar — Macarronada com 2 molhos</div></div>
+          <div class="sched-row"><div class="sched-time">Dom 08h00</div><div class="sched-desc">Café da manhã — Pão, queijo, mortadela, bolo e banana</div></div>
+          <div class="sched-row"><div class="sched-time">Dom 13h30</div><div class="sched-desc">Almoço — Frango assado, arroz e maionese de batata</div></div>
+          <div class="sched-row"><div class="sched-time">Dom 15h30</div><div class="sched-desc">Lanche — Pão com margarina ou geleia e bolo</div></div>
+        </div>
+        <p class="info-note">O horário do lanche de sábado acompanha a pausa da gincana — confirmar o momento exato com a programação.</p>
+
+        <div class="section-label">Refeições — detalhes e quantidades</div>
+        <div class="day-card hard-sm" id="refeicoesCard"></div>
+
+        <div class="section-label">Esta versão substitui</div>
+        <div class="list-card hard-sm" style="background:var(--amber-bg);">
+          <p style="margin:0; font-weight:700; color:var(--amber); font-size:0.82rem;">Lasanha · galinhada · linguiça no carreteiro · iogurte · presunto/apresuntado · sanduíches de frios no lanche de domingo não fazem mais parte do cardápio.</p>
+        </div>
+      </div>
+
+      <!-- TAB: INGREDIENTES E QUANTIDADES -->
+      <div class="tab-panel" id="alimTab-ingredientes">
+        <p class="info-note">Quantidades de referência para o planejamento total do retiro — conferir com a cozinha antes de comprar.</p>
+        <div class="day-card hard-sm" id="ingredientesRefCard"></div>
+      </div>
+
+      <!-- TAB: COMPRAS E DOAÇÕES -->
+      <div class="tab-panel" id="alimTab-compras">
+        <div class="list-card hard-sm" style="margin-bottom:18px;">
+          <ul class="sched-bullets" id="orientacoesComprasList" style="font-size:0.8rem;"></ul>
+        </div>
+
+        <div class="section-label">Estoque por item</div>
+        <div id="estoqueList"></div>
+
+        <div class="section-label">Doações</div>
+        <div id="doacoesList"></div>
+        <button class="add-btn press" id="toggleDoacaoForm">+ Registrar doação</button>
+        <div class="add-form hard-sm" id="doacaoForm">
+          <select id="doacaoProdutoInput"></select>
+          <div class="form-row">
+            <input type="number" id="doacaoPrometidaInput" placeholder="Qtd. prometida" step="any">
+            <input type="number" id="doacaoRecebidaInput" placeholder="Qtd. recebida" step="any">
+          </div>
+          <input type="text" id="doacaoDoadorInput" placeholder="Nome do doador">
+          <input type="date" id="doacaoDataInput">
+          <select id="doacaoStatusInput">
+            <option value="solicitado">Solicitado</option>
+            <option value="prometido">Prometido</option>
+            <option value="recebido">Recebido</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+          <textarea id="doacaoObsInput" placeholder="Observações (opcional)"></textarea>
+          <div class="form-actions">
+            <button class="btn-cancel press" id="cancelDoacaoBtn" type="button">Cancelar</button>
+            <button class="btn-save press" id="saveDoacaoBtn" type="button">Salvar</button>
+          </div>
+        </div>
+
+        <div class="section-label">Compras</div>
+        <div class="list-card hard-sm" id="comprasTotaisCard" style="margin-bottom:10px;"></div>
+        <div id="comprasRegistroList"></div>
+        <button class="add-btn press" id="toggleCompraRegForm">+ Registrar compra</button>
+        <div class="add-form hard-sm" id="compraRegForm">
+          <select id="compraRegProdutoInput"></select>
+          <input type="number" id="compraRegQtdInput" placeholder="Quantidade comprada" step="any">
+          <div class="form-row">
+            <input type="number" id="compraRegValorUnitInput" placeholder="Valor unitário (opcional)" step="any">
+            <input type="text" id="compraRegEstabInput" placeholder="Estabelecimento (opcional)">
+          </div>
+          <input type="text" id="compraRegRespInput" placeholder="Responsável pela compra">
+          <input type="date" id="compraRegDataInput">
+          <select id="compraRegStatusInput">
+            <option value="planejada">Planejada</option>
+            <option value="comprada">Comprada</option>
+          </select>
+          <textarea id="compraRegObsInput" placeholder="Observações (opcional)"></textarea>
+          <div class="form-actions">
+            <button class="btn-cancel press" id="cancelCompraRegBtn" type="button">Cancelar</button>
+            <button class="btn-save press" id="saveCompraRegBtn" type="button">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: MATERIAIS E LIMPEZA -->
+      <div class="tab-panel" id="alimTab-materiais">
+        <div class="section-label">Materiais de cozinha e limpeza</div>
+        <div class="day-card hard-sm" id="materiaisCard"></div>
+        <div class="section-label">Observações</div>
+        <div class="list-card hard-sm">
+          <ul class="sched-bullets">
+            <li>Conferir previamente o estoque de papel higiênico e produtos de limpeza do sítio.</li>
+            <li>Utilizar louças, copos e talheres reutilizáveis disponíveis no local — não incluir descartáveis sem necessidade comprovada.</li>
+            <li>Conferir panelas, assadeiras, utensílios, fogão, forno e refrigeração já disponíveis no sítio.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- TAB: EQUIPE E ORIENTAÇÕES -->
+      <div class="tab-panel" id="alimTab-equipe">
+        <div class="section-label">Responsáveis</div>
+        <div class="list-card hard-sm"><div class="ttl">Renata e Jordana</div><div class="sub2">Responsáveis principais pela cozinha</div></div>
+        <div class="list-card hard-sm"><div class="ttl">Anderson</div><div class="sub2">Apoio logístico</div></div>
+
+        <div class="section-label">Voluntários da cozinha</div>
+        <div id="equipeCozinhaList"></div>
+        <button class="add-btn press" id="toggleEquipeCozinhaForm">+ Adicionar voluntário</button>
+        <div class="add-form hard-sm" id="equipeCozinhaForm">
+          <input type="text" id="ecNomeInput" placeholder="Nome">
+          <input type="text" id="ecFuncaoInput" placeholder="Função (ex: apoio no preparo)">
+          <div class="form-row">
+            <select id="ecDiaInput">
+              <option value="Sexta">Sexta</option>
+              <option value="Sábado">Sábado</option>
+              <option value="Domingo">Domingo</option>
+            </select>
+            <input type="text" id="ecHorarioInput" placeholder="Horário">
+          </div>
+          <textarea id="ecAtividadesInput" placeholder="Atividades atribuídas"></textarea>
+          <div class="form-actions">
+            <button class="btn-cancel press" id="cancelEquipeCozinhaBtn" type="button">Cancelar</button>
+            <button class="btn-save press" id="saveEquipeCozinhaBtn" type="button">Salvar</button>
+          </div>
+        </div>
+
+        <div class="section-label">Checklist operacional</div>
+        <div class="list-card hard-sm">
+          <div class="checklist-phase">Antes do preparo</div>
+          <ul class="sched-bullets">
+            <li>Conferir ingredientes e quantidades</li>
+            <li>Verificar equipamentos</li>
+            <li>Organizar utensílios</li>
+            <li>Conferir condições de conservação</li>
+            <li>Verificar restrições alimentares dos participantes</li>
+          </ul>
+          <div class="checklist-phase">Durante o preparo</div>
+          <ul class="sched-bullets">
+            <li>Manter higiene das mãos, utensílios e superfícies</li>
+            <li>Evitar contaminação cruzada</li>
+            <li>Controlar armazenamento e temperatura dos alimentos</li>
+            <li>Acompanhar o horário de serviço</li>
+          </ul>
+          <div class="checklist-phase">Durante o serviço</div>
+          <ul class="sched-bullets">
+            <li>Organizar a distribuição</li>
+            <li>Disponibilizar água</li>
+            <li>Repor alimentos com segurança</li>
+            <li>Acompanhar o consumo</li>
+          </ul>
+          <div class="checklist-phase">Após o serviço</div>
+          <ul class="sched-bullets">
+            <li>Recolher utensílios</li>
+            <li>Limpar o ambiente</li>
+            <li>Armazenar corretamente alimentos próprios para consumo</li>
+            <li>Registrar sobras e faltas</li>
+            <li>Atualizar o estoque</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PRODUÇÃO E DECORAÇÃO ============ -->
+    <div class="view" id="view-producao" style="display:none;">
+      <div class="section-label">Responsável</div>
+      <div class="list-card hard-sm"><div class="ttl">Fran</div><div class="sub2">Quartos e decoração</div></div>
+
+      <div class="section-label">Tarefas</div>
+      <div id="producaoList"></div>
+      <button class="add-btn press" id="toggleProducaoForm">+ Nova tarefa</button>
+      <div class="add-form hard-sm" id="producaoForm">
+        <input type="text" id="producaoTituloInput" placeholder="O que precisa ser feito">
+        <input type="text" id="producaoRespInput" placeholder="Responsável (opcional)">
+        <input type="text" id="producaoPrazoInput" placeholder="Prazo (opcional, ex: até 20/10)">
+        <div class="form-actions">
+          <button class="btn-cancel press" id="cancelProducaoBtn" type="button">Cancelar</button>
+          <button class="btn-save press" id="saveProducaoBtn" type="button">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ GINCANAS ============ -->
+    <div class="view" id="view-gincanas" style="display:none;">
+      <div class="placeholder-card hard-sm">
+        <div class="ic">🎲</div>
+        <h3>Aguardando atualização</h3>
+        <p>A programação de gincanas e dinâmicas ainda está sendo definida pela coordenação (Phelps + equipe). Assim que estiver pronta, essa área será preenchida com atividades, regras, materiais e pontuação — sem precisar refazer a tela.</p>
+      </div>
+    </div>
+
+    <!-- ============ LOUVOR E TÉCNICA ============ -->
+    <div class="view" id="view-louvor" style="display:none;">
+      <div class="section-label">Responsáveis</div>
+      <div class="list-card hard-sm"><div class="ttl">Filipe</div><div class="sub2">Louvor</div></div>
+      <div class="list-card hard-sm"><div class="ttl">Gustavo</div><div class="sub2">Som</div></div>
+      <div class="placeholder-card hard-sm" style="margin-top:14px;">
+        <div class="ic">🎤</div>
+        <h3>Aguardando atualização</h3>
+        <p>Repertório, escala de músicos, horários de ensaio, passagem de som e equipamentos necessários ainda serão definidos pela coordenação.</p>
+      </div>
+    </div>
+
+    <!-- ============ PALAVRAS E MINISTRAÇÕES ============ -->
+    <div class="view" id="view-palavras" style="display:none;">
+      <div class="section-label">Ministrante</div>
+      <div class="list-card hard-sm"><div class="ttl">Samir</div><div class="sub2">Todas as ministrações do retiro</div></div>
+
+      <div class="section-label">Sequência das ministrações</div>
+      <div class="day-card hard-sm">
+        <div class="sched-row"><div class="sched-time">Sex 21h30</div><div class="sched-desc"><b>Ministração 1</b> · Centralidade</div></div>
+        <div class="sched-row"><div class="sched-time">Sáb 09h30</div><div class="sched-desc"><b>Ministração 2</b></div></div>
+        <div class="sched-row"><div class="sched-time">Sáb 11h15</div><div class="sched-desc"><b>Ministração 3</b></div></div>
+        <div class="sched-row"><div class="sched-time">Sáb 20h45</div><div class="sched-desc"><b>Ministração 4</b> · noite principal</div></div>
+        <div class="sched-row"><div class="sched-time">Dom 09h30</div><div class="sched-desc"><b>Ministração 5</b></div></div>
+        <div class="sched-row"><div class="sched-time">Dom 11h15</div><div class="sched-desc"><b>Ministração 6</b></div></div>
+      </div>
+      <div class="placeholder-card hard-sm" style="margin-top:14px;">
+        <div class="ic">📖</div>
+        <h3>Aguardando atualização</h3>
+        <p>Temas detalhados, textos bíblicos, objetivos de cada mensagem e necessidades técnicas ainda serão definidos pela coordenação.</p>
+      </div>
+    </div>
+
+    <!-- ============ EQUIPE E PENDÊNCIAS ============ -->
+    <div class="view" id="view-equipes" style="display:none;">
+      <div class="section-label">Quem é quem</div>
+      <div class="list-card hard-sm"><div class="ttl">Ander e Fran · Filipe e Daniela</div><div class="sub2">Liderança geral</div></div>
+      <div class="list-card hard-sm"><div class="ttl">Daniela</div><div class="sub2">Gerenciamento e acompanhamento do evento</div></div>
+      <div class="list-card hard-sm"><div class="ttl">Fran <span class="sub2" style="font-weight:600;">· apoio: Tainá e Jeni</span></div><div class="sub2">Produção, decoração e quartos</div></div>
+      <div class="list-card hard-sm"><div class="ttl">Filipe</div><div class="sub2">Louvor</div></div>
+      <div class="list-card hard-sm"><div class="ttl">Gustavo <span class="sub2" style="font-weight:600;">· apoio: Vilmar e Moisés</span></div><div class="sub2">Som e técnica</div></div>
+      <div class="list-card hard-sm"><div class="ttl">Phelps <span class="sub2" style="font-weight:600;">· apoio: Ander, Filipe, Joo e Gustavo</span></div><div class="sub2">Gincanas</div></div>
+      <div class="list-card hard-sm"><div class="ttl">Phelps</div><div class="sub2">Pequenos grupos</div></div>
+      <div class="list-card hard-sm"><div class="ttl">Renata e Jordana</div><div class="sub2">Alimentação e cozinha</div></div>
+      <div class="list-card hard-sm"><div class="ttl">Anderson</div><div class="sub2">Logística e suporte</div></div>
+      <div class="list-card hard-sm"><div class="ttl">Emili e Rogério</div><div class="sub2">Comunicação</div></div>
+      <div class="list-card hard-sm"><div class="ttl">Eder</div><div class="sub2">Transporte de domingo</div></div>
+      <div class="list-card hard-sm"><div class="ttl">Sabrina</div><div class="sub2">Intercessão</div></div>
+      <div class="list-card hard-sm"><div class="ttl">Daniela</div><div class="sub2">Devocional de sábado</div></div>
+
+      <div class="section-label">Convidados</div>
+      <div class="list-card hard-sm"><div class="ttl">Samir · Guilherme e banda · Vânios</div></div>
+
+      <div class="section-label">Pendências da equipe</div>
+      <div id="equipesList"></div>
+      <button class="add-btn press" id="toggleEquipeForm">+ Nova tarefa</button>
+      <div class="add-form hard-sm" id="equipeForm">
+        <input type="text" id="equipeTituloInput" placeholder="O que precisa ser feito">
+        <select id="equipeAreaInput">
+          <option value="equipes">Equipe (geral)</option>
+          <option value="alimentacao">Alimentação</option>
+          <option value="producao">Produção e decoração</option>
+          <option value="gincanas">Gincanas</option>
+          <option value="louvor">Louvor</option>
+          <option value="palavras">Palavras</option>
+          <option value="comunicados">Comunicados</option>
+        </select>
+        <input type="text" id="equipeRespInput" placeholder="Responsável (opcional)">
+        <input type="text" id="equipePrazoInput" placeholder="Prazo (opcional, ex: 20/10)">
+        <div class="form-actions">
+          <button class="btn-cancel press" id="cancelEquipeBtn" type="button">Cancelar</button>
+          <button class="btn-save press" id="saveEquipeBtn" type="button">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ COMUNICADOS ============ -->
+    <div class="view" id="view-comunicados" style="display:none;">
+      <div id="comunicadosList"></div>
+      <button class="add-btn press" id="toggleComunicadoForm">+ Novo comunicado</button>
+      <div class="add-form hard-sm" id="comunicadoForm">
+        <input type="text" id="comunicadoTituloInput" placeholder="Título">
+        <textarea id="comunicadoMsgInput" placeholder="Mensagem"></textarea>
+        <input type="text" id="comunicadoRespInput" placeholder="Seu nome (responsável pela publicação)">
+        <label class="urgente-toggle"><input type="checkbox" id="comunicadoUrgenteInput"> Marcar como urgente</label>
+        <div class="form-actions">
+          <button class="btn-cancel press" id="cancelComunicadoBtn" type="button">Cancelar</button>
+          <button class="btn-save press" id="saveComunicadoBtn" type="button">Publicar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ DOCUMENTOS ============ -->
+    <div class="view" id="view-documentos" style="display:none;">
+      <div class="placeholder-card hard-sm">
+        <div class="ic">📁</div>
+        <h3>Biblioteca de documentos</h3>
+        <p>Em breve: cronograma geral em PDF, cardápio operacional, lista de compras e doações, produção e decoração, gincanas e dinâmicas, louvor e técnica, palavras e ministrações, e o organograma completo — tudo pra abrir direto pelo celular.</p>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+  // ---------- dados estáticos do cronograma ----------
+  const SITIO = 'Sítio Comunhão Familiar';
+  const CASA_FAROL = 'Igreja Casa Farol, Três Coroas/RS';
+  const ACONF = 'A confirmar';
+  const CRONOGRAMA = {
+    sex: {
+      label: 'Sexta · 23 out', theme: 'Chegada e Centralidade', date: '2026-10-23',
+      objetivo: 'Preparar o coração dos adolescentes e introduzir a pergunta: "O que está no centro da minha vida?"',
+      periods: [{ label:null, items:[
+        {time:'19h00', start:'19:00', end:'19:30', titulo:'Recepção e credenciamento', local:SITIO,
+          desc:['Recepcionar os adolescentes', 'Conferir inscrições e presença', 'Orientar sobre a distribuição dos quartos', 'Encaminhar os participantes para acomodação', 'Informar locais de convivência, banheiros e refeitório'],
+          resp:'Equipe de recepção: ' + ACONF + ' · Fran (organização dos quartos)',
+          orient:'Manter controle de chegada e identificar participantes que necessitem de apoio da liderança.'},
+        {time:'19h30–20h30', start:'19:30', end:'20:30', titulo:'Jantar', local:SITIO,
+          desc:'Cachorro-quente com refrigerante e água.', resp:'Renata e Jordana',
+          orient:'Preparar o ambiente para 50 pessoas, organizar o serviço, garantir água disponível e concluir o atendimento antes da abertura oficial.'},
+        {time:'20h30–21h00', start:'20:30', end:'21:00', titulo:'Abertura oficial', local:SITIO,
+          desc:['Boas-vindas', 'Apresentação do tema CENTRALIDADE', 'Apresentação da equipe de liderança', 'Orientações de convivência e segurança', 'Combinados sobre quartos, horários e respeito', 'Dinâmica rápida de integração'],
+          resp:'Condução: ' + ACONF, equipe:'Liderança e voluntários (apoio)'},
+        {time:'21h00–21h30', start:'21:00', end:'21:30', titulo:'Louvor de abertura', local:SITIO,
+          resp:'Ministério de Música, coordenação de Filipe', equipe:'Técnica: Gustavo · apoio Vilmar e Moisés',
+          orient:'Repertório e escala cadastrados na área Louvor e Técnica.'},
+        {time:'21h30–22h30', start:'21:30', end:'22:30', titulo:'Ministração 1 — Centralidade', local:SITIO,
+          desc:'Objetivo: confrontar o adolescente com aquilo que ocupa o centro de sua vida e apresentar Jesus como o verdadeiro centro.',
+          resp:'Ministrante: ' + ACONF,
+          orient:'Preparar ambiente, projeção e microfone conforme as necessidades do ministrante.'},
+        {time:'22h30–23h00', start:'22:30', end:'23:00', titulo:'Oração e pequenos grupos', local:SITIO,
+          desc:['Reflexão sobre a mensagem', 'Oração', 'Acolhimento e acompanhamento dos adolescentes'],
+          resp:'Pequenos grupos: Phelps', equipe:'Líderes e voluntários designados'},
+        {time:'23h00–00h00', start:'23:00', end:'00:00', titulo:'Recolhimento e silêncio', local:SITIO,
+          desc:['Encaminhamento aos quartos', 'Higiene pessoal', 'Organização para descanso', 'Acompanhamento dos adolescentes'],
+          resp:'Voluntários e responsáveis pelos quartos',
+          obs:'Horário exato do início do silêncio obrigatório: ' + ACONF}
+      ]}]
+    },
+    sab: {
+      label: 'Sábado · 24 out', theme: 'O Propósito Eterno de Deus', date: '2026-10-24',
+      periods: [
+        {label:'Manhã', items:[
+          {time:'07h30–08h00', start:'07:30', end:'08:00', titulo:'Devocional', local:SITIO,
+            desc:'Começar o dia em oração, reflexão e preparação espiritual.', resp:'Daniela',
+            orient:'Organizar os participantes e preparar o ambiente.'},
+          {time:'08h00–09h00', start:'08:00', end:'09:00', titulo:'Café da manhã', local:SITIO,
+            desc:'Pão francês, queijo e mortadela, margarina, bolo simples, banana, café e leite.',
+            resp:'Renata e Jordana', obs:'Não servir iogurte, conforme o cardápio atualizado.'},
+          {time:'09h00–09h30', start:'09:00', end:'09:30', titulo:'Louvor', local:SITIO,
+            resp:'Ministério de Música', orient:'Preparação espiritual para a segunda ministração.'},
+          {time:'09h30–10h30', start:'09:30', end:'10:30', titulo:'Ministração 2 — O Propósito Eterno de Deus', local:SITIO,
+            desc:'Objetivo: apresentar o plano de Deus desde o princípio e o propósito para o qual fomos criados.',
+            resp:'Ministrante: ' + ACONF},
+          {time:'10h30–11h00', start:'10:30', end:'11:00', titulo:'Intervalo', local:SITIO,
+            desc:['Banheiro e hidratação', 'Descanso breve', 'Preparação do ambiente para a próxima sessão'], resp:'Voluntários de apoio'},
+          {time:'11h00–11h15', start:'11:00', end:'11:15', titulo:'Louvor', local:SITIO,
+            resp:'Ministério de Música', orient:'Preparação para a terceira ministração.'},
+          {time:'11h15–12h30', start:'11:15', end:'12:30', titulo:'Ministração 3 — Jesus no Centro', local:SITIO,
+            desc:'Objetivo: demonstrar que Cristo não é apenas uma parte da vida cristã; Ele é o centro da identidade e do propósito.',
+            resp:'Ministrante: ' + ACONF},
+          {time:'12h30–13h30', start:'12:30', end:'13:30', titulo:'Almoço', local:SITIO,
+            desc:'Carreteiro somente com carne bovina (sem linguiça), salada de repolho e tomate, farofa, suco e água.',
+            resp:'Renata e Jordana', obs:'O cardápio antigo mencionava galinhada; ela não faz parte desta versão atualizada.'}
+        ]},
+        {label:'Tarde', items:[
+          {time:'13h30–14h30', start:'13:30', end:'14:30', titulo:'Descanso', local:SITIO,
+            desc:['Tempo livre supervisionado', 'Hidratação', 'Preparação das equipes para a gincana'], resp:'Líderes e voluntários'},
+          {time:'14h30–17h30', start:'14:30', end:'17:30', titulo:'Gincana geral', local:SITIO,
+            desc:['Integração', 'Trabalho em equipe', 'Desenvolvimento de vínculos', 'Participação dos adolescentes'],
+            resp:'Phelps', equipe:'Apoio: Ander, Filipe, Joo e Gustavo',
+            orient:'Organizar equipes, explicar regras, controlar pontuação, preparar materiais, garantir supervisão e segurança.',
+            obs:'Provas, regras, equipes e materiais serão inseridos posteriormente na área Gincanas e Dinâmicas.'},
+          {time:'durante a gincana', start:'15:30', end:'16:00', titulo:'Lanche da tarde', local:SITIO,
+            desc:'Bolo simples, bolachas doces e salgadas, banana, suco e água.',
+            resp:'Equipe de cozinha', obs:'Horário específico: ' + ACONF + ' dentro do período da gincana.'},
+          {time:'17h30–19h00', start:'17:30', end:'19:00', titulo:'Banho e preparação', local:SITIO,
+            desc:['Banho', 'Troca de roupas', 'Organização dos quartos', 'Preparação para o jantar e culto'], resp:'Líderes e voluntários'},
+          {time:'19h00–20h00', start:'19:00', end:'20:00', titulo:'Jantar', local:SITIO,
+            desc:'Macarronada: molho de carne moída e molho de frango desfiado, salada, suco e água.',
+            resp:'Renata e Jordana', obs:'Substitui definitivamente a lasanha do cronograma antigo.'}
+        ]},
+        {label:'Noite · Momento principal', items:[
+          {time:'20h00–20h45', start:'20:00', end:'20:45', titulo:'Louvor', local:SITIO,
+            resp:'Ministério de Música', equipe:'Participação especial: banda convidada de Gramado',
+            obs:'Confirmar com a coordenação a participação e a sequência musical exata da banda neste bloco.'},
+          {time:'20h45–22h00', start:'20:45', end:'22:00', titulo:'Ministração 4 — Entrega: Jesus no Centro', local:SITIO,
+            desc:'Objetivo: conduzir os adolescentes à reflexão sobre o que precisa deixar o centro da vida para que Cristo ocupe esse lugar.',
+            resp:'Ministrante: ' + ACONF, obs:'Reservar tempo adequado para resposta espiritual e oração.'},
+          {time:'22h00–23h30', start:'22:00', end:'23:30', titulo:'Louvor, oração e ministração individual', local:SITIO,
+            desc:['Continuidade do louvor', 'Oração', 'Acolhimento', 'Acompanhamento espiritual individual, conforme necessidade'],
+            resp:'Ministério de Música, liderança e intercessão', equipe:'Coordenação da intercessão: Sabrina',
+            orient:'Evitar atividades paralelas que prejudiquem esse momento.'},
+          {time:'23h30–00h00', start:'23:30', end:'00:00', titulo:'Comunhão e fechamento', local:SITIO,
+            desc:['Encerramento da programação da noite', 'Convivência supervisionada', 'Orientações para descanso'], resp:'Liderança e voluntários'},
+          {time:'00h00–00h30', start:'00:00', end:'00:30', titulo:'Preparação para dormir', local:SITIO,
+            desc:['Higiene', 'Organização dos quartos', 'Recolhimento']},
+          {time:'00h30', start:'00:30', end:'00:45', titulo:'Silêncio', local:SITIO, resp:'Voluntários e responsáveis pelos quartos'}
+        ]}
+      ]
+    },
+    dom: {
+      label: 'Domingo · 25 out', theme: 'Viver o Propósito', date: '2026-10-25',
+      periods: [
+        {label:'Manhã', items:[
+          {time:'08h00–09h00', start:'08:00', end:'09:00', titulo:'Café da manhã', local:SITIO,
+            desc:'Pão francês, queijo e mortadela, margarina, bolo simples, banana, café e leite.',
+            resp:'Renata e Jordana', obs:'Cronograma de origem indica "silêncio total" nesse período — a coordenação deve confirmar como será aplicado.'},
+          {time:'09h00–09h30', start:'09:00', end:'09:30', titulo:'Louvor', local:SITIO, resp:'Ministério de Música'},
+          {time:'09h30–10h30', start:'09:30', end:'10:30', titulo:'Ministração 5 — Uma Família de Muitos Filhos Semelhantes a Jesus', local:SITIO,
+            desc:'Objetivo: trabalhar comunidade, igreja, relacionamentos, discipulado e pertencimento.', resp:'Ministrante: ' + ACONF},
+          {time:'10h30–11h00', start:'10:30', end:'11:00', titulo:'Intervalo', local:SITIO, desc:'Descanso, hidratação e organização do ambiente.'},
+          {time:'11h00–11h15', start:'11:00', end:'11:15', titulo:'Louvor', local:SITIO, resp:'Ministério de Música'},
+          {time:'11h15–12h30', start:'11:15', end:'12:30', titulo:'Ministração 6 — Eu Faço Parte Desse Propósito', local:SITIO,
+            desc:'Objetivo: mostrar como o adolescente pode viver o propósito de Deus na família, na escola, nas amizades, na igreja e nas decisões cotidianas.',
+            resp:'Ministrante: ' + ACONF},
+          {time:'12h30–13h30', start:'12:30', end:'13:30', titulo:'Louvor e oração final', local:SITIO,
+            desc:'Louvor, oração e encerramento espiritual das ministrações no sítio.', resp:'Ministério de Música e liderança'}
+        ]},
+        {label:'Tarde', items:[
+          {time:'13h30–14h30', start:'13:30', end:'14:30', titulo:'Almoço', local:SITIO,
+            desc:'Frango assado (coxas e sobrecoxas), arroz branco, maionese de batata, salada, refrigerante e água.', resp:'Renata e Jordana'},
+          {time:'14h30–15h30', start:'14:30', end:'15:30', titulo:'Limpeza e intervalo', local:SITIO,
+            desc:['Organização dos ambientes', 'Limpeza inicial', 'Preparação para o encerramento', 'Conferência de pertences'],
+            resp:'Equipe de logística e voluntários', equipe:'Apoio logístico: Anderson'},
+          {time:'15h30–16h15', start:'15:30', end:'16:15', titulo:'Compartilhamento e confecção de camiseta', local:SITIO,
+            desc:['Momento de compartilhamento entre adolescentes', 'Confecção/personalização de camiseta, conforme planejamento', 'Encerramento da experiência em grupo'],
+            resp:ACONF, obs:'Também prevê lanche às 15h30 (pão, margarina ou geleia, bolo e suco) — organizar sem interromper a programação.'},
+          {time:'16h15–16h30', start:'16:15', end:'16:30', titulo:'Foto oficial e fechamento no sítio', local:SITIO,
+            desc:['Foto de todos os participantes', 'Registros finais', 'Orientações para saída'], equipe:'Fotos e vídeos: Emili e Rogério'},
+          {time:'16h30–17h30', start:'16:30', end:'17:30', titulo:'Banho, malas e organização', local:SITIO,
+            desc:['Banho e troca de roupa', 'Conferência de malas e pertences', 'Limpeza final dos espaços utilizados', 'Conferência dos quartos', 'Preparação para o transporte'],
+            resp:'Fran (quartos) · Anderson (logística)', equipe:'Apoio dos voluntários'},
+          {time:'17h30–18h00', start:'17:30', end:'18:00', titulo:'Saída do sítio', local:SITIO,
+            desc:['Conferência dos participantes', 'Organização do embarque', 'Saída para a Casa Farol'],
+            resp:'Transporte: Eder', orient:'Conferir todos os adolescentes antes da saída.'},
+          {time:'18h00–18h45', start:'18:00', end:'18:45', titulo:'Chegada à Casa Farol', local:CASA_FAROL,
+            desc:['Recepção e organização', 'Preparação para o culto', 'Alinhamento da participação dos adolescentes'], resp:'Liderança e voluntários'},
+          {time:'19h00', start:'19:00', end:'20:30', titulo:'Culto de encerramento na Casa Farol', local:CASA_FAROL,
+            desc:'Objetivo: concluir a jornada espiritual do retiro junto à comunidade da igreja. Estrutura sugerida (sujeita à confirmação): abertura e louvor, vídeo com os melhores momentos, testemunhos breves de adolescentes, participação dos Teens, palavra conectada ao tema Centralidade, oração e envio.',
+            resp:'Seleção dos testemunhos: Daniela', equipe:'Fotos e vídeo: Emili e Rogério',
+            orient:'O culto deve ser apresentado como o encerramento oficial do retiro, e não como uma atividade desconectada.'}
+        ]}
+      ]
+    }
+  };
+
+  const PONTOS_A_CONFIRMAR = [
+    'Responsável pela abertura oficial de sexta-feira.',
+    'Ministrantes e temas definitivos das seis ministrações.',
+    'Horário exato do lanche durante a gincana de sábado.',
+    'Escala e horário de apresentação da banda convidada.',
+    'Orientação de silêncio no café da manhã de domingo.',
+    'Responsável pela atividade de camisetas.',
+    'Horário de serviço do lanche de domingo.',
+    'Sequência definitiva do culto de encerramento.',
+    'Início do silêncio obrigatório na sexta-feira.'
+  ];
+
+  function activityStatus(d, it, now){
+    const start = new Date(d.date + 'T' + it.start + ':00-03:00');
+    let end;
+    if(it.end){
+      end = new Date(d.date + 'T' + it.end + ':00-03:00');
+      if(end <= start) end = new Date(end.getTime() + 24*60*60*1000);
+    }else{
+      end = new Date(start.getTime() + 30*60000);
+    }
+    if(now < start) return 'programada';
+    if(now >= start && now < end) return 'andamento';
+    return 'concluida';
+  }
+  const STATUS_LABELS = {programada:'Programada', andamento:'Em andamento', concluida:'Concluída'};
+
+  function renderActivityDetails(it){
+    const lines = [];
+    if(Array.isArray(it.desc)) lines.push('<ul class="sched-bullets">' + it.desc.map(l => `<li>${escapeHtml(l)}</li>`).join('') + '</ul>');
+    else if(it.desc) lines.push(`<p>${escapeHtml(it.desc)}</p>`);
+    if(it.local) lines.push(`<p><b>Local:</b> ${escapeHtml(it.local)}</p>`);
+    if(it.resp) lines.push(`<p><b>Responsável:</b> ${escapeHtml(it.resp)}</p>`);
+    if(it.equipe) lines.push(`<p><b>Equipe:</b> ${escapeHtml(it.equipe)}</p>`);
+    if(it.orient) lines.push(`<p><b>Orientações:</b> ${escapeHtml(it.orient)}</p>`);
+    if(it.obs) lines.push(`<p class="sched-obs">⚠ ${escapeHtml(it.obs)}</p>`);
+    return lines.join('');
+  }
+
+  let activityCounter = 0;
+  function renderCronograma(){
+    const host = document.getElementById('cronogramaDays');
+    const now = new Date();
+    host.innerHTML = Object.keys(CRONOGRAMA).map(key => {
+      const d = CRONOGRAMA[key];
+      const obj = d.objetivo ? `<div class="period-label" style="background:transparent; border:none; padding:10px 18px 0; font-style:italic; text-transform:none; letter-spacing:0; font-size:0.78rem;">${escapeHtml(d.objetivo)}</div>` : '';
+      const body = d.periods.map(p => (p.label ? `<div class="period-label">${p.label}</div>` : '') +
+        p.items.map(it => {
+          const id = 'act-' + (activityCounter++);
+          const status = activityStatus(d, it, now);
+          return `<div class="sched-row sched-row-click" data-toggle-act="${id}">
+            <div class="sched-time">${it.time}</div>
+            <div class="sched-desc">
+              <div class="sched-row-top"><b>${escapeHtml(it.titulo)}</b><span class="status-chip ${status === 'andamento' ? 'andamento' : (status === 'concluida' ? 'concluido' : 'pendente')}">${STATUS_LABELS[status]}</span></div>
+            </div>
+          </div>
+          <div class="sched-detail" id="${id}" style="display:none;">${renderActivityDetails(it)}</div>`;
+        }).join('')
+      ).join('');
+      return `<div class="day-panel${key==='sex' ? ' is-active' : ''}" id="dayPanel-${key}">${obj}<div class="day-card hard-sm">${body}</div></div>`;
+    }).join('');
+
+    host.querySelectorAll('[data-toggle-act]').forEach(row => {
+      row.addEventListener('click', () => {
+        const detail = document.getElementById(row.dataset.toggleAct);
+        detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
+      });
+    });
+  }
+  renderCronograma();
+  document.getElementById('pontosConfirmarList').innerHTML = PONTOS_A_CONFIRMAR.map(p => `<li>${escapeHtml(p)}</li>`).join('');
+
+  // ---------- ALIMENTAÇÃO: refeições, totais, materiais ----------
+  const REFEICOES = [
+    {dia:'Sexta · 23/10', hora:'19h30', titulo:'Jantar — Cachorro-quente',
+      cardapio:'Cachorro-quente com molho, milho e batata-palha; ketchup, mostarda, refrigerante e água.',
+      itens:[['Pães de cachorro-quente','90 a 100 un.'],['Salsichas','90 a 100 un.'],['Molho de tomate','3 kg (parte do total geral)'],['Milho drenado','2 kg'],['Batata-palha','1,5 a 2 kg'],['Ketchup / mostarda','1–2 kg / 500 g–1 kg (uso ao longo do evento)'],['Refrigerante','15 litros']],
+      preparo:'Preparar molho e aquecer salsichas próximo ao jantar. Servir inicialmente 1 cachorro-quente por pessoa e oferecer repetição conforme disponibilidade; 90 a 100 unidades permitem sobra de serviço. Manter água disponível.'},
+    {dia:'Sábado · 24/10', hora:'08h00', titulo:'Café da manhã',
+      cardapio:'Pão francês, queijo, mortadela, margarina, bolo, banana, café, leite e água.',
+      itens:[['Pão francês','70 un.'],['Queijo muçarela','1,5 kg'],['Mortadela','1,5 kg'],['Margarina','Até 500 g'],['Bolo simples','3 kg'],['Bananas','40 un.'],['Leite integral','8 litros'],['Café / açúcar','Parte do estoque de 1 kg / 3–4 kg']],
+      preparo:'Organizar os alimentos em mesa de serviço. Repor frios em pequenas quantidades, mantendo o restante refrigerado. Preparar café e leite. Reservar ingredientes necessários para domingo.',
+      obs:'Não incluir: presunto, apresuntado ou iogurte.'},
+    {dia:'Sábado · 24/10', hora:'12h30', titulo:'Almoço — Carreteiro',
+      cardapio:'Carreteiro somente com carne bovina, salada de repolho e tomate, farofa, suco e água.',
+      itens:[['Carne bovina para carreteiro','7 kg'],['Arroz cru','4 kg'],['Repolho','2 unidades médias'],['Tomate','2 kg'],['Farofa / farinha de mandioca','2 a 3 kg'],['Cebola / alho / temperos','Retirar do estoque geral'],['Suco pronto','15 litros']],
+      preparo:'Preparar o carreteiro exclusivamente com carne bovina. Preparar a salada separadamente. Servir a farofa como acompanhamento. Organizar o serviço para 50 pessoas.',
+      obs:'Não incluir: galinhada ou linguiça.'},
+    {dia:'Sábado · 24/10', hora:'Tarde', titulo:'Lanche da gincana',
+      cardapio:'Bolo simples, bolachas doces e salgadas, banana, suco e água.',
+      itens:[['Bolo simples','3 kg'],['Bolachas doces','2,5 kg'],['Bolachas salgadas','2,5 kg'],['Bananas','30 un.'],['Suco pronto','15 litros']],
+      preparo:'Organizar mesa de apoio no intervalo da gincana. Oferecer água continuamente, especialmente durante atividades físicas.',
+      obs:'Horário acompanha a pausa da gincana — confirmar o momento exato com a programação.'},
+    {dia:'Sábado · 24/10', hora:'19h00', titulo:'Jantar — Macarronada',
+      cardapio:'Macarronada com dois molhos separados: carne moída e frango desfiado; salada, suco e água. Sem lasanha.',
+      itens:[['Macarrão seco','6 a 7 kg no total'],['Carne moída','4 kg'],['Frango desossado','4 a 5 kg'],['Molho de tomate','7 a 9 kg (saldo após sexta)'],['Tomate','3 kg para salada'],['Repolho / alface','1 repolho + 3 pés de alface'],['Cebola / alho / temperos','Retirar do estoque geral'],['Suco pronto','15 litros']],
+      preparo:'Cozinhar a massa em etapas e preparar os dois molhos em panelas identificadas. A distribuição dos molhos entre participantes deve ser ajustada no serviço; não presumir metade exata para cada opção.'},
+    {dia:'Domingo · 25/10', hora:'08h00', titulo:'Café da manhã',
+      cardapio:'Pão francês, queijo, mortadela, margarina, bolo, banana, café, leite e água.',
+      itens:[['Pão francês','70 un.'],['Queijo muçarela','1,5 kg'],['Mortadela','1,5 kg'],['Margarina','Até 500 g'],['Bolo simples','3 kg'],['Bananas','40 un.'],['Leite integral','8 litros'],['Café / açúcar','Saldo do estoque geral']],
+      preparo:'Organizar o serviço da mesma forma que no sábado. Reservar pão e margarina para o lanche da tarde. Conferir o estoque restante.',
+      obs:'Não incluir: presunto, apresuntado ou iogurte.'},
+    {dia:'Domingo · 25/10', hora:'13h30', titulo:'Almoço — Frango assado',
+      cardapio:'Coxa e sobrecoxa assadas, arroz branco, maionese de batata, salada, refrigerante e água.',
+      itens:[['Coxa e sobrecoxa com osso','18 kg'],['Arroz cru','4 kg'],['Batata para maionese','9 a 10 kg'],['Maionese pronta','3 a 4 kg'],['Tomate','3 kg'],['Repolho / alface','1 repolho + 5 pés de alface'],['Cenoura (opcional)','Até 2 kg'],['Refrigerante','15 litros']],
+      preparo:'Temperar o frango com antecedência sob refrigeração. Verificar capacidade de forno/assadeiras e iniciar o assado a tempo. Manter a maionese refrigerada até servir.'},
+    {dia:'Domingo · 25/10', hora:'15h30', titulo:'Lanche',
+      cardapio:'Pão com margarina ou geleia, bolo simples, suco e água. Sem sanduíche de frios.',
+      itens:[['Pão francês','60 un.'],['Margarina','Até 1 kg (saldo da compra)'],['Geleia','1,5 kg'],['Bolo simples','3 kg'],['Suco pronto','15 litros']],
+      preparo:'Montar mesa simples e deixar margarina e geleia em recipientes de serviço. Embalar adequadamente alimentos remanescentes que estejam próprios para consumo.'}
+  ];
+  // categoria, nome, quantidade (texto exibido), quantidadeNecessaria (número p/ cálculo), unidade
+  const INGREDIENTES_NECESSARIOS = [
+    ['Açougue e proteínas','Salsicha','90 a 100 unidades',100,'un'],
+    ['Açougue e proteínas','Carne bovina para carreteiro','7 kg',7,'kg'],
+    ['Açougue e proteínas','Carne moída','4 kg',4,'kg'],
+    ['Açougue e proteínas','Frango desossado','4 a 5 kg',5,'kg'],
+    ['Açougue e proteínas','Coxas e sobrecoxas','18 kg',18,'kg'],
+    ['Padaria','Pão de cachorro-quente','90 a 100 unidades',100,'un'],
+    ['Padaria','Pão francês','200 unidades',200,'un'],
+    ['Padaria','Bolo simples','12 kg',12,'kg'],
+    ['Frios e laticínios','Queijo muçarela','3 kg',3,'kg'],
+    ['Frios e laticínios','Mortadela','3 kg',3,'kg'],
+    ['Frios e laticínios','Margarina','2 kg',2,'kg'],
+    ['Frios e laticínios','Leite','16 litros',16,'L'],
+    ['Mercearia','Arroz cru','8 kg',8,'kg'],
+    ['Mercearia','Macarrão seco','6 a 7 kg',7,'kg'],
+    ['Mercearia','Molho de tomate','10 a 12 kg',12,'kg'],
+    ['Mercearia','Milho escorrido','2 kg',2,'kg'],
+    ['Mercearia','Batata-palha','1,5 a 2 kg',2,'kg'],
+    ['Mercearia','Bolacha doce','2,5 kg',2.5,'kg'],
+    ['Mercearia','Bolacha salgada','2,5 kg',2.5,'kg'],
+    ['Mercearia','Farofa ou farinha de mandioca','2 a 3 kg',3,'kg'],
+    ['Mercearia','Café','1 kg',1,'kg'],
+    ['Mercearia','Açúcar','3 a 4 kg',4,'kg'],
+    ['Mercearia','Geleia','1,5 kg',1.5,'kg'],
+    ['Mercearia','Ketchup','1 a 2 kg',2,'kg'],
+    ['Mercearia','Mostarda','500 g a 1 kg',1,'kg'],
+    ['Mercearia','Maionese pronta','3 a 4 kg',4,'kg'],
+    ['Mercearia','Óleo','3 a 4 litros',4,'L'],
+    ['Mercearia','Sal e temperos','conforme necessidade',0,''],
+    ['Hortifrúti','Banana','100 a 120 unidades',120,'un'],
+    ['Hortifrúti','Repolho','4 a 5 unidades médias',5,'un'],
+    ['Hortifrúti','Tomate','8 kg',8,'kg'],
+    ['Hortifrúti','Batata','9 a 10 kg',10,'kg'],
+    ['Hortifrúti','Alface','8 pés',8,'pés'],
+    ['Hortifrúti','Cebola','4 a 5 kg',5,'kg'],
+    ['Hortifrúti','Alho','500 g',0.5,'kg'],
+    ['Hortifrúti','Cenoura','até 2 kg, opcional',2,'kg'],
+    ['Hortifrúti','Cheiro-verde','5 maços',5,'maços'],
+    ['Bebidas','Refrigerante','30 litros',30,'L'],
+    ['Bebidas','Suco em pó ou concentrado','suficiente para 60 litros',60,'L'],
+    ['Bebidas','Água potável','fornecimento contínuo e reserva',0,'']
+  ];
+  const MATERIAIS_LIMPEZA = [
+    ['Papel-toalha','6 rolos grandes ou 12 comuns'], ['Papel-alumínio','2 rolos de 30 m'], ['Filme plástico','2 rolos de 30 m'],
+    ['Sacos de lixo de 100 L','20 unidades'], ['Sacos de lixo de 30 a 50 L','30 unidades'], ['Detergente','3 frascos de 500 mL'],
+    ['Esponjas','6 unidades'], ['Panos de limpeza','10 unidades'], ['Papel higiênico','24 rolos (confirmar estoque do sítio)'],
+    ['Sabonete líquido','2 litros'], ['Desinfetante','3 litros'], ['Luvas de limpeza','4 pares']
+  ];
+  const ORIENTACOES_COMPRAS = [
+    'Registrar doações confirmadas e descontar da lista de compras antes de comprar.',
+    'Comprar secos e materiais de limpeza primeiro; deixar pães, folhas, frios e carnes para entregas próximas ao uso.',
+    'Não é necessário comprar tudo de uma vez: acompanhar o consumo real e a capacidade de armazenamento.',
+    'Não depender de sobras de uma refeição para completar outra; somente reaproveitar alimentos armazenados de forma segura.',
+    'Confirmar alergias/restrições alimentares, quantidade final de participantes e horários com a coordenação da cozinha.'
+  ];
+
+  let refeicaoCounter = 0;
+  function renderRefeicoes(){
+    const host = document.getElementById('refeicoesCard');
+    host.innerHTML = REFEICOES.map(r => {
+      const id = 'ref-' + (refeicaoCounter++);
+      const itensHtml = '<table class="ingred-table">' + r.itens.map(([nome,qtd]) => `<tr><td>${escapeHtml(nome)}</td><td>${escapeHtml(qtd)}</td></tr>`).join('') + '</table>';
+      return `<div class="sched-row sched-row-click" data-toggle-act="${id}">
+          <div class="sched-time">${r.dia}<br>${r.hora}</div>
+          <div class="sched-desc"><div class="sched-row-top"><b>${escapeHtml(r.titulo)}</b></div></div>
+        </div>
+        <div class="sched-detail" id="${id}" style="display:none;">
+          <p>${escapeHtml(r.cardapio)}</p>
+          ${itensHtml}
+          <p><b>Preparo e serviço:</b> ${escapeHtml(r.preparo)}</p>
+          ${r.obs ? `<p class="sched-obs">⚠ ${escapeHtml(r.obs)}</p>` : ''}
+        </div>`;
+    }).join('');
+    host.querySelectorAll('[data-toggle-act]').forEach(row => {
+      row.addEventListener('click', () => {
+        const detail = document.getElementById(row.dataset.toggleAct);
+        detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
+      });
+    });
+  }
+  renderRefeicoes();
+
+  (function renderIngredientesRef(){
+    const groups = {};
+    const order = [];
+    INGREDIENTES_NECESSARIOS.forEach(([cat,nome,qtd]) => {
+      if(!groups[cat]){ groups[cat] = []; order.push(cat); }
+      groups[cat].push([nome,qtd]);
+    });
+    document.getElementById('ingredientesRefCard').innerHTML = order.map(cat =>
+      `<div class="period-label">${escapeHtml(cat)}</div>` +
+      groups[cat].map(([nome,qtd]) => `<div class="sched-row"><div class="sched-desc">${escapeHtml(nome)}</div><div class="sched-time" style="text-align:right;">${escapeHtml(qtd)}</div></div>`).join('')
+    ).join('');
+  })();
+
+  document.getElementById('materiaisCard').innerHTML = '<table class="ingred-table" style="width:100%;">' +
+    MATERIAIS_LIMPEZA.map(([nome,qtd]) => `<tr><td style="padding:10px 18px;">${escapeHtml(nome)}</td><td style="padding:10px 18px;">${escapeHtml(qtd)}</td></tr>`).join('') + '</table>';
+
+  document.getElementById('orientacoesComprasList').innerHTML = ORIENTACOES_COMPRAS.map(o => `<li>${escapeHtml(o)}</li>`).join('');
+
+  document.querySelectorAll('[data-alim-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-alim-tab]').forEach(b => b.classList.toggle('is-active', b === btn));
+      document.querySelectorAll('[id^="alimTab-"]').forEach(p => p.classList.toggle('is-active', p.id === 'alimTab-' + btn.dataset.alimTab));
+    });
+  });
+
+  // ---------- produto selects (doações/compras usam a mesma lista de ingredientes) ----------
+  function fillProdutoSelect(selectEl){
+    selectEl.innerHTML = INGREDIENTES_NECESSARIOS.map(([cat,nome]) => `<option value="${escapeHtml(nome)}">${escapeHtml(nome)}</option>`).join('') + '<option value="Outro">Outro (especificar nas observações)</option>';
+  }
+  fillProdutoSelect(document.getElementById('doacaoProdutoInput'));
+  fillProdutoSelect(document.getElementById('compraRegProdutoInput'));
+
+  // ---------- COMPRAS/DOAÇÕES: derivadas do ALL_DADOS ----------
+  function normNome(s){ return String(s||'').trim().toLowerCase(); }
+
+  function recalcEstoque(){
+    const doacoesData = porTipo('doacao');
+    const comprasRegData = porTipo('compra');
+    const linhas = INGREDIENTES_NECESSARIOS.map(([cat, nome, qtdTexto, necessaria, unidade]) => {
+      const recebido = doacoesData
+        .filter(d => d.status === 'recebido' && normNome(d.produto) === normNome(nome))
+        .reduce((s,d) => s + (Number(d.quantidadeRecebida) || 0), 0);
+      const comprado = comprasRegData
+        .filter(c => c.status === 'comprada' && normNome(c.produto) === normNome(nome))
+        .reduce((s,c) => s + (Number(c.quantidadeComprada) || 0), 0);
+      const pendente = necessaria > 0 ? Math.max(0, necessaria - recebido - comprado) : 0;
+      return {categoria:cat, nome, qtdTexto, necessaria, unidade, recebido, comprado, pendente};
+    });
+
+    const host = document.getElementById('estoqueList');
+    const groups = {};
+    const order = [];
+    linhas.forEach(l => {
+      if(!groups[l.categoria]){ groups[l.categoria] = []; order.push(l.categoria); }
+      groups[l.categoria].push(l);
+    });
+    host.innerHTML = order.map(cat => `<div class="compra-cat-label">${escapeHtml(cat)}</div>` +
+      groups[cat].map(l => {
+        const pct = l.necessaria > 0 ? Math.min(100, Math.round(((l.recebido+l.comprado) / l.necessaria) * 100)) : 0;
+        return `<div class="estoque-row hard-sm">
+          <div class="row-top">
+            <div><div class="ttl">${escapeHtml(l.nome)}</div><div class="sub2">Necessário: ${escapeHtml(l.qtdTexto)}</div></div>
+            ${l.necessaria > 0 ? `<span class="pendente-tag ${l.pendente === 0 ? 'zerado' : 'aberto'}">${l.pendente === 0 ? 'Completo' : 'Faltam ' + (Math.round(l.pendente*100)/100) + ' ' + l.unidade}</span>` : ''}
+          </div>
+          ${l.necessaria > 0 ? `<div class="estoque-bar"><div class="estoque-bar-fill" style="width:${pct}%;"></div></div>
+          <div class="sub2" style="margin-top:6px;">Recebido (doação): ${Math.round(l.recebido*100)/100} ${l.unidade} · Comprado: ${Math.round(l.comprado*100)/100} ${l.unidade}</div>` : ''}
+        </div>`;
+      }).join('')
+    ).join('');
+
+    // indicadores do topo
+    const totalPendentes = linhas.filter(l => l.necessaria > 0 && l.pendente > 0).length;
+    const totalDoacoesRecebidas = doacoesData.filter(d => d.status === 'recebido').length;
+    document.getElementById('statComprasPendentes').textContent = totalPendentes;
+    document.getElementById('statDoacoesRecebidas').textContent = totalDoacoesRecebidas;
+  }
+
+  const DOACAO_STATUS_LABELS = {solicitado:'Solicitado', prometido:'Prometido', recebido:'Recebido', cancelado:'Cancelado'};
+  function renderDoacoes(){
+    const doacoesData = porTipo('doacao');
+    const host = document.getElementById('doacoesList');
+    if(doacoesData.length === 0){ host.innerHTML = '<div class="empty-state">Nenhuma doação registrada ainda.</div>'; return; }
+    const sorted = [...doacoesData].sort((a,b) => new Date(b.criadoEm) - new Date(a.criadoEm));
+    host.innerHTML = sorted.map(d => `
+      <div class="list-card hard-sm">
+        <div class="row-top">
+          <div>
+            <div class="ttl">${escapeHtml(d.produto)}</div>
+            <div class="sub2">${d.doador ? 'Doador: ' + escapeHtml(d.doador) : 'Doador: -'} ${d.dataPrevista ? '· ' + escapeHtml(d.dataPrevista) : ''}</div>
+            <div class="sub2">Prometido: ${d.quantidadePrometida ?? '-'} · Recebido: ${d.quantidadeRecebida ?? '-'}</div>
+            ${d.observacoes ? `<div class="sub2">${escapeHtml(d.observacoes)}</div>` : ''}
+          </div>
+          <button class="status-chip ${d.status==='recebido' ? 'concluido' : (d.status==='cancelado' ? 'pendente' : 'andamento')}" data-doacao-id="${d.id}" data-status="${d.status}">${DOACAO_STATUS_LABELS[d.status] || d.status}</button>
+        </div>
+        <button class="delete-x" data-del-doacao="${d.id}">Remover</button>
+      </div>
+    `).join('');
+    const cycle = ['solicitado','prometido','recebido','cancelado'];
+    host.querySelectorAll('[data-doacao-id]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const next = cycle[(cycle.indexOf(btn.dataset.status)+1) % cycle.length];
+        const reg = ALL_DADOS.find(d => d.id === btn.dataset.doacaoId);
+        if(!reg) return;
+        await sbUpdate(reg.id, stripMeta(Object.assign({}, reg, {status: next})));
+        await loadAllDados();
+      });
+    });
+    host.querySelectorAll('[data-del-doacao]').forEach(btn => {
+      btn.addEventListener('click', async () => { await sbDelete(btn.dataset.delDoacao); await loadAllDados(); });
+    });
+  }
+
+  const COMPRAREG_STATUS_LABELS = {planejada:'Planejada', comprada:'Comprada'};
+  function renderComprasRegistro(){
+    const comprasRegData = porTipo('compra');
+    const host = document.getElementById('comprasRegistroList');
+    const totaisHost = document.getElementById('comprasTotaisCard');
+    const totalRegistros = comprasRegData.length;
+    const valorGasto = comprasRegData.reduce((s,c) => s + ((Number(c.valorUnitario)||0) * (Number(c.quantidadeComprada)||0)), 0);
+    totaisHost.innerHTML = `
+      <div class="sched-row"><div class="sched-desc">Total de compras registradas</div><div class="sched-time">${totalRegistros}</div></div>
+      <div class="sched-row"><div class="sched-desc">Valor gasto (onde informado)</div><div class="sched-time">${valorGasto > 0 ? 'R$ ' + valorGasto.toFixed(2).replace('.',',') : '-'}</div></div>
+    `;
+    if(comprasRegData.length === 0){ host.innerHTML = '<div class="empty-state">Nenhuma compra registrada ainda.</div>'; return; }
+    const sorted = [...comprasRegData].sort((a,b) => new Date(b.criadoEm) - new Date(a.criadoEm));
+    host.innerHTML = sorted.map(c => {
+      const valorTotal = (Number(c.valorUnitario)||0) * (Number(c.quantidadeComprada)||0);
+      return `
+      <div class="list-card hard-sm">
+        <div class="row-top">
+          <div>
+            <div class="ttl">${escapeHtml(c.produto)} — ${c.quantidadeComprada ?? '-'}</div>
+            <div class="sub2">${c.responsavel ? escapeHtml(c.responsavel) : '-'} ${c.estabelecimento ? '· ' + escapeHtml(c.estabelecimento) : ''} ${c.data ? '· ' + escapeHtml(c.data) : ''}</div>
+            ${c.valorUnitario ? `<div class="sub2">Valor unitário: R$ ${Number(c.valorUnitario).toFixed(2).replace('.',',')} · Total: R$ ${valorTotal.toFixed(2).replace('.',',')}</div>` : ''}
+            ${c.observacoes ? `<div class="sub2">${escapeHtml(c.observacoes)}</div>` : ''}
+          </div>
+          <button class="status-chip ${c.status==='comprada' ? 'concluido' : 'pendente'}" data-comprareg-id="${c.id}" data-status="${c.status}">${COMPRAREG_STATUS_LABELS[c.status] || c.status}</button>
+        </div>
+        <button class="delete-x" data-del-comprareg="${c.id}">Remover</button>
+      </div>`;
+    }).join('');
+    const cycle = ['planejada','comprada'];
+    host.querySelectorAll('[data-comprareg-id]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const next = cycle[(cycle.indexOf(btn.dataset.status)+1) % cycle.length];
+        const reg = ALL_DADOS.find(d => d.id === btn.dataset.compraregId);
+        if(!reg) return;
+        await sbUpdate(reg.id, stripMeta(Object.assign({}, reg, {status: next})));
+        await loadAllDados();
+      });
+    });
+    host.querySelectorAll('[data-del-comprareg]').forEach(btn => {
+      btn.addEventListener('click', async () => { await sbDelete(btn.dataset.delComprareg); await loadAllDados(); });
+    });
+  }
+  document.getElementById('toggleDoacaoForm').addEventListener('click', () => document.getElementById('doacaoForm').classList.add('is-open'));
+  document.getElementById('cancelDoacaoBtn').addEventListener('click', () => document.getElementById('doacaoForm').classList.remove('is-open'));
+  document.getElementById('saveDoacaoBtn').addEventListener('click', async () => {
+    const produto = document.getElementById('doacaoProdutoInput').value;
+    const quantidadePrometida = document.getElementById('doacaoPrometidaInput').value.trim();
+    const quantidadeRecebida = document.getElementById('doacaoRecebidaInput').value.trim();
+    const doador = document.getElementById('doacaoDoadorInput').value.trim();
+    const dataPrevista = document.getElementById('doacaoDataInput').value;
+    const status = document.getElementById('doacaoStatusInput').value;
+    const observacoes = document.getElementById('doacaoObsInput').value.trim();
+    if(!produto) return;
+    await sbInsert('doacao', {
+      produto, quantidadePrometida: quantidadePrometida ? Number(quantidadePrometida) : null,
+      quantidadeRecebida: quantidadeRecebida ? Number(quantidadeRecebida) : null,
+      doador, dataPrevista, status, observacoes, criadoEm: new Date().toISOString()
+    });
+    document.getElementById('doacaoPrometidaInput').value = '';
+    document.getElementById('doacaoRecebidaInput').value = '';
+    document.getElementById('doacaoDoadorInput').value = '';
+    document.getElementById('doacaoDataInput').value = '';
+    document.getElementById('doacaoObsInput').value = '';
+    document.getElementById('doacaoForm').classList.remove('is-open');
+    await loadAllDados();
+  });
+
+  document.getElementById('toggleCompraRegForm').addEventListener('click', () => document.getElementById('compraRegForm').classList.add('is-open'));
+  document.getElementById('cancelCompraRegBtn').addEventListener('click', () => document.getElementById('compraRegForm').classList.remove('is-open'));
+  document.getElementById('saveCompraRegBtn').addEventListener('click', async () => {
+    const produto = document.getElementById('compraRegProdutoInput').value;
+    const quantidadeComprada = document.getElementById('compraRegQtdInput').value.trim();
+    const valorUnitario = document.getElementById('compraRegValorUnitInput').value.trim();
+    const estabelecimento = document.getElementById('compraRegEstabInput').value.trim();
+    const responsavel = document.getElementById('compraRegRespInput').value.trim();
+    const data = document.getElementById('compraRegDataInput').value;
+    const status = document.getElementById('compraRegStatusInput').value;
+    const observacoes = document.getElementById('compraRegObsInput').value.trim();
+    if(!produto || !quantidadeComprada) return;
+    await sbInsert('compra', {
+      produto, quantidadeComprada: Number(quantidadeComprada),
+      valorUnitario: valorUnitario ? Number(valorUnitario) : null,
+      estabelecimento, responsavel, data, status, observacoes, criadoEm: new Date().toISOString()
+    });
+    document.getElementById('compraRegQtdInput').value = '';
+    document.getElementById('compraRegValorUnitInput').value = '';
+    document.getElementById('compraRegEstabInput').value = '';
+    document.getElementById('compraRegRespInput').value = '';
+    document.getElementById('compraRegDataInput').value = '';
+    document.getElementById('compraRegObsInput').value = '';
+    document.getElementById('compraRegForm').classList.remove('is-open');
+    await loadAllDados();
+  });
+
+  // ---------- EQUIPE DA COZINHA ----------
+  function renderEquipeCozinha(){
+    const docs = porTipo('equipe_cozinha');
+    const host = document.getElementById('equipeCozinhaList');
+    if(docs.length === 0){ host.innerHTML = '<div class="empty-state">Nenhum voluntário cadastrado ainda.</div>'; return; }
+    host.innerHTML = docs.map(d => `
+      <div class="list-card hard-sm">
+        <div class="ttl">${escapeHtml(d.nome)}</div>
+        <div class="sub2">${escapeHtml(d.funcao||'-')} · ${escapeHtml(d.dia||'-')} ${d.horario ? '· ' + escapeHtml(d.horario) : ''}</div>
+        ${d.atividades ? `<div class="sub2">${escapeHtml(d.atividades)}</div>` : ''}
+        <button class="delete-x" data-del-ec="${d.id}">Remover</button>
+      </div>
+    `).join('');
+    host.querySelectorAll('[data-del-ec]').forEach(btn => {
+      btn.addEventListener('click', async () => { await sbDelete(btn.dataset.delEc); await loadAllDados(); });
+    });
+  }
+  document.getElementById('toggleEquipeCozinhaForm').addEventListener('click', () => document.getElementById('equipeCozinhaForm').classList.add('is-open'));
+  document.getElementById('cancelEquipeCozinhaBtn').addEventListener('click', () => document.getElementById('equipeCozinhaForm').classList.remove('is-open'));
+  document.getElementById('saveEquipeCozinhaBtn').addEventListener('click', async () => {
+    const nome = document.getElementById('ecNomeInput').value.trim();
+    const funcao = document.getElementById('ecFuncaoInput').value.trim();
+    const dia = document.getElementById('ecDiaInput').value;
+    const horario = document.getElementById('ecHorarioInput').value.trim();
+    const atividades = document.getElementById('ecAtividadesInput').value.trim();
+    if(!nome) return;
+    await sbInsert('equipe_cozinha', { nome, funcao, dia, horario, atividades, criadoEm: new Date().toISOString() });
+    document.getElementById('ecNomeInput').value = '';
+    document.getElementById('ecFuncaoInput').value = '';
+    document.getElementById('ecHorarioInput').value = '';
+    document.getElementById('ecAtividadesInput').value = '';
+    document.getElementById('equipeCozinhaForm').classList.remove('is-open');
+    await loadAllDados();
+  });
+
+  document.querySelectorAll('.day-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.day-tab-btn').forEach(b => b.classList.toggle('is-active', b === btn));
+      document.querySelectorAll('.day-panel').forEach(p => p.classList.toggle('is-active', p.id === 'dayPanel-' + btn.dataset.day));
+    });
+  });
+
+  // ---------- próxima atividade (home) ----------
+  function computeNextActivity(){
+    const now = new Date();
+    const all = [];
+    Object.keys(CRONOGRAMA).forEach(key => {
+      const d = CRONOGRAMA[key];
+      d.periods.forEach(p => p.items.forEach(it => {
+        all.push({ when: new Date(d.date + 'T' + it.start + ':00-03:00'), titulo: it.titulo, dayLabel: d.label, time: it.time, local: it.local, resp: it.resp, obs: it.obs });
+      }));
+    });
+    all.sort((a,b) => a.when - b.when);
+    const next = all.find(a => a.when > now);
+    const card = document.getElementById('nextActivityCard');
+    const extra = document.getElementById('nextActivityExtra');
+    if(!next){
+      card.querySelector('.act').textContent = 'Retiro encerrado — obrigado por servir!';
+      card.querySelector('.time').textContent = '';
+      extra.innerHTML = '';
+      return;
+    }
+    card.querySelector('.act').textContent = next.titulo;
+    card.querySelector('.time').textContent = next.dayLabel + ' · ' + next.time;
+    const extraLines = [];
+    if(next.local) extraLines.push('Local: ' + next.local);
+    if(next.resp) extraLines.push('Responsável: ' + next.resp);
+    extra.innerHTML = extraLines.map(l => `<span>${escapeHtml(l)}</span>`).join('');
+  }
+  computeNextActivity();
+
+  document.getElementById('toggleResumoEdit').addEventListener('click', () => {
+    document.getElementById('resumoDiasInput').value = document.getElementById('resumoDias').textContent;
+    document.getElementById('resumoAdolsInput').value = document.getElementById('resumoAdols').textContent;
+    document.getElementById('resumoVolsInput').value = document.getElementById('resumoVols').textContent;
+    document.getElementById('resumoRefeicoesInput').value = document.getElementById('resumoRefeicoes').textContent;
+    document.getElementById('resumoForm').classList.add('is-open');
+  });
+  document.getElementById('cancelResumoBtn').addEventListener('click', () => document.getElementById('resumoForm').classList.remove('is-open'));
+  document.getElementById('saveResumoBtn').addEventListener('click', async () => {
+    const dias = document.getElementById('resumoDiasInput').value.trim() || '3';
+    const adolescentes = document.getElementById('resumoAdolsInput').value.trim() || '30';
+    const voluntarios = document.getElementById('resumoVolsInput').value.trim() || '20';
+    const refeicoes = document.getElementById('resumoRefeicoesInput').value.trim() || '8';
+    document.getElementById('resumoForm').classList.remove('is-open');
+    const existente = porTipo('config_resumo')[0];
+    if(existente) await sbUpdate(existente.id, { dias, adolescentes, voluntarios, refeicoes });
+    else await sbInsert('config_resumo', { dias, adolescentes, voluntarios, refeicoes });
+    await loadAllDados();
+  });
+
+  // ---------- navegação entre views ----------
+  const AREA_TITLES = {
+    cronograma:'Cronograma geral', alimentacao:'Alimentação e cozinha', producao:'Produção e decoração',
+    gincanas:'Gincanas e dinâmicas', louvor:'Louvor e técnica', palavras:'Palavras e ministrações',
+    equipes:'Equipe e pendências', comunicados:'Comunicados', documentos:'Documentos'
+  };
+  function showView(name){
+    document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+    const target = document.getElementById('view-' + name);
+    if(target) target.style.display = 'block';
+    const topbar = document.getElementById('topbar');
+    if(name === 'home'){
+      topbar.style.display = 'none';
+    }else{
+      topbar.style.display = 'flex';
+      document.getElementById('topbarTitle').textContent = AREA_TITLES[name] || 'Área';
+    }
+    window.scrollTo(0,0);
+  }
+  function routeFromHash(){
+    const name = (window.location.hash || '#home').slice(1);
+    showView(AREA_TITLES[name] ? name : 'home');
+  }
+  window.addEventListener('hashchange', routeFromHash);
+  document.getElementById('backBtn').addEventListener('click', () => { window.location.hash = '#home'; });
+  document.getElementById('infoOperacionaisCard').addEventListener('click', () => { window.location.hash = '#cronograma'; });
+  routeFromHash();
+
+  // ---------- Supabase (tabela genérica retiro_dados: id, created_at, tipo, data jsonb) ----------
+  const SUPABASE_URL = 'https://jpyeaowkivlplwlmnrhg.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_TNsNruAw59vmnAHW3B5CBg_AjDcQOV9';
+  const SUPABASE_TABLE = SUPABASE_URL + '/rest/v1/retiro_dados';
+  const canWrite = true;
+
+  function supabaseHeaders(extra){
+    return Object.assign({
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json'
+    }, extra || {});
+  }
+  async function sbInsert(tipo, data){
+    try{
+      const res = await fetch(SUPABASE_TABLE, {
+        method: 'POST',
+        headers: supabaseHeaders({'Prefer': 'return=representation'}),
+        body: JSON.stringify({tipo, data})
+      });
+      if(!res.ok) return null;
+      const rows = await res.json();
+      return (rows && rows[0]) ? rows[0].id : null;
+    }catch(e){ console.error('Erro ao salvar no Supabase:', e); return null; }
+  }
+  async function sbLoadAll(){
+    try{
+      const res = await fetch(SUPABASE_TABLE + '?select=*&order=created_at.asc&limit=1000', { headers: supabaseHeaders() });
+      if(!res.ok) return [];
+      const rows = await res.json();
+      return rows.map(r => Object.assign({}, r.data, {id:r.id, tipo:r.tipo, criadoEm:r.created_at}));
+    }catch(e){ console.error('Erro ao carregar do Supabase:', e); return []; }
+  }
+  async function sbUpdate(id, newData){
+    try{
+      const res = await fetch(SUPABASE_TABLE + '?id=eq.' + encodeURIComponent(id), {
+        method: 'PATCH', headers: supabaseHeaders(), body: JSON.stringify({data: newData})
+      });
+      return res.ok;
+    }catch(e){ console.error('Erro ao atualizar no Supabase:', e); return false; }
+  }
+  async function sbDelete(id){
+    try{
+      const res = await fetch(SUPABASE_TABLE + '?id=eq.' + encodeURIComponent(id), { method:'DELETE', headers: supabaseHeaders() });
+      return res.ok;
+    }catch(e){ console.error('Erro ao remover no Supabase:', e); return false; }
+  }
+  function stripMeta(obj){
+    const copy = Object.assign({}, obj);
+    delete copy.id; delete copy.tipo; delete copy.criadoEm;
+    return copy;
+  }
+
+  // ---------- estado vivo em memória, recarregado do Supabase ----------
+  let ALL_DADOS = [];
+
+  async function loadAllDados(){
+    ALL_DADOS = await sbLoadAll();
+    renderResumo();
+    renderComunicados();
+    renderHomeAvisos();
+    renderTarefas('producao', 'producaoList');
+    renderTarefas(null, 'equipesList', true);
+    renderHomePendencias();
+    renderDoacoes();
+    renderComprasRegistro();
+    recalcEstoque();
+    renderEquipeCozinha();
+  }
+  loadAllDados();
+  setInterval(loadAllDados, 45000);
+
+  function porTipo(tipo){ return ALL_DADOS.filter(d => d.tipo === tipo); }
+
+  function renderResumo(){
+    const cfg = porTipo('config_resumo')[0] || {};
+    document.getElementById('resumoDias').textContent = cfg.dias || '3';
+    document.getElementById('resumoAdols').textContent = cfg.adolescentes || '30';
+    document.getElementById('resumoVols').textContent = cfg.voluntarios || '20';
+    document.getElementById('resumoRefeicoes').textContent = cfg.refeicoes || '8';
+  }
+
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function timeAgo(iso){
+    try{ return new Date(iso).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}); }
+    catch(e){ return ''; }
+  }
+
+  // ---------- COMUNICADOS ----------
+  function renderComunicados(){
+    const docs = [...porTipo('comunicado')].sort((a,b) => new Date(b.criadoEm) - new Date(a.criadoEm));
+    const host = document.getElementById('comunicadosList');
+    if(docs.length === 0){ host.innerHTML = '<div class="empty-state">Nenhum comunicado ainda.</div>'; }
+    else{
+      host.innerHTML = docs.map(d => `
+        <div class="list-card hard-sm" style="${d.urgente ? 'background:var(--red-bg);' : ''}">
+          <div class="row-top">
+            <div>
+              <div class="ttl">${d.urgente ? '⚠ ' : ''}${escapeHtml(d.titulo)}</div>
+              <div class="sub2">${escapeHtml(d.mensagem)}</div>
+              <div class="sub2" style="margin-top:6px;">${escapeHtml(d.responsavel||'-')} · ${timeAgo(d.criadoEm)}</div>
+            </div>
+          </div>
+          <button class="delete-x" data-del-comunicado="${d.id}">Remover</button>
+        </div>
+      `).join('');
+      host.querySelectorAll('[data-del-comunicado]').forEach(btn => {
+        btn.addEventListener('click', async () => { await sbDelete(btn.dataset.delComunicado); await loadAllDados(); });
+      });
+    }
+    const badge = document.getElementById('comunicadosBadge');
+    const urgentCount = docs.filter(d => d.urgente).length;
+    if(urgentCount > 0){ badge.style.display = 'inline-block'; badge.textContent = urgentCount; }
+    else badge.style.display = 'none';
+  }
+  function renderHomeAvisos(){
+    const docs = [...porTipo('comunicado')].sort((a,b) => new Date(b.criadoEm) - new Date(a.criadoEm)).slice(0,3);
+    const host = document.getElementById('homeAvisosList');
+    if(docs.length === 0){ host.innerHTML = '<div class="empty-state">Nenhum aviso ainda.</div>'; return; }
+    host.innerHTML = docs.map(d => `
+      <div class="aviso-row${d.urgente ? ' urgente' : ''}">
+        <span class="dot"></span>
+        <div><div class="t">${escapeHtml(d.titulo)}</div><div class="m">${escapeHtml(d.mensagem)}</div></div>
+      </div>
+    `).join('');
+  }
+  document.getElementById('toggleComunicadoForm').addEventListener('click', () => document.getElementById('comunicadoForm').classList.add('is-open'));
+  document.getElementById('cancelComunicadoBtn').addEventListener('click', () => document.getElementById('comunicadoForm').classList.remove('is-open'));
+  document.getElementById('saveComunicadoBtn').addEventListener('click', async () => {
+    const titulo = document.getElementById('comunicadoTituloInput').value.trim();
+    const mensagem = document.getElementById('comunicadoMsgInput').value.trim();
+    const responsavel = document.getElementById('comunicadoRespInput').value.trim();
+    const urgente = document.getElementById('comunicadoUrgenteInput').checked;
+    if(!titulo || !mensagem) return;
+    await sbInsert('comunicado', { titulo, mensagem, responsavel, urgente, criadoEm: new Date().toISOString() });
+    document.getElementById('comunicadoTituloInput').value = '';
+    document.getElementById('comunicadoMsgInput').value = '';
+    document.getElementById('comunicadoRespInput').value = '';
+    document.getElementById('comunicadoUrgenteInput').checked = false;
+    document.getElementById('comunicadoForm').classList.remove('is-open');
+    await loadAllDados();
+  });
+
+
+  // ---------- TAREFAS (produção + equipes, mesma collection "tarefas", campo area) ----------
+  const TAREFA_STATUSES = ['pendente','andamento','concluido'];
+  const TAREFA_LABELS = {pendente:'Pendente', andamento:'Em andamento', concluido:'Concluído'};
+  const AREA_NOMES = {producao:'Produção', equipes:'Equipe', alimentacao:'Alimentação', gincanas:'Gincanas', louvor:'Louvor', palavras:'Palavras', comunicados:'Comunicados'};
+  function renderTarefas(area, listElId, showArea){
+    const docs = area ? porTipo('tarefa').filter(d => d.area === area) : porTipo('tarefa');
+    const host = document.getElementById(listElId);
+    if(docs.length === 0){ host.innerHTML = '<div class="empty-state">Nenhuma tarefa ainda.</div>'; return; }
+    host.innerHTML = docs.map(d => `
+      <div class="list-card hard-sm">
+        <div class="row-top">
+          <div>
+            <div class="ttl">${escapeHtml(d.titulo)}</div>
+            <div class="sub2">${[showArea ? (AREA_NOMES[d.area]||d.area) : null, d.responsavel, d.prazo].filter(Boolean).map(escapeHtml).join(' · ') || '-'}</div>
+          </div>
+          <button class="status-chip ${d.status||'pendente'}" data-tarefa-id="${d.id}" data-status="${d.status||'pendente'}">${TAREFA_LABELS[d.status||'pendente']}</button>
+        </div>
+        <button class="delete-x" data-del-tarefa="${d.id}">Remover</button>
+      </div>
+    `).join('');
+    host.querySelectorAll('[data-tarefa-id]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const cur = btn.dataset.status;
+        const next = TAREFA_STATUSES[(TAREFA_STATUSES.indexOf(cur)+1) % TAREFA_STATUSES.length];
+        const reg = ALL_DADOS.find(d => d.id === btn.dataset.tarefaId);
+        if(!reg) return;
+        await sbUpdate(reg.id, stripMeta(Object.assign({}, reg, {status: next})));
+        await loadAllDados();
+      });
+    });
+    host.querySelectorAll('[data-del-tarefa]').forEach(btn => {
+      btn.addEventListener('click', async () => { await sbDelete(btn.dataset.delTarefa); await loadAllDados(); });
+    });
+  }
+  function parsePrazo(prazo){
+    if(!prazo) return null;
+    const m = String(prazo).match(/(\d{1,2})[\/\-](\d{1,2})/);
+    if(!m) return null;
+    const year = new Date().getFullYear();
+    const d = new Date(year, parseInt(m[2],10)-1, parseInt(m[1],10));
+    return isNaN(d.getTime()) ? null : d;
+  }
+  function renderHomePendencias(){
+    const docs = porTipo('tarefa');
+    const host = document.getElementById('homePendenciasList');
+    const pendentes = docs.filter(d => (d.status||'pendente') !== 'concluido');
+    if(pendentes.length === 0){ host.innerHTML = '<div class="empty-state">Nenhuma pendência em aberto.</div>'; return; }
+    const now = new Date();
+    pendentes.sort((a,b) => {
+      const da = parsePrazo(a.prazo), db2 = parsePrazo(b.prazo);
+      if(da && db2) return da - db2;
+      if(da) return -1;
+      if(db2) return 1;
+      return 0;
+    });
+    host.innerHTML = pendentes.slice(0,6).map(d => {
+      const prazoDate = parsePrazo(d.prazo);
+      const atrasada = prazoDate && prazoDate < now && (d.status||'pendente') !== 'concluido';
+      return `
+      <div class="aviso-row${atrasada ? ' urgente' : ''}">
+        <span class="dot"></span>
+        <div>
+          <div class="t">${escapeHtml(d.titulo)}</div>
+          <div class="m">${escapeHtml(AREA_NOMES[d.area] || d.area || '-')}${d.responsavel ? ' · ' + escapeHtml(d.responsavel) : ''}${d.prazo ? ' · ' + escapeHtml(d.prazo) : ''}${atrasada ? ' · atrasada' : ''}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('toggleProducaoForm').addEventListener('click', () => document.getElementById('producaoForm').classList.add('is-open'));
+  document.getElementById('cancelProducaoBtn').addEventListener('click', () => document.getElementById('producaoForm').classList.remove('is-open'));
+  document.getElementById('saveProducaoBtn').addEventListener('click', async () => {
+    const titulo = document.getElementById('producaoTituloInput').value.trim();
+    const responsavel = document.getElementById('producaoRespInput').value.trim();
+    const prazo = document.getElementById('producaoPrazoInput').value.trim();
+    if(!titulo) return;
+    await sbInsert('tarefa', { area:'producao', titulo, responsavel, prazo, status:'pendente', criadoEm: new Date().toISOString() });
+    document.getElementById('producaoTituloInput').value = '';
+    document.getElementById('producaoRespInput').value = '';
+    document.getElementById('producaoPrazoInput').value = '';
+    document.getElementById('producaoForm').classList.remove('is-open');
+    await loadAllDados();
+  });
+
+  document.getElementById('toggleEquipeForm').addEventListener('click', () => document.getElementById('equipeForm').classList.add('is-open'));
+  document.getElementById('cancelEquipeBtn').addEventListener('click', () => document.getElementById('equipeForm').classList.remove('is-open'));
+  document.getElementById('saveEquipeBtn').addEventListener('click', async () => {
+    const titulo = document.getElementById('equipeTituloInput').value.trim();
+    const area = document.getElementById('equipeAreaInput').value;
+    const responsavel = document.getElementById('equipeRespInput').value.trim();
+    const prazo = document.getElementById('equipePrazoInput').value.trim();
+    if(!titulo) return;
+    await sbInsert('tarefa', { area, titulo, responsavel, prazo, status:'pendente', criadoEm: new Date().toISOString() });
+    document.getElementById('equipeTituloInput').value = '';
+    document.getElementById('equipeRespInput').value = '';
+    document.getElementById('equipePrazoInput').value = '';
+    document.getElementById('equipeForm').classList.remove('is-open');
+    await loadAllDados();
+  });
+</script>
+</body>
+</html>
