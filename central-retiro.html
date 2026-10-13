@@ -476,62 +476,656 @@
 
     <!-- ============ PRODUÇÃO E DECORAÇÃO ============ -->
     <div class="view" id="view-producao" style="display:none;">
-      <div class="section-label">Responsável</div>
-      <div class="list-card hard-sm"><div class="ttl">Fran</div><div class="sub2">Quartos e decoração</div></div>
+      <p class="info-note">Coordenação: Fran · Equipe de apoio: Tainá e Jeni · Acompanhamento geral: Daniela</p>
 
-      <div class="section-label">Tarefas</div>
-      <div id="producaoList"></div>
-      <button class="add-btn press" id="toggleProducaoForm">+ Nova tarefa</button>
-      <div class="add-form hard-sm" id="producaoForm">
-        <input type="text" id="producaoTituloInput" placeholder="O que precisa ser feito">
-        <input type="text" id="producaoRespInput" placeholder="Responsável (opcional)">
-        <input type="text" id="producaoPrazoInput" placeholder="Prazo (opcional, ex: até 20/10)">
-        <div class="form-actions">
-          <button class="btn-cancel press" id="cancelProducaoBtn" type="button">Cancelar</button>
-          <button class="btn-save press" id="saveProducaoBtn" type="button">Salvar</button>
+      <div class="resumo-row" id="producaoIndicadores">
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="prodStatTotal">–</div><div class="resumo-lab">demandas cadastradas</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="prodStatPendentes">–</div><div class="resumo-lab">tarefas pendentes</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="prodStatAndamento">–</div><div class="resumo-lab">em andamento</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="prodStatConcluidas">–</div><div class="resumo-lab">concluídas</div></div>
+      </div>
+      <div class="resumo-row" style="grid-template-columns:1fr; margin-bottom:18px;">
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="prodStatMateriais">–</div><div class="resumo-lab">materiais ainda necessários</div></div>
+      </div>
+
+      <div class="tabs" style="flex-wrap:wrap;">
+        <button type="button" class="tab-btn is-active" data-prod-tab="ambientes">Ambientes</button>
+        <button type="button" class="tab-btn" data-prod-tab="materiais">Materiais</button>
+        <button type="button" class="tab-btn" data-prod-tab="tarefas">Tarefas</button>
+        <button type="button" class="tab-btn" data-prod-tab="montagem">Montagem</button>
+        <button type="button" class="tab-btn" data-prod-tab="experiencias">Experiências</button>
+        <button type="button" class="tab-btn" data-prod-tab="referencias">Referências</button>
+      </div>
+
+      <!-- TAB: PLANEJAMENTO DOS AMBIENTES -->
+      <div class="tab-panel is-active" id="prodTab-ambientes">
+        <div class="section-label">Recepção e entrada</div>
+        <div class="day-card hard-sm" id="recepcaoCard"></div>
+
+        <div class="section-label">Painel oficial de fotos</div>
+        <div class="day-card hard-sm" id="painelFotosCard"></div>
+
+        <div class="section-label">Palco e ambiente de culto</div>
+        <div class="day-card hard-sm" id="palcoCard"></div>
+
+        <div class="section-label">Sinalização dos ambientes</div>
+        <div class="day-card hard-sm" id="sinalizacaoCard"></div>
+      </div>
+
+      <!-- TAB: MATERIAIS E COMPRAS -->
+      <div class="tab-panel" id="prodTab-materiais">
+        <p class="info-note">Nenhum item fica marcado como comprado, produzido ou concluído automaticamente — a equipe atualiza o status conforme avança.</p>
+        <div class="section-label">Lista de materiais a levantar (referência)</div>
+        <div class="day-card hard-sm" id="materiaisRefCard" style="margin-bottom:18px;"></div>
+
+        <div class="section-label">Acompanhamento ao vivo</div>
+        <div id="materiaisProducaoList"></div>
+        <button class="add-btn press" id="toggleMaterialForm">+ Novo material</button>
+        <div class="add-form hard-sm" id="materialForm">
+          <input type="text" id="materialNomeInput" placeholder="Nome do material">
+          <select id="materialCategoriaInput">
+            <option value="Recepção">Recepção</option>
+            <option value="Sinalização">Sinalização</option>
+            <option value="Painel/Palco">Painel/Palco</option>
+            <option value="Ministrações">Ministrações</option>
+            <option value="Experiências especiais">Experiências especiais</option>
+            <option value="Encerramento">Encerramento</option>
+            <option value="Outro">Outro</option>
+          </select>
+          <div class="form-row">
+            <input type="text" id="materialQtdNecInput" placeholder="Qtd. necessária">
+            <input type="text" id="materialQtdCompInput" placeholder="Qtd. a comprar/produzir">
+          </div>
+          <div class="form-row">
+            <input type="text" id="materialRespInput" placeholder="Responsável">
+            <input type="text" id="materialFornecedorInput" placeholder="Fornecedor (opcional)">
+          </div>
+          <div class="form-row">
+            <input type="number" id="materialCustoPrevInput" placeholder="Custo previsto (opcional)" step="any">
+            <input type="number" id="materialCustoRealInput" placeholder="Custo realizado (opcional)" step="any">
+          </div>
+          <div class="form-row">
+            <input type="date" id="materialDataInput">
+            <select id="materialOrigemInput">
+              <option value="comprar">A comprar</option>
+              <option value="emprestado">Emprestado</option>
+              <option value="doacao">Doação</option>
+            </select>
+          </div>
+          <select id="materialStatusInput">
+            <option value="a_aprovar">A aprovar</option>
+            <option value="a_comprar">A comprar</option>
+            <option value="comprado">Comprado</option>
+            <option value="em_producao">Em produção</option>
+            <option value="pronto">Pronto</option>
+            <option value="instalado">Instalado</option>
+            <option value="concluido">Concluído</option>
+          </select>
+          <textarea id="materialObsInput" placeholder="Observações (opcional)"></textarea>
+          <div class="form-actions">
+            <button class="btn-cancel press" id="cancelMaterialBtn" type="button">Cancelar</button>
+            <button class="btn-save press" id="saveMaterialBtn" type="button">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: TAREFAS E RESPONSÁVEIS -->
+      <div class="tab-panel" id="prodTab-tarefas">
+        <div class="section-label">Tarefas</div>
+        <div id="producaoList"></div>
+        <button class="add-btn press" id="toggleProducaoForm">+ Nova tarefa</button>
+        <div class="add-form hard-sm" id="producaoForm">
+          <input type="text" id="producaoTituloInput" placeholder="O que precisa ser feito">
+          <textarea id="producaoDescInput" placeholder="Descrição (opcional)"></textarea>
+          <div class="form-row">
+            <input type="text" id="producaoLocalInput" placeholder="Local (opcional)">
+            <input type="text" id="producaoRespInput" placeholder="Responsável">
+          </div>
+          <div class="form-row">
+            <input type="text" id="producaoMateriaisInput" placeholder="Materiais necessários (opcional)">
+            <input type="text" id="producaoPrazoInput" placeholder="Prazo (ex: até 20/10)">
+          </div>
+          <textarea id="producaoObsInput" placeholder="Observações (opcional)"></textarea>
+          <div class="form-actions">
+            <button class="btn-cancel press" id="cancelProducaoBtn" type="button">Cancelar</button>
+            <button class="btn-save press" id="saveProducaoBtn" type="button">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: MONTAGEM E DESMONTAGEM -->
+      <div class="tab-panel" id="prodTab-montagem">
+        <p class="info-note">Data e horários de montagem: a confirmar. Desmontagem: domingo, durante a organização final do sítio.</p>
+        <div class="list-card hard-sm">
+          <div class="checklist-phase">Montagem</div>
+          <ul class="sched-bullets">
+            <li>Conferir materiais</li>
+            <li>Identificar ambientes</li>
+            <li>Montar recepção</li>
+            <li>Instalar placas</li>
+            <li>Montar painel de fotos</li>
+            <li>Preparar palco</li>
+            <li>Organizar materiais das ministrações</li>
+            <li>Preparar os espaços especiais aprovados</li>
+            <li>Conferir iluminação e segurança</li>
+            <li>Realizar vistoria final</li>
+          </ul>
+          <div class="checklist-phase">Desmontagem</div>
+          <ul class="sched-bullets">
+            <li>Retirar placas e painéis</li>
+            <li>Recolher materiais reutilizáveis</li>
+            <li>Separar materiais da igreja</li>
+            <li>Conferir objetos emprestados</li>
+            <li>Recolher resíduos</li>
+            <li>Organizar transporte</li>
+            <li>Conferir os ambientes</li>
+            <li>Registrar conclusão</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- TAB: EXPERIÊNCIAS ESPECIAIS -->
+      <div class="tab-panel" id="prodTab-experiencias">
+        <p class="info-note">Propostas do planejamento — ainda sujeitas à aprovação da liderança antes de gerar despesas.</p>
+        <div class="day-card hard-sm" id="experienciasCard"></div>
+        <div class="section-label">Materiais para o encerramento</div>
+        <div class="day-card hard-sm" id="encerramentoCard"></div>
+      </div>
+
+      <!-- TAB: REFERÊNCIAS E DOCUMENTOS -->
+      <div class="tab-panel" id="prodTab-referencias">
+        <div class="placeholder-card hard-sm">
+          <div class="ic">📁</div>
+          <h3>Documento de referência</h3>
+          <p>Cronograma de Materiais e Decoração (Google Drive) — planejamento original consolidado nesta área. Pendências a confirmar com a coordenação antes da aprovação final listadas abaixo.</p>
+        </div>
+        <div class="section-label">Pendências para a coordenação definir</div>
+        <div class="list-card hard-sm">
+          <ul class="sched-bullets" id="pendenciasProducaoList"></ul>
         </div>
       </div>
     </div>
 
     <!-- ============ GINCANAS ============ -->
     <div class="view" id="view-gincanas" style="display:none;">
-      <div class="placeholder-card hard-sm">
-        <div class="ic">🎲</div>
-        <h3>Aguardando atualização</h3>
-        <p>A programação de gincanas e dinâmicas ainda está sendo definida pela coordenação (Phelps + equipe). Assim que estiver pronta, essa área será preenchida com atividades, regras, materiais e pontuação — sem precisar refazer a tela.</p>
+      <p class="info-note">Sábado 24/10 · 14h30–16h30 · Responsável: Phelps · Apoio: Ander, Filipe, Joo e Gustavo · 3 equipes · 11 a 17 anos</p>
+
+      <div class="tabs" style="flex-wrap:wrap;">
+        <button type="button" class="tab-btn is-active" data-ginc-tab="equipes">Equipes</button>
+        <button type="button" class="tab-btn" data-ginc-tab="programacao">Programação</button>
+        <button type="button" class="tab-btn" data-ginc-tab="quiz">Quiz</button>
+        <button type="button" class="tab-btn" data-ginc-tab="placar">Placar</button>
+        <button type="button" class="tab-btn" data-ginc-tab="materiais">Materiais</button>
+        <button type="button" class="tab-btn" data-ginc-tab="checklist">Checklist</button>
+      </div>
+
+      <!-- TAB: EQUIPES -->
+      <div class="tab-panel is-active" id="gincTab-equipes">
+        <p class="info-note">Nomes e cores sugeridos (1 Coríntios 13:13) — podem ser alterados pela organização. Na primeira atividade cada equipe escolhe líder, confirma o nome, confecciona a bandeira e cria um grito de guerra.</p>
+        <div id="equipeGincanaCards"></div>
+      </div>
+
+      <!-- TAB: PROGRAMAÇÃO -->
+      <div class="tab-panel" id="gincTab-programacao">
+        <div class="section-label">Cronograma das duas horas</div>
+        <div class="day-card hard-sm" style="margin-bottom:18px;">
+          <div class="sched-row"><div class="sched-time">14h30–14h45</div><div class="sched-desc">Formação das equipes, líder, nome, bandeira e grito de guerra <span class="sub">15 min</span></div></div>
+          <div class="sched-row"><div class="sched-time">14h45–15h05</div><div class="sched-desc">Caça ao tesouro <span class="sub">20 min</span></div></div>
+          <div class="sched-row"><div class="sched-time">15h05–15h25</div><div class="sched-desc">Torta na cara <span class="sub">20 min</span></div></div>
+          <div class="sched-row"><div class="sched-time">15h25–15h45</div><div class="sched-desc">Teatro <span class="sub">20 min</span></div></div>
+          <div class="sched-row"><div class="sched-time">15h45–16h20</div><div class="sched-desc">Circuito cronometrado <span class="sub">35 min</span></div></div>
+          <div class="sched-row"><div class="sched-time">16h20–16h30</div><div class="sched-desc">Pontuação final e premiação <span class="sub">10 min</span></div></div>
+        </div>
+        <p class="info-note">Horários propostos — a confirmar por Phelps e pela coordenação. O lanche da tarde pode acontecer depois da gincana ou em outro momento combinado com a cozinha.</p>
+
+        <div class="section-label">Atividades pontuadas</div>
+        <div class="day-card hard-sm" id="atividadesCard"></div>
+
+        <div class="section-label">Circuito cronometrado — 6 estações</div>
+        <div class="day-card hard-sm" id="estacoesCard"></div>
+
+        <div class="section-label">Equipe de operação</div>
+        <div class="list-card hard-sm"><div class="ttl">Phelps</div><div class="sub2">Responsável geral</div></div>
+        <div class="list-card hard-sm"><div class="ttl">Ander, Filipe, Joo e Gustavo</div><div class="sub2">Apoio — apresentação, estações, cronometragem, placar</div></div>
+        <div class="list-card hard-sm"><div class="ttl">Emili e Rogério</div><div class="sub2">Registros de fotos e vídeos</div></div>
+      </div>
+
+      <!-- TAB: QUIZ TORTA NA CARA -->
+      <div class="tab-panel" id="gincTab-quiz">
+        <p class="info-note">Guia do apresentador. Leia só a pergunta, dê até 10 segundos e aceite respostas equivalentes. Toque numa pergunta pra ver a resposta.</p>
+        <div class="day-card hard-sm" style="margin-bottom:14px;">
+          <div class="sched-row"><div class="sched-desc">Pratos, refrigerante, chantilly/espuma apropriada</div></div>
+          <div class="sched-row"><div class="sched-desc">Responsável pelos materiais: Filipe</div></div>
+          <div class="sched-row"><div class="sched-desc">Pontuação: 10 pontos por resposta certa · mesmo nº de oportunidades por equipe</div></div>
+        </div>
+        <div class="list-card hard-sm" style="background:var(--amber-bg); margin-bottom:18px;">
+          <p style="margin:0; font-weight:700; color:var(--amber); font-size:0.82rem;">⚠ Regra de segurança: usar material adequado para contato com a pele, sem atingir olhos ou nariz. Participação na torta é voluntária, sem constrangimentos.</p>
+        </div>
+        <div class="section-label">Bíblia · perguntas 1–70</div>
+        <div class="day-card hard-sm" id="quizBibliaCard" style="margin-bottom:18px;"></div>
+        <div class="section-label">Conhecimentos gerais · perguntas 71–100</div>
+        <div class="day-card hard-sm" id="quizGeralCard"></div>
+      </div>
+
+      <!-- TAB: PLACAR -->
+      <div class="tab-panel" id="gincTab-placar">
+        <div class="section-label">Placar geral</div>
+        <div class="day-card hard-sm" id="placarCard"></div>
+        <button class="add-btn press" id="toggleEditarPlacarBtn">Editar placar</button>
+        <div class="add-form hard-sm" id="placarForm">
+          <p style="font-weight:700; font-size:0.82rem; margin-bottom:8px;">Fé</p>
+          <div class="form-row">
+            <input type="number" id="placarFeFormacao" placeholder="Formação">
+            <input type="number" id="placarFeCaca" placeholder="Caça ao tesouro">
+          </div>
+          <div class="form-row">
+            <input type="number" id="placarFeTorta" placeholder="Torta na cara">
+            <input type="number" id="placarFeTeatro" placeholder="Teatro">
+          </div>
+          <div class="form-row">
+            <input type="number" id="placarFeCircuito" placeholder="Circuito">
+            <input type="text" id="placarFeTempo" placeholder="Tempo circuito (mm:ss:cs)">
+          </div>
+          <p style="font-weight:700; font-size:0.82rem; margin:12px 0 8px;">Esperança</p>
+          <div class="form-row">
+            <input type="number" id="placarEspFormacao" placeholder="Formação">
+            <input type="number" id="placarEspCaca" placeholder="Caça ao tesouro">
+          </div>
+          <div class="form-row">
+            <input type="number" id="placarEspTorta" placeholder="Torta na cara">
+            <input type="number" id="placarEspTeatro" placeholder="Teatro">
+          </div>
+          <div class="form-row">
+            <input type="number" id="placarEspCircuito" placeholder="Circuito">
+            <input type="text" id="placarEspTempo" placeholder="Tempo circuito (mm:ss:cs)">
+          </div>
+          <p style="font-weight:700; font-size:0.82rem; margin:12px 0 8px;">Amor</p>
+          <div class="form-row">
+            <input type="number" id="placarAmorFormacao" placeholder="Formação">
+            <input type="number" id="placarAmorCaca" placeholder="Caça ao tesouro">
+          </div>
+          <div class="form-row">
+            <input type="number" id="placarAmorTorta" placeholder="Torta na cara">
+            <input type="number" id="placarAmorTeatro" placeholder="Teatro">
+          </div>
+          <div class="form-row">
+            <input type="number" id="placarAmorCircuito" placeholder="Circuito">
+            <input type="text" id="placarAmorTempo" placeholder="Tempo circuito (mm:ss:cs)">
+          </div>
+          <div class="form-actions">
+            <button class="btn-cancel press" id="cancelPlacarBtn" type="button">Cancelar</button>
+            <button class="btn-save press" id="savePlacarBtn" type="button">Salvar</button>
+          </div>
+        </div>
+        <p class="info-note" style="margin-top:14px;">A pontuação é registrada pela organização, não pelos participantes. Em caso de empate, a organização define o desempate.</p>
+      </div>
+
+      <!-- TAB: MATERIAIS -->
+      <div class="tab-panel" id="gincTab-materiais">
+        <div class="section-label">Lista de materiais e responsáveis</div>
+        <div id="materiaisGincanaList"></div>
+        <button class="add-btn press" id="preencherMateriaisGincanaBtn" style="background:var(--violet); border-color:var(--ink);">Preencher lista padrão do planejamento</button>
+        <button class="add-btn press" id="toggleMaterialGincanaForm">+ Novo material</button>
+        <div class="add-form hard-sm" id="materialGincanaForm">
+          <input type="text" id="mgNomeInput" placeholder="Material (ex: 10 garrafas PET de 2 litros)">
+          <input type="text" id="mgRespInput" placeholder="Responsável">
+          <div class="form-actions">
+            <button class="btn-cancel press" id="cancelMaterialGincanaBtn" type="button">Cancelar</button>
+            <button class="btn-save press" id="saveMaterialGincanaBtn" type="button">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: CHECKLIST -->
+      <div class="tab-panel" id="gincTab-checklist">
+        <div class="section-label">Checklist final</div>
+        <div class="list-card hard-sm">
+          <ul class="sched-bullets" id="checklistGincanaList"></ul>
+        </div>
       </div>
     </div>
 
     <!-- ============ LOUVOR E TÉCNICA ============ -->
     <div class="view" id="view-louvor" style="display:none;">
-      <div class="section-label">Responsáveis</div>
-      <div class="list-card hard-sm"><div class="ttl">Filipe</div><div class="sub2">Louvor</div></div>
-      <div class="list-card hard-sm"><div class="ttl">Gustavo</div><div class="sub2">Som</div></div>
-      <div class="placeholder-card hard-sm" style="margin-top:14px;">
-        <div class="ic">🎤</div>
-        <h3>Aguardando atualização</h3>
-        <p>Repertório, escala de músicos, horários de ensaio, passagem de som e equipamentos necessários ainda serão definidos pela coordenação.</p>
+      <p class="info-note">Coordenação do louvor: Filipe · Som: Gustavo · Apoio técnico: Vilmar e Moisés</p>
+
+      <div class="resumo-row">
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="louvorStatMomentos">–</div><div class="resumo-lab">momentos musicais</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="louvorStatMusicos">–</div><div class="resumo-lab">músicos cadastrados</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="louvorStatMusicas">–</div><div class="resumo-lab">músicas no repertório</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="louvorStatEnsaios">–</div><div class="resumo-lab">ensaios agendados</div></div>
+      </div>
+
+      <div class="action-row" style="margin-bottom:18px;">
+        <a class="action-btn whatsapp hard-sm press" href="https://casa-farol-louvor.pages.dev/" target="_blank" rel="noopener" style="flex-direction:column; align-items:flex-start; gap:2px; text-align:left;">
+          <b style="font-size:0.78rem;">REPERTÓRIO CASA FAROL</b>
+          <span style="font-weight:600; font-size:0.72rem; color:var(--muted);">Abrir aplicativo do Louvor</span>
+        </a>
+        <a class="action-btn spotify hard-sm press" href="https://open.spotify.com/playlist/5ehzY9w87SrjJz6C3yRR7t?si=dVGwtYsJQIKIegqnyDMESQ&utm_source=copy-link&pi=9irQ0QUqTKCYH" target="_blank" rel="noopener" style="flex-direction:column; align-items:flex-start; gap:2px; text-align:left;">
+          <b style="font-size:0.78rem;">PLAYLIST DO RETIRO</b>
+          <span style="font-weight:600; font-size:0.72rem; color:#e4ffe9;">Ouvir no Spotify</span>
+        </a>
+      </div>
+      <p class="info-note" style="margin-top:-10px;">A playlist reúne referências para ensaio — nem toda música é automaticamente repertório confirmado.</p>
+
+      <div class="tabs" style="flex-wrap:wrap;">
+        <button type="button" class="tab-btn is-active" data-louv-tab="programacao">Programação</button>
+        <button type="button" class="tab-btn" data-louv-tab="musicos">Músicos</button>
+        <button type="button" class="tab-btn" data-louv-tab="repertorio">Repertório</button>
+        <button type="button" class="tab-btn" data-louv-tab="ensaios">Ensaios</button>
+        <button type="button" class="tab-btn" data-louv-tab="tecnica">Técnica</button>
+        <button type="button" class="tab-btn" data-louv-tab="checklist">Checklist</button>
+      </div>
+
+      <!-- TAB: PROGRAMAÇÃO -->
+      <div class="tab-panel is-active" id="louvTab-programacao">
+        <div class="day-card hard-sm" id="programacaoLouvorCard"></div>
+      </div>
+
+      <!-- TAB: MÚSICOS -->
+      <div class="tab-panel" id="louvTab-musicos">
+        <div class="section-label">Músicos já definidos</div>
+        <div class="day-card hard-sm" style="margin-bottom:18px;">
+          <div class="sched-row"><div class="sched-desc"><b>Filipe</b> — Voz e teclado<span class="sub">Sexta e domingo de manhã</span></div></div>
+          <div class="sched-row"><div class="sched-desc"><b>Rodrigo</b> — Violão (sexta) · Voz e violão (domingo)<span class="sub">Sexta e domingo de manhã</span></div></div>
+          <div class="sched-row"><div class="sched-desc"><b>Rogério</b> — Baixo<span class="sub">Sexta e domingo de manhã</span></div></div>
+          <div class="sched-row"><div class="sched-desc"><b>Phelps</b> — Bateria<span class="sub">Sexta à noite</span></div></div>
+          <div class="sched-row"><div class="sched-desc"><b>Diego</b> — Bateria<span class="sub">Domingo de manhã</span></div></div>
+        </div>
+
+        <div class="section-label">Banda de adolescentes, banda de Gramado e culto de encerramento</div>
+        <div id="musicosList"></div>
+        <button class="add-btn press" id="toggleMusicoForm">+ Adicionar músico</button>
+        <div class="add-form hard-sm" id="musicoForm">
+          <input type="text" id="musicoNomeInput" placeholder="Nome">
+          <input type="text" id="musicoFuncaoInput" placeholder="Instrumento ou função">
+          <select id="musicoEquipeInput">
+            <option value="Banda de adolescentes">Banda de adolescentes</option>
+            <option value="Banda de Gramado">Banda de Gramado</option>
+            <option value="Culto de encerramento">Culto de encerramento</option>
+          </select>
+          <div class="form-row">
+            <input type="text" id="musicoDataInput" placeholder="Data">
+            <input type="text" id="musicoHorarioInput" placeholder="Horário">
+          </div>
+          <input type="text" id="musicoContatoInput" placeholder="Contato (se autorizado)">
+          <textarea id="musicoObsInput" placeholder="Necessidades técnicas / observações"></textarea>
+          <div class="form-actions">
+            <button class="btn-cancel press" id="cancelMusicoBtn" type="button">Cancelar</button>
+            <button class="btn-save press" id="saveMusicoBtn" type="button">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: REPERTÓRIO -->
+      <div class="tab-panel" id="louvTab-repertorio">
+        <p class="info-note">Nenhuma música da playlist entra aqui automaticamente — cadastre só o que for selecionado de fato.</p>
+        <div id="repertorioList"></div>
+        <button class="add-btn press" id="toggleMusicaForm">+ Nova música</button>
+        <div class="add-form hard-sm" id="musicaForm">
+          <input type="text" id="musicaTituloInput" placeholder="Título">
+          <input type="text" id="musicaArtistaInput" placeholder="Artista ou versão">
+          <div class="form-row">
+            <input type="text" id="musicaTomInput" placeholder="Tom">
+            <input type="text" id="musicaMinistroInput" placeholder="Ministro">
+          </div>
+          <div class="form-row">
+            <input type="text" id="musicaEquipeInput" placeholder="Equipe">
+            <input type="text" id="musicaDiaInput" placeholder="Dia/horário">
+          </div>
+          <input type="text" id="musicaLinkInput" placeholder="Link de referência (opcional)">
+          <select id="musicaStatusInput">
+            <option value="sugerida">Sugerida</option>
+            <option value="selecionada">Selecionada</option>
+            <option value="em_ensaio">Em ensaio</option>
+            <option value="ensaiada">Ensaiada</option>
+            <option value="confirmada">Confirmada</option>
+          </select>
+          <textarea id="musicaObsInput" placeholder="Observações (opcional)"></textarea>
+          <div class="form-actions">
+            <button class="btn-cancel press" id="cancelMusicaBtn" type="button">Cancelar</button>
+            <button class="btn-save press" id="saveMusicaBtn" type="button">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: ENSAIOS -->
+      <div class="tab-panel" id="louvTab-ensaios">
+        <div id="ensaiosCard"></div>
+      </div>
+
+      <!-- TAB: TÉCNICA -->
+      <div class="tab-panel" id="louvTab-tecnica">
+        <div class="section-label">Inventário de equipamentos (conferência)</div>
+        <div class="day-card hard-sm" style="margin-bottom:18px;">
+          <div class="period-label">Áudio</div>
+          <div class="sched-row"><div class="sched-desc">Mesa de som · Caixas de som · Microfones · Pedestais · Cabos · Direct boxes · Monitores de retorno · Fontes e extensões</div></div>
+          <div class="period-label">Instrumentos</div>
+          <div class="sched-row"><div class="sched-desc">Teclado · Violão · Baixo · Bateria · Guitarra (se necessária) · Amplificadores (se necessários) · Suportes e acessórios</div></div>
+          <div class="period-label">Projeção</div>
+          <div class="sched-row"><div class="sched-desc">Computador · Projetor ou TV · Cabos de vídeo · Arquivos de apresentação · Letras das músicas · Vídeos aprovados</div></div>
+        </div>
+
+        <div class="section-label">Necessidades por formação</div>
+        <div class="day-card hard-sm" id="necessidadesCard" style="margin-bottom:18px;"></div>
+
+        <div class="section-label">Passagens de som</div>
+        <div id="passagensList"></div>
+        <button class="add-btn press" id="togglePassagemForm">+ Nova passagem de som</button>
+        <div class="add-form hard-sm" id="passagemForm">
+          <input type="text" id="passagemEquipeInput" placeholder="Equipe / programação">
+          <div class="form-row">
+            <input type="text" id="passagemDataInput" placeholder="Data">
+            <input type="text" id="passagemHorarioInput" placeholder="Horário">
+          </div>
+          <input type="text" id="passagemRespInput" placeholder="Responsável técnico">
+          <select id="passagemStatusInput">
+            <option value="a_agendar">A agendar</option>
+            <option value="agendada">Agendada</option>
+            <option value="concluida">Concluída</option>
+          </select>
+          <textarea id="passagemObsInput" placeholder="Observações (opcional)"></textarea>
+          <div class="form-actions">
+            <button class="btn-cancel press" id="cancelPassagemBtn" type="button">Cancelar</button>
+            <button class="btn-save press" id="savePassagemBtn" type="button">Salvar</button>
+          </div>
+        </div>
+
+        <div class="section-label" style="margin-top:18px;">Checklist de passagem de som</div>
+        <div class="list-card hard-sm">
+          <ul class="sched-bullets">
+            <li>Músicos presentes</li><li>Instrumentos conectados</li><li>Microfones testados</li><li>Canais identificados</li>
+            <li>Retornos conferidos</li><li>Volumes ajustados</li><li>Tons confirmados</li><li>Repertório revisado</li>
+            <li>Projeção testada</li><li>Transições alinhadas</li><li>Equipamentos organizados</li><li>Liberação do responsável técnico</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- TAB: CHECKLIST -->
+      <div class="tab-panel" id="louvTab-checklist">
+        <p class="info-note">Toque num item pra marcar como feito. Fica salvo pra toda a equipe.</p>
+        <div class="section-label">Equipes</div>
+        <div class="list-card hard-sm" id="checkGrupoEquipes"></div>
+        <div class="section-label">Repertório</div>
+        <div class="list-card hard-sm" id="checkGrupoRepertorio"></div>
+        <div class="section-label">Ensaios</div>
+        <div class="list-card hard-sm" id="checkGrupoEnsaios"></div>
+        <div class="section-label">Técnica</div>
+        <div class="list-card hard-sm" id="checkGrupoTecnica"></div>
       </div>
     </div>
 
     <!-- ============ PALAVRAS E MINISTRAÇÕES ============ -->
     <div class="view" id="view-palavras" style="display:none;">
-      <div class="section-label">Ministrante</div>
-      <div class="list-card hard-sm"><div class="ttl">Samir</div><div class="sub2">Todas as ministrações do retiro</div></div>
+      <p class="info-note">CENTRALIDADE — O Propósito Eterno de Deus · Mensagem central: Jesus no Centro</p>
 
-      <div class="section-label">Sequência das ministrações</div>
-      <div class="day-card hard-sm">
-        <div class="sched-row"><div class="sched-time">Sex 21h30</div><div class="sched-desc"><b>Ministração 1</b> · Centralidade</div></div>
-        <div class="sched-row"><div class="sched-time">Sáb 09h30</div><div class="sched-desc"><b>Ministração 2</b></div></div>
-        <div class="sched-row"><div class="sched-time">Sáb 11h15</div><div class="sched-desc"><b>Ministração 3</b></div></div>
-        <div class="sched-row"><div class="sched-time">Sáb 20h45</div><div class="sched-desc"><b>Ministração 4</b> · noite principal</div></div>
-        <div class="sched-row"><div class="sched-time">Dom 09h30</div><div class="sched-desc"><b>Ministração 5</b></div></div>
-        <div class="sched-row"><div class="sched-time">Dom 11h15</div><div class="sched-desc"><b>Ministração 6</b></div></div>
+      <div class="tabs" style="flex-wrap:wrap;">
+        <button type="button" class="tab-btn is-active" data-pal-tab="jornada">Jornada</button>
+        <button type="button" class="tab-btn" data-pal-tab="ministracoes">Ministrações</button>
+        <button type="button" class="tab-btn" data-pal-tab="pregadores">Pregadores</button>
+        <button type="button" class="tab-btn" data-pal-tab="oracao">Oração</button>
+        <button type="button" class="tab-btn" data-pal-tab="encerramento">Encerramento</button>
+        <button type="button" class="tab-btn" data-pal-tab="checklist">Checklist</button>
       </div>
-      <div class="placeholder-card hard-sm" style="margin-top:14px;">
-        <div class="ic">📖</div>
-        <h3>Aguardando atualização</h3>
-        <p>Temas detalhados, textos bíblicos, objetivos de cada mensagem e necessidades técnicas ainda serão definidos pela coordenação.</p>
+
+      <!-- TAB: JORNADA -->
+      <div class="tab-panel is-active" id="palTab-jornada">
+        <div class="next-card hard-sm" style="margin-bottom:18px;">
+          <p class="lab">Jornada espiritual do retiro</p>
+          <p class="act" style="font-size:0.95rem; line-height:1.6;">Deus → Cristo → Identidade → Propósito → Comunidade → Envio</p>
+          <p class="next-extra" style="margin-top:8px;"><span>As seis ministrações não são mensagens isoladas — cada encontro contribui pra entender o propósito eterno de Deus e como o adolescente participa dele.</span></p>
+        </div>
+        <div class="section-label">Painel das seis ministrações</div>
+        <div class="day-card hard-sm" id="painelMinistracoesCard"></div>
+      </div>
+
+      <!-- TAB: MINISTRAÇÕES -->
+      <div class="tab-panel" id="palTab-ministracoes">
+        <div id="ministracoesDetalheCard"></div>
+      </div>
+
+      <!-- TAB: PREGADORES -->
+      <div class="tab-panel" id="palTab-pregadores">
+        <p class="info-note">Os seis pregadores ainda não foram definidos pelo cronograma consultado. Nenhum nome é preenchido automaticamente.</p>
+        <div id="pregadoresList"></div>
+        <button class="add-btn press" id="togglePregadorForm">+ Cadastrar pregador</button>
+        <div class="add-form hard-sm" id="pregadorForm">
+          <input type="text" id="pregadorNomeInput" placeholder="Nome do pregador">
+          <select id="pregadorMinistracaoInput">
+            <option value="1">Ministração 1 — Centralidade (sex 21h30)</option>
+            <option value="2">Ministração 2 — O Propósito Eterno de Deus (sáb 09h30)</option>
+            <option value="3">Ministração 3 — Jesus no Centro (sáb 11h15)</option>
+            <option value="4">Ministração 4 — Entrega (sáb 20h45)</option>
+            <option value="5">Ministração 5 — Uma Família de Muitos Filhos Semelhantes a Jesus (dom 09h30)</option>
+            <option value="6">Ministração 6 — Eu Faço Parte Desse Propósito (dom 11h15)</option>
+            <option value="devocional">Devocional de sábado (07h30)</option>
+          </select>
+          <div class="form-row">
+            <input type="text" id="pregadorContatoInput" placeholder="Contato (se autorizado)">
+            <input type="text" id="pregadorChegadaInput" placeholder="Horário de chegada">
+          </div>
+          <input type="text" id="pregadorNecessidadesInput" placeholder="Necessidades técnicas">
+          <input type="text" id="pregadorMateriaisInput" placeholder="Materiais utilizados">
+          <select id="pregadorStatusInput">
+            <option value="a_convidar">A convidar</option>
+            <option value="convidado">Convidado</option>
+            <option value="aguardando">Aguardando confirmação</option>
+            <option value="confirmado">Confirmado</option>
+            <option value="material_recebido">Material recebido</option>
+            <option value="preparado">Preparado</option>
+          </select>
+          <textarea id="pregadorObsInput" placeholder="Observações (opcional)"></textarea>
+          <div class="form-actions">
+            <button class="btn-cancel press" id="cancelPregadorBtn" type="button">Cancelar</button>
+            <button class="btn-save press" id="savePregadorBtn" type="button">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: ORAÇÃO E ACOMPANHAMENTO -->
+      <div class="tab-panel" id="palTab-oracao">
+        <div class="list-card hard-sm" style="background:var(--amber-bg); margin-bottom:18px;">
+          <p style="margin:0; font-weight:700; color:var(--amber); font-size:0.8rem;">⚠ O aplicativo não armazena confissões, relatos íntimos, pedidos de oração sensíveis ou registros individuais de aconselhamento. Situações delicadas devem ser encaminhadas diretamente à liderança pastoral.</p>
+        </div>
+
+        <div class="section-label">Devocional e momentos de oração</div>
+        <div class="day-card hard-sm" style="margin-bottom:18px;">
+          <div class="sched-row"><div class="sched-time">Sáb 07h30</div><div class="sched-desc">Devocional da manhã <span class="sub">Organização: Daniela · Ministrante a confirmar</span></div></div>
+          <div class="sched-row"><div class="sched-time">Sex 22h30–23h00</div><div class="sched-desc">Oração e pequenos grupos <span class="sub">Após a Ministração 1</span></div></div>
+          <div class="sched-row"><div class="sched-time">Sáb 22h00–23h30</div><div class="sched-desc">Oração e ministração individual <span class="sub">Coordenação: liderança do retiro · Intercessão: Sabrina</span></div></div>
+          <div class="sched-row"><div class="sched-time">Dom 12h30–13h30</div><div class="sched-desc">Louvor e oração final no sítio <span class="sub">Liderança e Ministério de Louvor</span></div></div>
+        </div>
+
+        <div class="section-label">Equipe de intercessão — Sabrina</div>
+        <div id="intercessoresList"></div>
+        <button class="add-btn press" id="toggleIntercessorForm">+ Adicionar à equipe</button>
+        <div class="add-form hard-sm" id="intercessorForm">
+          <input type="text" id="intercessorNomeInput" placeholder="Nome">
+          <div class="form-row">
+            <input type="text" id="intercessorPeriodoInput" placeholder="Período (ex: sáb à noite)">
+            <input type="text" id="intercessorHorarioInput" placeholder="Horário">
+          </div>
+          <input type="text" id="intercessorLocalInput" placeholder="Local">
+          <textarea id="intercessorObsInput" placeholder="Observações operacionais (sem relatos pessoais)"></textarea>
+          <div class="form-actions">
+            <button class="btn-cancel press" id="cancelIntercessorBtn" type="button">Cancelar</button>
+            <button class="btn-save press" id="saveIntercessorBtn" type="button">Salvar</button>
+          </div>
+        </div>
+
+        <div class="section-label">Pequenos grupos — Phelps (sexta, 22h30–23h00)</div>
+        <p class="info-note">Divisão ainda a confirmar. Dados de adolescentes acessíveis só aos responsáveis autorizados — não registrar conteúdo íntimo das conversas.</p>
+        <div id="gruposList"></div>
+        <button class="add-btn press" id="toggleGrupoForm">+ Novo grupo</button>
+        <div class="add-form hard-sm" id="grupoForm">
+          <input type="text" id="grupoNomeInput" placeholder="Identificação do grupo">
+          <input type="text" id="grupoLiderInput" placeholder="Líder responsável">
+          <div class="form-row">
+            <input type="text" id="grupoLocalInput" placeholder="Local de encontro">
+            <input type="text" id="grupoHorarioInput" placeholder="Horário">
+          </div>
+          <select id="grupoStatusInput">
+            <option value="a_definir">A definir</option>
+            <option value="definido">Definido</option>
+          </select>
+          <div class="form-actions">
+            <button class="btn-cancel press" id="cancelGrupoBtn" type="button">Cancelar</button>
+            <button class="btn-save press" id="saveGrupoBtn" type="button">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: CULTO DE ENCERRAMENTO -->
+      <div class="tab-panel" id="palTab-encerramento">
+        <div class="list-card hard-sm"><div class="ttl">Domingo, 25/10 · 19h00</div><div class="sub2">Igreja Casa Farol</div></div>
+        <p class="info-note">Conectar a experiência do retiro à continuidade da caminhada cristã na comunidade. Funciona como encerramento da jornada CENTRALIDADE, não como programação desconectada.</p>
+        <div class="section-label">Programação sugerida (depende de aprovação da liderança pastoral)</div>
+        <div class="list-card hard-sm">
+          <ul class="sched-bullets">
+            <li>Abertura e louvor da igreja</li>
+            <li>Apresentação de vídeo com momentos do retiro</li>
+            <li>Testemunhos breves de adolescentes, com participação voluntária</li>
+            <li>Participação especial dos Teens</li>
+            <li>Palavra conectada ao tema CENTRALIDADE</li>
+            <li>Oração pelos adolescentes e envio</li>
+          </ul>
+        </div>
+        <div class="section-label">Cuidados</div>
+        <div class="list-card hard-sm">
+          <ul class="sched-bullets">
+            <li>Confirmar previamente os participantes</li>
+            <li>Solicitar autorização adequada para exibição de imagens e testemunhos de menores</li>
+            <li>Evitar exposição de experiências pessoais sensíveis</li>
+            <li>Alinhar o tempo de cada participação com a liderança do culto</li>
+          </ul>
+        </div>
+        <div class="section-label">Responsáveis</div>
+        <div class="list-card hard-sm"><div class="ttl">A confirmar</div></div>
+      </div>
+
+      <!-- TAB: CHECKLIST -->
+      <div class="tab-panel" id="palTab-checklist">
+        <p class="info-note">Toque num item pra marcar como feito. Fica salvo pra toda a equipe.</p>
+        <div class="section-label">Conteúdo</div>
+        <div class="list-card hard-sm" id="checkGrupoConteudo"></div>
+        <div class="section-label">Oração e acompanhamento</div>
+        <div class="list-card hard-sm" id="checkGrupoOracao"></div>
+        <div class="section-label">Culto de encerramento</div>
+        <div class="list-card hard-sm" id="checkGrupoCultoEnc"></div>
+
+        <div class="section-label">Responsabilidades</div>
+        <div class="day-card hard-sm">
+          <div class="sched-row"><div class="sched-desc">Coordenação geral do retiro</div><div class="sched-time">Ander, Fran, Filipe, Daniela</div></div>
+          <div class="sched-row"><div class="sched-desc">Organização espiritual e acompanhamento</div><div class="sched-time">Daniela</div></div>
+          <div class="sched-row"><div class="sched-desc">Definição dos pregadores</div><div class="sched-time">Daniela + liderança</div></div>
+          <div class="sched-row"><div class="sched-desc">Coordenação do louvor</div><div class="sched-time">Filipe</div></div>
+          <div class="sched-row"><div class="sched-desc">Som e técnica</div><div class="sched-time">Gustavo</div></div>
+          <div class="sched-row"><div class="sched-desc">Apoio técnico</div><div class="sched-time">Vilmar e Moisés</div></div>
+          <div class="sched-row"><div class="sched-desc">Intercessão</div><div class="sched-time">Sabrina</div></div>
+          <div class="sched-row"><div class="sched-desc">Pequenos grupos</div><div class="sched-time">Phelps</div></div>
+          <div class="sched-row"><div class="sched-desc">Fotos e vídeos</div><div class="sched-time">Emili e Rogério</div></div>
+          <div class="sched-row"><div class="sched-desc">Pregadores das seis ministrações</div><div class="sched-time">A confirmar</div></div>
+        </div>
       </div>
     </div>
 
@@ -553,7 +1147,7 @@
       <div class="list-card hard-sm"><div class="ttl">Daniela</div><div class="sub2">Devocional de sábado</div></div>
 
       <div class="section-label">Convidados</div>
-      <div class="list-card hard-sm"><div class="ttl">Samir · Guilherme e banda · Vânios</div></div>
+      <div class="list-card hard-sm"><div class="ttl">Banda convidada de Gramado · Vânios</div><div class="sub2">Pregadores das seis ministrações: a confirmar (ver Palavras e Ministrações)</div></div>
 
       <div class="section-label">Pendências da equipe</div>
       <div id="equipesList"></div>
@@ -961,6 +1555,1128 @@
 
   document.getElementById('orientacoesComprasList').innerHTML = ORIENTACOES_COMPRAS.map(o => `<li>${escapeHtml(o)}</li>`).join('');
 
+  // ---------- PRODUÇÃO E DECORAÇÃO ----------
+  document.querySelectorAll('[data-prod-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-prod-tab]').forEach(b => b.classList.toggle('is-active', b === btn));
+      document.querySelectorAll('[id^="prodTab-"]').forEach(p => p.classList.toggle('is-active', p.id === 'prodTab-' + btn.dataset.prodTab));
+    });
+  });
+
+  let ambienteCounter = 0;
+  function renderAmbienteCard(elId, itens){
+    const host = document.getElementById(elId);
+    host.innerHTML = itens.map(it => {
+      const id = 'amb-' + (ambienteCounter++);
+      const detailLines = [];
+      if(it.objetivo) detailLines.push(`<p><b>Objetivo:</b> ${escapeHtml(it.objetivo)}</p>`);
+      if(it.elementos) detailLines.push('<p><b>Elementos:</b></p><ul class="sched-bullets">' + it.elementos.map(e => `<li>${escapeHtml(e)}</li>`).join('') + '</ul>');
+      if(it.frase) detailLines.push(`<p><b>Frase:</b> "${escapeHtml(it.frase)}"</p>`);
+      if(it.materiais) detailLines.push('<p><b>Materiais:</b></p><ul class="sched-bullets">' + it.materiais.map(e => `<li>${escapeHtml(e)}</li>`).join('') + '</ul>');
+      if(it.demandas) detailLines.push('<p><b>Demandas:</b></p><ul class="sched-bullets">' + it.demandas.map(e => `<li>${escapeHtml(e)}</li>`).join('') + '</ul>');
+      if(it.local) detailLines.push(`<p><b>Local:</b> ${escapeHtml(it.local)}</p>`);
+      if(it.resp) detailLines.push(`<p><b>Responsável:</b> ${escapeHtml(it.resp)}</p>`);
+      if(it.obs) detailLines.push(`<p class="sched-obs">⚠ ${escapeHtml(it.obs)}</p>`);
+      return `<div class="sched-row sched-row-click" data-toggle-act="${id}">
+          <div class="sched-desc"><div class="sched-row-top"><b>${escapeHtml(it.titulo)}</b>${it.status ? `<span class="status-chip pendente">${escapeHtml(it.status)}</span>` : ''}</div></div>
+        </div>
+        <div class="sched-detail" id="${id}" style="display:none; padding-left:18px;">${detailLines.join('')}</div>`;
+    }).join('');
+    host.querySelectorAll('[data-toggle-act]').forEach(row => {
+      row.addEventListener('click', () => {
+        const detail = document.getElementById(row.dataset.toggleAct);
+        detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
+      });
+    });
+  }
+
+  renderAmbienteCard('recepcaoCard', [
+    { titulo:'Placa de boas-vindas', objetivo:'Criar o primeiro impacto visual na chegada.', frase:'BEM-VINDOS AO CENTRALIDADE',
+      local:'Entrada ou recepção do sítio', resp:'Fran e equipe',
+      demandas:['Definir arte','Definir dimensões','Escolher material de impressão','Providenciar suporte ou fixação','Instalar antes da chegada dos participantes'] },
+    { titulo:'Mesa de credenciamento', objetivo:'Organizar a chegada dos adolescentes.',
+      materiais:['Mesa','Lista de participantes','Crachás','Identificação dos quartos','Canetas','Identificação visual da recepção'],
+      demandas:['Definir o local','Organizar a mesa','Separar materiais por participante','Preparar a identificação dos quartos'],
+      resp:'Ambientação: Fran · Credenciamento: a confirmar' },
+    { titulo:'Crachás personalizados', objetivo:'Crachá com nome do participante, CENTRALIDADE 2026 e Casa Farol Teens.',
+      demandas:['Preparar a lista de nomes','Criar layout','Definir material','Produzir','Organizar por participante','Criar identificação diferenciada para voluntários e organização'],
+      obs:'Quantidade conforme relação final de participantes e equipe.' }
+  ]);
+
+  renderAmbienteCard('painelFotosCard', [
+    { titulo:'Espaço instagramável CENTRALIDADE', objetivo:'Criar o principal ponto de fotos do retiro.', frase:'JESUS NO CENTRO.',
+      elementos:['Nome CENTRALIDADE','Identidade visual oficial','Frase de impacto','Fundo para fotos individuais e em grupo'],
+      demandas:['Definir a arte','Escolher o local','Definir dimensões','Selecionar estrutura','Providenciar impressão ou montagem','Verificar iluminação','Montar antes do início do retiro'],
+      resp:'Fran e equipe · Apoio para registros: Emili e Rogério' }
+  ]);
+
+  renderAmbienteCard('palcoCard', [
+    { titulo:'Painel CENTRALIDADE', objetivo:'Criar um ambiente visual coerente com o tema do retiro.',
+      elementos:['Fundo ou painel CENTRALIDADE','Identidade visual do retiro','Elemento central relacionado a Jesus (alternativas: cruz, círculo com iluminação, ou palavra JESUS em destaque)'],
+      demandas:['Definir a proposta','Verificar medidas do espaço','Escolher materiais','Produzir','Instalar','Conferir iluminação e visibilidade'],
+      resp:'Fran e equipe · Apoio técnico: Gustavo, Vilmar e Moisés',
+      obs:'Direção visual: limpo, forte e sem excesso de elementos.' },
+    { titulo:'Reaproveitamento no culto final', status:'A confirmar',
+      objetivo:'Avaliar o uso do mesmo banner/painel no culto de encerramento de domingo, na Casa Farol.',
+      demandas:['Confirmar se o material poderá ser transportado','Verificar dimensões e fixação na igreja','Definir responsáveis pela retirada e reinstalação'] }
+  ]);
+
+  renderAmbienteCard('sinalizacaoCard', [
+    { titulo:'Placas de identificação dos ambientes',
+      elementos:['Recepção','Quartos','Banheiros','Refeitório','Local das ministrações','Área da gincana','Espaço de oração (se aprovado)'],
+      demandas:['Confirmar todos os ambientes disponíveis no sítio','Definir os nomes','Criar as artes','Produzir placas','Instalar','Conferir visibilidade e orientação'],
+      resp:'Fran e equipe' },
+    { titulo:'Identificação dos quartos', objetivo:'Usar nomes relacionados ao tema CENTRALIDADE (nomes ainda a definir).', resp:'Fran' }
+  ]);
+
+  renderAmbienteCard('experienciasCard', [
+    { titulo:'Kit de chegada', status:'Proposta para aprovação', objetivo:'Entregar um kit individual no credenciamento.',
+      materiais:['Crachá','Programação','Card do tema','Caneta','Identificação da equipe'], obs:'Formato: envelope ou saquinho personalizado.' },
+    { titulo:'Mural CENTRALIDADE', status:'Proposta para aprovação', objetivo:'Criar uma experiência visual que acompanhe a transformação proposta pelo retiro.',
+      elementos:['Sexta: "O QUE OCUPA O CENTRO?"','Domingo: "QUEM ESTÁ NO CENTRO?"'],
+      demandas:['Definir o formato do mural','Escolher materiais','Definir como os adolescentes participarão','Estabelecer os momentos de interação','Montar e organizar'] },
+    { titulo:'Cartas dos pais', status:'A aprovar', objetivo:'Cada adolescente receber uma carta preparada por sua família.',
+      demandas:['Aprovar a atividade','Definir quem fará o contato com as famílias','Estabelecer prazo de recebimento','Organizar cartas e envelopes','Definir o momento de entrega'],
+      obs:'Cartas pessoais ficam sob responsabilidade da liderança, sem acesso público no aplicativo. Se aprovada, não exibir detalhes no acesso dos adolescentes.' },
+    { titulo:'Espaço "Lugar Secreto"', status:'Proposta para aprovação', objetivo:'Ambiente de oração e reflexão individual, conectado ao tema anual da Casa Farol.',
+      elementos:['Bíblia','Iluminação suave','Frases bíblicas','Ambiente acolhedor'],
+      demandas:['Aprovar a proposta','Definir o local','Selecionar materiais','Preparar o ambiente','Estabelecer orientações de uso e supervisão adequadas aos adolescentes'] },
+    { titulo:'Camiseta personalizada', status:'A confirmar', objetivo:'Usar a camiseta como lembrança do retiro, com entrega ou personalização no domingo.',
+      local:'Domingo, 15h30–16h15 (cronograma geral)',
+      demandas:['Confirmar o formato da atividade','Definir modelo da camiseta','Conferir tamanhos','Definir quantidade','Aprovar arte','Providenciar materiais','Organizar entrega ou personalização'],
+      resp:'A confirmar' }
+  ]);
+
+  renderAmbienteCard('encerramentoCard', [
+    { titulo:'Mural de testemunhos', status:'A aprovar', frase:'O QUE DEUS FEZ EM MIM?',
+      objetivo:'Mural para registrar frases ou testemunhos, caso a dinâmica seja aprovada.', obs:'Materiais a definir conforme formato escolhido.' },
+    { titulo:'Cards de compromisso', status:'A confirmar', frase:'A PARTIR DE HOJE...',
+      objetivo:'Incentivar os adolescentes a refletir sobre decisões práticas após o retiro.' },
+    { titulo:'Lembrança do retiro', status:'A confirmar', objetivo:'Entregar uma recordação do CENTRALIDADE 2026.',
+      obs:'Opção apresentada no planejamento: camiseta personalizada. Confirmar antes de realizar compras.' }
+  ]);
+
+  document.getElementById('pendenciasProducaoList').innerHTML = [
+    'Identidade visual oficial e artes.',
+    'Dimensões e materiais dos painéis.',
+    'Quantidade de quartos e placas.',
+    'Produção dos crachás.',
+    'Aprovação do kit de chegada.',
+    'Aprovação do mural interativo.',
+    'Realização da dinâmica das cartas dos pais.',
+    'Montagem do espaço Lugar Secreto.',
+    'Formato da atividade das camisetas.',
+    'Materiais necessários para o encerramento.',
+    'Orçamento disponível.',
+    'Data e equipe de montagem.',
+    'Equipe de desmontagem e transporte.'
+  ].map(p => `<li>${escapeHtml(p)}</li>`).join('');
+
+  // ---------- Lista de materiais a levantar (referência estática) ----------
+  const MATERIAL_REF_LIST = [
+    ['Placa de boas-vindas','A definir','Planejado'], ['Crachás dos adolescentes','Conforme inscritos','Planejado'],
+    ['Identificação dos voluntários','Conforme equipe','Planejado'], ['Placas de quartos','Conforme quartos','Planejado'],
+    ['Placas direcionais','Conforme ambientes','Planejado'], ['Painel de fotos','A definir','Planejado'],
+    ['Painel do palco','A definir','Planejado'], ['Elemento visual central','A definir','A aprovar'],
+    ['Envelopes personalizados','Conforme atividade','A aprovar'], ['Cartas dos pais','Conforme participantes','A aprovar'],
+    ['Cards bíblicos','A definir','A aprovar'], ['Cadernos ou blocos','A definir','A aprovar'],
+    ['Canetas','A definir','A aprovar'], ['Material do mural','A definir','A aprovar'],
+    ['Materiais do espaço de oração','A definir','A aprovar'], ['Camisetas','A definir','A confirmar'],
+    ['Materiais para personalização','A definir','A confirmar'], ['Lembranças','A definir','A confirmar']
+  ];
+  document.getElementById('materiaisRefCard').innerHTML = MATERIAL_REF_LIST.map(([nome,qtd,sit]) =>
+    `<div class="sched-row"><div class="sched-desc">${escapeHtml(nome)}<span class="sub">${escapeHtml(qtd)}</span></div><div class="sched-time" style="text-align:right;">${escapeHtml(sit)}</div></div>`
+  ).join('');
+
+  const MATERIAL_STATUS_LABELS = {a_aprovar:'A aprovar', a_comprar:'A comprar', comprado:'Comprado', em_producao:'Em produção', pronto:'Pronto', instalado:'Instalado', concluido:'Concluído'};
+  const MATERIAL_STATUS_CYCLE = ['a_aprovar','a_comprar','comprado','em_producao','pronto','instalado','concluido'];
+  const ORIGEM_LABELS = {comprar:'A comprar', emprestado:'Emprestado', doacao:'Doação'};
+  function renderMateriaisProducao(){
+    const docs = porTipo('material_producao');
+    const host = document.getElementById('materiaisProducaoList');
+    if(docs.length === 0){ host.innerHTML = '<div class="empty-state">Nenhum material cadastrado ainda.</div>'; }
+    else{
+      const sorted = [...docs].sort((a,b) => new Date(b.criadoEm) - new Date(a.criadoEm));
+      host.innerHTML = sorted.map(m => `
+        <div class="list-card hard-sm">
+          <div class="row-top">
+            <div>
+              <div class="ttl">${escapeHtml(m.nome)}</div>
+              <div class="sub2">${escapeHtml(m.categoria||'-')} · ${escapeHtml(ORIGEM_LABELS[m.origem]||'-')}${m.responsavel ? ' · ' + escapeHtml(m.responsavel) : ''}</div>
+              <div class="sub2">Necessária: ${escapeHtml(m.quantidadeNecessaria||'-')} · A comprar/produzir: ${escapeHtml(m.quantidadeComprar||'-')}</div>
+              ${m.fornecedor ? `<div class="sub2">Fornecedor: ${escapeHtml(m.fornecedor)}</div>` : ''}
+              ${(m.custoPrevisto || m.custoRealizado) ? `<div class="sub2">Custo previsto: ${m.custoPrevisto ? 'R$ '+Number(m.custoPrevisto).toFixed(2).replace('.',',') : '-'} · Realizado: ${m.custoRealizado ? 'R$ '+Number(m.custoRealizado).toFixed(2).replace('.',',') : '-'}</div>` : ''}
+              ${m.dataEntrega ? `<div class="sub2">Entrega: ${escapeHtml(m.dataEntrega)}</div>` : ''}
+              ${m.observacoes ? `<div class="sub2">${escapeHtml(m.observacoes)}</div>` : ''}
+            </div>
+            <button class="status-chip ${m.status==='concluido'||m.status==='instalado' ? 'concluido' : (m.status==='comprado'||m.status==='pronto'||m.status==='em_producao' ? 'andamento' : 'pendente')}" data-material-id="${m.id}" data-status="${m.status}">${MATERIAL_STATUS_LABELS[m.status]||m.status}</button>
+          </div>
+          <button class="delete-x" data-del-material="${m.id}">Remover</button>
+        </div>
+      `).join('');
+      host.querySelectorAll('[data-material-id]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const next = MATERIAL_STATUS_CYCLE[(MATERIAL_STATUS_CYCLE.indexOf(btn.dataset.status)+1) % MATERIAL_STATUS_CYCLE.length];
+          const reg = ALL_DADOS.find(d => d.id === btn.dataset.materialId);
+          if(!reg) return;
+          await sbUpdate(reg.id, stripMeta(Object.assign({}, reg, {status: next})));
+          await loadAllDados();
+        });
+      });
+      host.querySelectorAll('[data-del-material]').forEach(btn => {
+        btn.addEventListener('click', async () => { await sbDelete(btn.dataset.delMaterial); await loadAllDados(); });
+      });
+    }
+    // indicadores
+    document.getElementById('prodStatMateriais').textContent = docs.filter(m => !['concluido','instalado'].includes(m.status)).length;
+  }
+  document.getElementById('toggleMaterialForm').addEventListener('click', () => document.getElementById('materialForm').classList.add('is-open'));
+  document.getElementById('cancelMaterialBtn').addEventListener('click', () => document.getElementById('materialForm').classList.remove('is-open'));
+  document.getElementById('saveMaterialBtn').addEventListener('click', async () => {
+    const nome = document.getElementById('materialNomeInput').value.trim();
+    const categoria = document.getElementById('materialCategoriaInput').value;
+    const quantidadeNecessaria = document.getElementById('materialQtdNecInput').value.trim();
+    const quantidadeComprar = document.getElementById('materialQtdCompInput').value.trim();
+    const responsavel = document.getElementById('materialRespInput').value.trim();
+    const fornecedor = document.getElementById('materialFornecedorInput').value.trim();
+    const custoPrevisto = document.getElementById('materialCustoPrevInput').value.trim();
+    const custoRealizado = document.getElementById('materialCustoRealInput').value.trim();
+    const dataEntrega = document.getElementById('materialDataInput').value;
+    const origem = document.getElementById('materialOrigemInput').value;
+    const status = document.getElementById('materialStatusInput').value;
+    const observacoes = document.getElementById('materialObsInput').value.trim();
+    if(!nome) return;
+    await sbInsert('material_producao', {
+      nome, categoria, quantidadeNecessaria, quantidadeComprar, responsavel, fornecedor,
+      custoPrevisto: custoPrevisto ? Number(custoPrevisto) : null,
+      custoRealizado: custoRealizado ? Number(custoRealizado) : null,
+      dataEntrega, origem, status, observacoes, criadoEm: new Date().toISOString()
+    });
+    ['materialNomeInput','materialQtdNecInput','materialQtdCompInput','materialRespInput','materialFornecedorInput','materialCustoPrevInput','materialCustoRealInput','materialDataInput','materialObsInput'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('materialForm').classList.remove('is-open');
+    await loadAllDados();
+  });
+
+  function renderProducaoIndicadores(){
+    const tarefas = porTipo('tarefa').filter(t => t.area === 'producao');
+    document.getElementById('prodStatTotal').textContent = tarefas.length;
+    document.getElementById('prodStatPendentes').textContent = tarefas.filter(t => (t.status||'pendente') === 'pendente').length;
+    document.getElementById('prodStatAndamento').textContent = tarefas.filter(t => t.status === 'andamento').length;
+    document.getElementById('prodStatConcluidas').textContent = tarefas.filter(t => t.status === 'concluido').length;
+  }
+
+  // ---------- GINCANAS E DINÂMICAS ----------
+  document.querySelectorAll('[data-ginc-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-ginc-tab]').forEach(b => b.classList.toggle('is-active', b === btn));
+      document.querySelectorAll('[id^="gincTab-"]').forEach(p => p.classList.toggle('is-active', p.id === 'gincTab-' + btn.dataset.gincTab));
+    });
+  });
+
+  const EQUIPES_GINCANA = [
+    {key:'fe', nome:'Fé', cor:'#2e5ce6'},
+    {key:'esperanca', nome:'Esperança', cor:'#1a9c53'},
+    {key:'amor', nome:'Amor', cor:'#c4102c'}
+  ];
+
+  function renderEquipesGincana(){
+    const host = document.getElementById('equipeGincanaCards');
+    const integrantes = porTipo('integrante_gincana');
+    host.innerHTML = EQUIPES_GINCANA.map(eq => {
+      const membros = integrantes.filter(i => i.equipe === eq.key);
+      const lider = membros.find(m => m.lider);
+      return `
+      <div class="list-card hard-sm" style="border-left:5px solid ${eq.cor};">
+        <div class="ttl">${eq.nome}</div>
+        <div class="sub2">${lider ? 'Líder: ' + escapeHtml(lider.nome) : 'Líder ainda não definido'} · ${membros.length} integrante(s)</div>
+        ${membros.length ? '<div class="sub2" style="margin-top:6px;">' + membros.map(m => escapeHtml(m.nome) + (m.lider ? ' (líder)' : '')).join(' · ') + '</div>' : ''}
+        <div class="form-actions" style="margin-top:10px;">
+          <input type="text" id="novoIntegrante-${eq.key}" placeholder="Nome do integrante" style="flex:2; padding:9px 11px; border-radius:9px; border:2px solid var(--ink); font-family:'Manrope',sans-serif; font-weight:600; font-size:0.8rem;">
+          <button class="btn-save press" data-add-integrante="${eq.key}" type="button" style="flex:1;">+ Adicionar</button>
+        </div>
+        <label class="urgente-toggle" style="margin-top:8px;"><input type="checkbox" id="novoIntegranteLider-${eq.key}"> É o líder</label>
+      </div>`;
+    }).join('');
+    host.querySelectorAll('[data-add-integrante]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const key = btn.dataset.addIntegrante;
+        const input = document.getElementById('novoIntegrante-' + key);
+        const liderInput = document.getElementById('novoIntegranteLider-' + key);
+        const nome = input.value.trim();
+        if(!nome) return;
+        await sbInsert('integrante_gincana', { equipe:key, nome, lider: liderInput.checked, criadoEm: new Date().toISOString() });
+        await loadAllDados();
+      });
+    });
+  }
+
+  function renderAtividades(){
+    const itens = [
+      { titulo:'1. Formação das equipes', time:'15 min', desc:['Dividir os adolescentes em três equipes equilibradas','Escolher um líder','Confirmar o nome da equipe','Confeccionar bandeira com TNT e tinta','Criar grito de guerra','Apresentar rapidamente a equipe'],
+        materiais:'TNT, tinta, materiais de apoio para pintura', resp:'Materiais: Jair', obs:'Pontuação: 1º 100 · 2º 70 · 3º 40 pontos (critério: criatividade, participação e apresentação)' },
+      { titulo:'2. Caça ao tesouro', time:'20 min', desc:'As três equipes participam da caça ao tesouro já organizada e preparada pela equipe responsável.',
+        materiais:'Papéis e pistas da caça ao tesouro', resp:'Materiais: Jair',
+        obs:'Pontuação: 1ª a concluir 100 · 2ª 70 · 3ª 40 pontos. Pistas e dinâmica já definidas — não é necessário criar novas.' },
+      { titulo:'3. Torta na cara', time:'20 min', desc:'Representantes das equipes respondem perguntas bíblicas e de conhecimentos gerais (10s por resposta). Ver aba Quiz para as 100 perguntas.',
+        materiais:'Pratos, refrigerante, chantilly/espuma apropriada, PDF de perguntas', resp:'Materiais: Filipe',
+        obs:'10 pontos por resposta certa, mesmo nº de oportunidades por equipe. Regra de segurança: material adequado pra pele, sem atingir olhos/nariz; participação voluntária.' },
+      { titulo:'4. Teatro', time:'20 min', desc:'Cada equipe prepara uma pequena apresentação teatral. A organização poderá definir tema ou situação.',
+        obs:'Critérios: criatividade, participação, trabalho em equipe, clareza. Pontuação: 1º 100 · 2º 70 · 3º 40 pontos. Tema específico a definir pela organização.' },
+      { titulo:'5. Circuito cronometrado', time:'35 min', desc:'Última atividade competitiva — 6 estações consecutivas, cronômetro iniciado na 1ª e encerrado na 6ª estação. Ver detalhes das estações abaixo.',
+        obs:'Pontuação: menor tempo 100 · segundo 70 · terceiro 40 pontos.' }
+    ];
+    let c = 0;
+    const host = document.getElementById('atividadesCard');
+    host.innerHTML = itens.map(it => {
+      const id = 'ativ-' + (c++);
+      const detailLines = [];
+      if(Array.isArray(it.desc)) detailLines.push('<ul class="sched-bullets">' + it.desc.map(d=>`<li>${escapeHtml(d)}</li>`).join('') + '</ul>');
+      else detailLines.push(`<p>${escapeHtml(it.desc)}</p>`);
+      if(it.materiais) detailLines.push(`<p><b>Materiais:</b> ${escapeHtml(it.materiais)}</p>`);
+      if(it.resp) detailLines.push(`<p><b>Responsável:</b> ${escapeHtml(it.resp)}</p>`);
+      if(it.obs) detailLines.push(`<p class="sched-obs">${escapeHtml(it.obs)}</p>`);
+      return `<div class="sched-row sched-row-click" data-toggle-act="${id}">
+          <div class="sched-time">${it.time}</div>
+          <div class="sched-desc"><b>${escapeHtml(it.titulo)}</b></div>
+        </div>
+        <div class="sched-detail" id="${id}" style="display:none;">${detailLines.join('')}</div>`;
+    }).join('');
+    host.querySelectorAll('[data-toggle-act]').forEach(row => {
+      row.addEventListener('click', () => {
+        const detail = document.getElementById(row.dataset.toggleAct);
+        detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
+      });
+    });
+  }
+
+  function renderEstacoes(){
+    const estacoes = [
+      { titulo:'1. Zigue-zague', materiais:'Garrafas PET de 2 litros', desc:'Organizar garrafas formando obstáculos; o participante corre em zigue-zague, de ida e volta, finalizando no ponto de partida.', obs:'Não pode cortar caminho.' },
+      { titulo:'2. Garrafa em pé', materiais:'Garrafas PET de 600 ml com pouca água', desc:'O participante lança a garrafa para girar; a estação termina quando ela parar em pé.', obs:'Não vale colocar a garrafa em pé manualmente.' },
+      { titulo:'3. Bala na água e na farinha', materiais:'Recipiente com água, recipiente com farinha, balas', desc:'Primeiro localizar e retirar a bala da água, depois da farinha.', resp:'Materiais: Jair',
+        obs:'Segurança: versão supervisionada, recipientes rasos, sem submergir o rosto, sem aspirar farinha nem empurrar a cabeça. Usar balas embaladas ou objetos maiores e seguros; verificar alergias.' },
+      { titulo:'4. Corrida de saco', materiais:'Sacos resistentes', desc:'O participante entra no saco, percorre a distância marcada, retorna e libera a próxima estação.', resp:'Materiais: Phelps' },
+      { titulo:'5. Batata na colher', materiais:'Batata, colher', desc:'Equilibrar a batata sobre a colher e percorrer o trajeto; se cair, recoloca e continua conforme regra definida.', resp:'Materiais: Phelps' },
+      { titulo:'6. Chute ao gol', materiais:'Bola de futebol, gol pequeno, marcação de distância', desc:'Posicionar a bola, chutar em direção ao gol; termina ao marcar um gol válido.', resp:'Bola: Anderson · Gol pequeno: a confirmar' }
+    ];
+    let c = 0;
+    const host = document.getElementById('estacoesCard');
+    host.innerHTML = estacoes.map(it => {
+      const id = 'est-' + (c++);
+      const detailLines = [`<p>${escapeHtml(it.desc)}</p>`, `<p><b>Materiais:</b> ${escapeHtml(it.materiais)}</p>`];
+      if(it.resp) detailLines.push(`<p><b>Responsável:</b> ${escapeHtml(it.resp)}</p>`);
+      if(it.obs) detailLines.push(`<p class="sched-obs">⚠ ${escapeHtml(it.obs)}</p>`);
+      return `<div class="sched-row sched-row-click" data-toggle-act="${id}">
+          <div class="sched-desc"><b>${escapeHtml(it.titulo)}</b></div>
+        </div>
+        <div class="sched-detail" id="${id}" style="display:none; padding-left:18px;">${detailLines.join('')}</div>`;
+    }).join('');
+    host.querySelectorAll('[data-toggle-act]').forEach(row => {
+      row.addEventListener('click', () => {
+        const detail = document.getElementById(row.dataset.toggleAct);
+        detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
+      });
+    });
+    const regrasGerais = document.createElement('div');
+    regrasGerais.className = 'sched-detail';
+    regrasGerais.style.display = 'block';
+    regrasGerais.innerHTML = '<p><b>Regras gerais:</b></p><ul class="sched-bullets">' + [
+      'As três equipes percorrem exatamente as mesmas estações.',
+      'O tempo é cronometrado individualmente por equipe.',
+      'A organização define quantos participantes executam cada estação.',
+      'O cronômetro não é interrompido durante as transições.',
+      'A equipe só avança quando cumprir a estação anterior.',
+      'Distâncias, tentativas e penalidades devem ser padronizadas.',
+      'A organização pode limitar tentativas para não ultrapassar o tempo disponível.',
+      'O responsável registra o tempo total de cada equipe.',
+      'Todas as atividades devem ser supervisionadas e adaptadas aos participantes.'
+    ].map(r => `<li>${escapeHtml(r)}</li>`).join('') + '</ul>';
+    host.appendChild(regrasGerais);
+  }
+
+  // Quiz: 100 perguntas (70 bíblicas + 30 gerais)
+  const QUIZ_BIBLIA = [
+    ['Quem construiu uma arca para sobreviver ao dilúvio?','Noé'],['Quem foram o primeiro homem e a primeira mulher?','Adão e Eva'],
+    ['Em qual jardim Adão e Eva viviam?','Jardim do Éden'],['Qual animal falou com Eva no jardim?','A serpente'],
+    ['Quem criou os céus e a terra?','Deus'],['Quem foi engolido por um grande peixe?','Jonas'],
+    ['Quantos dias Jonas ficou dentro do grande peixe?','Três dias'],['Quem recebeu de Deus os Dez Mandamentos?','Moisés'],
+    ['Qual mar se abriu para o povo de Israel passar?','Mar Vermelho'],['Quem foi colocado em um cesto no rio quando era bebê?','Moisés'],
+    ['Quem derrotou o gigante Golias?','Davi'],['O que Davi lançou com sua funda para atingir Golias?','Uma pedra'],
+    ['Qual era o trabalho de Davi antes de ser rei?','Pastor de ovelhas'],['Quem foi lançado na cova dos leões?','Daniel'],
+    ['Qual jovem ouviu Deus chamar seu nome durante a noite?','Samuel'],['Quem ganhou de seu pai uma túnica colorida e foi vendido pelos irmãos?','José'],
+    ['Qual rei ficou conhecido por sua grande sabedoria?','Salomão'],['Qual homem teve sua força associada ao cabelo que não devia ser cortado?','Sansão'],
+    ['Qual rainha ajudou a salvar seu povo?','Ester'],['Quem liderou Israel na conquista de Jericó?','Josué'],
+    ['Quem era a mãe de Jesus?','Maria'],['Qual era o nome do esposo de Maria?','José'],
+    ['Em qual cidade Jesus nasceu?','Belém'],['Onde Jesus foi deitado logo depois de nascer?','Em uma manjedoura'],
+    ['Quem recebeu dos anjos a notícia do nascimento de Jesus enquanto cuidava dos rebanhos?','Os pastores'],['O que guiou os magos até o lugar onde estava Jesus?','Uma estrela'],
+    ['Quem batizou Jesus?','João Batista'],['Em qual rio Jesus foi batizado?','Rio Jordão'],
+    ['Quantos apóstolos Jesus escolheu?','Doze'],['Qual era a profissão de Pedro quando Jesus o chamou?','Pescador'],
+    ['Quem transformou água em vinho?','Jesus'],['Jesus transformou água em vinho durante qual tipo de festa?','Uma festa de casamento'],
+    ['Quais alimentos foram multiplicados por Jesus para alimentar uma multidão?','Pães e peixes'],['Quantos pães e peixes o menino tinha na multiplicação dos alimentos?','Cinco pães e dois peixes'],
+    ['Quem andou sobre a água em direção a Jesus?','Pedro'],['Quem acalmou uma tempestade com sua palavra?','Jesus'],
+    ['Quem Jesus ressuscitou depois de estar morto havia quatro dias?','Lázaro'],['Quem subiu em uma árvore para ver Jesus?','Zaqueu'],
+    ['Qual discípulo disse que precisava ver as marcas dos pregos para crer que Jesus ressuscitou?','Tomé'],['Qual discípulo traiu Jesus?','Judas Iscariotes'],
+    ['Qual discípulo negou Jesus três vezes?','Pedro'],['Jesus morreu em uma cruz ou em um barco?','Em uma cruz'],
+    ['Em que dia Jesus ressuscitou: primeiro, terceiro ou sétimo?','No terceiro dia'],['Qual mulher encontrou Jesus ressuscitado e contou aos discípulos que tinha visto o Senhor?','Maria Madalena'],
+    ['Quem ajudou o homem ferido na parábola do bom samaritano?','Um samaritano'],['Na parábola do filho pródigo, o filho voltou para a casa de quem?','De seu pai'],
+    ['Na parábola da ovelha perdida, qual animal o pastor foi procurar?','Uma ovelha'],['Na parábola dos dois construtores, a casa firme foi construída sobre a rocha ou a areia?','Sobre a rocha'],
+    ['Qual irmã de Marta ficou aos pés de Jesus ouvindo seus ensinamentos?','Maria'],['O que Jesus lavou dos discípulos para ensinar a servir?','Os pés'],
+    ['Qual livro da Bíblia conta a criação do mundo?','Gênesis'],['Qual é o último livro da Bíblia?','Apocalipse'],
+    ['A Bíblia é dividida em quais dois Testamentos?','Antigo Testamento e Novo Testamento'],['Qual livro da Bíblia reúne cânticos e orações, como "O Senhor é o meu pastor"?','Salmos'],
+    ['Qual oração ensinada por Jesus começa com "Pai nosso"?','A oração do Pai-Nosso'],['Complete: "O Senhor é o meu pastor; nada me…"','Faltará'],
+    ['Qual era o nome do grande amigo de Davi, filho do rei Saul?','Jônatas'],['Quem disse a Noemi: "O teu povo será o meu povo, e o teu Deus será o meu Deus"?','Rute'],
+    ['Quais dois homens cantaram e oraram na prisão antes de um terremoto?','Paulo e Silas'],['Quem perseguia os cristãos e encontrou Jesus no caminho de Damasco?','Saulo, também conhecido como Paulo'],
+    ['Quem disse: "Eu sou o caminho, a verdade e a vida"?','Jesus'],['Complete a fala de Jesus: "Sem mim vocês não podem fazer…"','Nada'],
+    ['Segundo Jesus, devemos amar o próximo como a quem?','Como a nós mesmos'],['Segundo Jesus, devemos amar apenas os amigos ou também os inimigos?','Também os inimigos'],
+    ['Segundo a Bíblia, Deus olha apenas a aparência ou o coração?','O coração'],['Segundo Jesus, devemos buscar primeiro o Reino de quem?','De Deus'],
+    ['Complete: Jesus chamou seus seguidores de "sal da terra" e "luz do…"','Mundo'],['Segundo Jesus, seus discípulos seriam reconhecidos pelo amor ou pela riqueza?','Pelo amor uns pelos outros'],
+    ['Quem é chamado de "o pão da vida"?','Jesus'],['No tema CENTRALIDADE, quem queremos colocar no centro de nossa vida?','Jesus Cristo']
+  ];
+  const QUIZ_GERAL = [
+    ['Quanto é 7 + 8?','15'],['Quanto é 6 × 4?','24'],['Quanto é 100 dividido por 10?','10'],['Qual é a metade de 50?','25'],
+    ['Se você tem R$ 20 e gasta R$ 7, quanto sobra?','R$ 13'],['Quantos minutos tem uma hora?','60 minutos'],
+    ['Quantos lados tem um triângulo?','Três'],['Quantos centímetros tem um metro?','100 centímetros'],
+    ['Qual é o plural de "animal"?','Animais'],['Qual é o contrário de "rápido"?','Lento ou devagar'],
+    ['Qual é a primeira letra do alfabeto?','A'],['Qual sinal usamos no final de uma pergunta escrita?','Ponto de interrogação (?)'],
+    ['Na frase "Ana correu", qual palavra é o verbo?','Correu'],['Qual é a sílaba mais forte da palavra "café"?','Fé'],
+    ['Qual é a capital do Brasil?','Brasília'],['Em qual continente fica o Brasil?','América do Sul'],
+    ['Qual oceano banha a costa brasileira?','Oceano Atlântico'],['Em qual estado brasileiro ficam Três Coroas e Igrejinha?','Rio Grande do Sul'],
+    ['Qual é a capital do Rio Grande do Sul?','Porto Alegre'],['Qual idioma é o mais falado no Brasil?','Português'],
+    ['Em qual planeta nós vivemos?','Terra'],['Qual é a estrela mais próxima da Terra?','Sol'],
+    ['Qual é o satélite natural da Terra?','Lua'],['Qual órgão bombeia o sangue pelo corpo?','Coração'],
+    ['Quais órgãos usamos principalmente para respirar?','Pulmões'],['Qual é a fórmula química da água?','H₂O'],
+    ['Como se chama a passagem da água líquida para o estado sólido?','Solidificação ou congelamento'],['Qual processo as plantas usam para produzir alimento com a luz do Sol?','Fotossíntese'],
+    ['Qual gás do ar é usado pelo nosso corpo na respiração?','Oxigênio'],['Quantos meses tem um ano?','Doze']
+  ];
+  function renderQuiz(){
+    let c = 0;
+    function build(list, offset){
+      return list.map((q,i) => {
+        const id = 'quiz-' + (c++);
+        return `<div class="sched-row sched-row-click" data-toggle-act="${id}">
+            <div class="sched-time">${offset+i+1}</div>
+            <div class="sched-desc">${escapeHtml(q[0])}</div>
+          </div>
+          <div class="sched-detail" id="${id}" style="display:none; padding-left:50px;"><p><b>Resposta:</b> ${escapeHtml(q[1])}</p></div>`;
+      }).join('');
+    }
+    document.getElementById('quizBibliaCard').innerHTML = build(QUIZ_BIBLIA, 0);
+    document.getElementById('quizGeralCard').innerHTML = build(QUIZ_GERAL, 70);
+    document.querySelectorAll('#quizBibliaCard [data-toggle-act], #quizGeralCard [data-toggle-act]').forEach(row => {
+      row.addEventListener('click', () => {
+        const detail = document.getElementById(row.dataset.toggleAct);
+        detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
+      });
+    });
+  }
+  // ---------- Placar ----------
+  const ATIV_COLS = [['formacao','Formação'],['caca','Caça ao tesouro'],['torta','Torta na cara'],['teatro','Teatro'],['circuito','Circuito']];
+  function getPlacarDoc(){ return porTipo('placar_gincana')[0] || {}; }
+  function renderPlacar(){
+    const placar = getPlacarDoc();
+    const host = document.getElementById('placarCard');
+    const totals = EQUIPES_GINCANA.map(eq => {
+      const dados = placar[eq.key] || {};
+      const total = ATIV_COLS.reduce((s,[k]) => s + (Number(dados[k])||0), 0);
+      return {eq, dados, total};
+    }).sort((a,b) => b.total - a.total);
+    host.innerHTML = `<table class="ingred-table" style="width:100%;">
+      <tr><td><b>Equipe</b></td>${ATIV_COLS.map(([,label]) => `<td style="text-align:center; font-size:0.68rem;"><b>${label}</b></td>`).join('')}<td style="text-align:right;"><b>Total</b></td></tr>
+      ${totals.map((t,i) => `<tr${i===0 ? ' style="background:var(--paper-2);"' : ''}>
+        <td>${i===0 ? '🏆 ' : ''}${escapeHtml(t.eq.nome)}${t.dados.tempo ? '<br><span class="sub">⏱ '+escapeHtml(t.dados.tempo)+'</span>' : ''}</td>
+        ${ATIV_COLS.map(([k]) => `<td style="text-align:center;">${t.dados[k]||0}</td>`).join('')}
+        <td style="text-align:right; font-weight:800; color:var(--violet-d);">${t.total}</td>
+      </tr>`).join('')}
+    </table>`;
+  }
+  document.getElementById('toggleEditarPlacarBtn').addEventListener('click', () => {
+    const placar = getPlacarDoc();
+    const map = {fe:'Fe', esperanca:'Esp', amor:'Amor'};
+    EQUIPES_GINCANA.forEach(eq => {
+      const d = placar[eq.key] || {};
+      const pref = map[eq.key];
+      document.getElementById('placar'+pref+'Formacao').value = d.formacao || '';
+      document.getElementById('placar'+pref+'Caca').value = d.caca || '';
+      document.getElementById('placar'+pref+'Torta').value = d.torta || '';
+      document.getElementById('placar'+pref+'Teatro').value = d.teatro || '';
+      document.getElementById('placar'+pref+'Circuito').value = d.circuito || '';
+      document.getElementById('placar'+pref+'Tempo').value = d.tempo || '';
+    });
+    document.getElementById('placarForm').classList.add('is-open');
+  });
+  document.getElementById('cancelPlacarBtn').addEventListener('click', () => document.getElementById('placarForm').classList.remove('is-open'));
+  document.getElementById('savePlacarBtn').addEventListener('click', async () => {
+    const map = {fe:'Fe', esperanca:'Esp', amor:'Amor'};
+    const novoPlacar = {};
+    EQUIPES_GINCANA.forEach(eq => {
+      const pref = map[eq.key];
+      novoPlacar[eq.key] = {
+        formacao: Number(document.getElementById('placar'+pref+'Formacao').value)||0,
+        caca: Number(document.getElementById('placar'+pref+'Caca').value)||0,
+        torta: Number(document.getElementById('placar'+pref+'Torta').value)||0,
+        teatro: Number(document.getElementById('placar'+pref+'Teatro').value)||0,
+        circuito: Number(document.getElementById('placar'+pref+'Circuito').value)||0,
+        tempo: document.getElementById('placar'+pref+'Tempo').value.trim()
+      };
+    });
+    const existente = porTipo('placar_gincana')[0];
+    if(existente) await sbUpdate(existente.id, novoPlacar);
+    else await sbInsert('placar_gincana', novoPlacar);
+    document.getElementById('placarForm').classList.remove('is-open');
+    await loadAllDados();
+  });
+
+  // ---------- Materiais da gincana ----------
+  const MATERIAL_GINCANA_STATUSES = ['pendente','providenciado','entregue','conferido'];
+  const MATERIAL_GINCANA_LABELS = {pendente:'Pendente', providenciado:'Providenciado', entregue:'Entregue', conferido:'Conferido'};
+  function renderMateriaisGincana(){
+    const docs = porTipo('material_gincana');
+    const host = document.getElementById('materiaisGincanaList');
+    if(docs.length === 0){ host.innerHTML = '<div class="empty-state">Materiais ainda não cadastrados.</div>'; return; }
+    host.innerHTML = docs.map(m => `
+      <div class="list-card hard-sm">
+        <div class="row-top">
+          <div><div class="ttl">${escapeHtml(m.nome)}</div><div class="sub2">${escapeHtml(m.responsavel||'-')}</div></div>
+          <button class="status-chip ${m.status==='conferido' ? 'concluido' : (m.status==='entregue'||m.status==='providenciado' ? 'andamento' : 'pendente')}" data-mg-id="${m.id}" data-status="${m.status||'pendente'}">${MATERIAL_GINCANA_LABELS[m.status||'pendente']}</button>
+        </div>
+      </div>
+    `).join('');
+    host.querySelectorAll('[data-mg-id]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const next = MATERIAL_GINCANA_STATUSES[(MATERIAL_GINCANA_STATUSES.indexOf(btn.dataset.status)+1) % MATERIAL_GINCANA_STATUSES.length];
+        const reg = ALL_DADOS.find(d => d.id === btn.dataset.mgId);
+        if(!reg) return;
+        await sbUpdate(reg.id, stripMeta(Object.assign({}, reg, {status: next})));
+        await loadAllDados();
+      });
+    });
+  }
+
+  document.getElementById('toggleMaterialGincanaForm').addEventListener('click', () => document.getElementById('materialGincanaForm').classList.add('is-open'));
+  document.getElementById('cancelMaterialGincanaBtn').addEventListener('click', () => document.getElementById('materialGincanaForm').classList.remove('is-open'));
+  document.getElementById('saveMaterialGincanaBtn').addEventListener('click', async () => {
+    const nome = document.getElementById('mgNomeInput').value.trim();
+    const responsavel = document.getElementById('mgRespInput').value.trim();
+    if(!nome) return;
+    await sbInsert('material_gincana', { nome, responsavel, status:'pendente', criadoEm: new Date().toISOString() });
+    document.getElementById('mgNomeInput').value = '';
+    document.getElementById('mgRespInput').value = '';
+    document.getElementById('materialGincanaForm').classList.remove('is-open');
+    await loadAllDados();
+  });
+  document.getElementById('preencherMateriaisGincanaBtn').addEventListener('click', async () => {
+    if(porTipo('material_gincana').length > 0){
+      if(!confirm('Já existem materiais cadastrados. Adicionar a lista padrão mesmo assim?')) return;
+    }
+    const padrao = [
+      ['TNT e tinta','Jair'], ['Papéis da caça ao tesouro','Jair'], ['Pratos, refrigerante e chantilly/espuma','Filipe'],
+      ['10 garrafas PET de 2 litros','Phelps'], ['4 garrafas PET de 600 ml','Phelps'], ['Bola de futebol','Anderson'],
+      ['4 sacos','Phelps'], ['Farinha e balas','Jair'], ['Materiais da batata na colher','Phelps'],
+      ['Gol pequeno','A confirmar'], ['Cronômetro','A confirmar'], ['Placar','A confirmar']
+    ];
+    const btn = document.getElementById('preencherMateriaisGincanaBtn');
+    btn.disabled = true; btn.textContent = 'Adicionando...';
+    for(const [nome, responsavel] of padrao){
+      await sbInsert('material_gincana', { nome, responsavel, status:'pendente', criadoEm: new Date().toISOString() });
+    }
+    btn.disabled = false; btn.textContent = 'Preencher lista padrão do planejamento';
+    await loadAllDados();
+  });
+
+  document.getElementById('checklistGincanaList').innerHTML = [
+    'Confirmar nomes e cores das equipes.', 'Dividir os adolescentes.', 'Definir líderes.',
+    'Conferir TNT e tinta.', 'Confirmar pistas da caça ao tesouro.', 'Disponibilizar o PDF do quiz.',
+    'Confirmar regras do teatro.', 'Separar os materiais das seis estações.', 'Confirmar o gol pequeno.',
+    'Definir participantes por estação.', 'Definir limites de tentativas e penalidades.', 'Testar o circuito e o tempo necessário.',
+    'Definir responsáveis pelo cronômetro e placar.', 'Confirmar a premiação.', 'Alinhar o horário com a cozinha.'
+  ].map(c => `<li>${escapeHtml(c)}</li>`).join('');
+
+  renderAtividades();
+  renderEstacoes();
+  renderQuiz();
+
+  // ---------- LOUVOR E TÉCNICA ----------
+  document.querySelectorAll('[data-louv-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-louv-tab]').forEach(b => b.classList.toggle('is-active', b === btn));
+      document.querySelectorAll('[id^="louvTab-"]').forEach(p => p.classList.toggle('is-active', p.id === 'louvTab-' + btn.dataset.louvTab));
+    });
+  });
+
+  const PROGRAMACAO_LOUVOR = [
+    { dia:'Sexta · 21h00–21h30', titulo:'Louvor de abertura', equipe:'Banda Casa Farol — formação de sexta',
+      formacao:['Filipe — voz e teclado','Rodrigo — violão','Rogério — baixo','Phelps — bateria'],
+      ministro:'Filipe', resp:'Técnico: Gustavo', status:'Formação definida; repertório e preparação técnica pendentes',
+      obs:'Objetivo: conduzir o louvor de abertura e preparar os adolescentes para a 1ª ministração. Repertório a definir. Passagem de som a agendar.' },
+    { dia:'Sábado · 09h00–09h30', titulo:'Louvor da manhã', equipe:'Banda de adolescentes',
+      status:'Formação a confirmar',
+      obs:'Objetivo: dar protagonismo aos adolescentes e preparar para a 2ª ministração. Campos a preencher: ministro, vocais, teclado, violão, guitarra, baixo, bateria, outros — só cadastrar conforme a formação real.' },
+    { dia:'Sábado · 11h00–11h15', titulo:'Louvor de transição', equipe:'Banda de adolescentes',
+      obs:'Objetivo: conduzir a transição para a 3ª ministração. O horário segue o Cronograma Geral atualizado (documento antigo de louvor mencionava 10h30, que é o intervalo).' },
+    { dia:'Sábado (noite) · 20h00–20h45', titulo:'Louvor do culto principal', equipe:'Banda convidada de Gramado',
+      resp:'Alinhamento: Filipe · Técnico: Gustavo', status:'Integrantes e repertório a confirmar',
+      obs:'A cadastrar: integrantes, instrumentos, vocais, horário de chegada/montagem/passagem de som, repertório, nº de microfones, retornos, canais e conexões, equipamentos trazidos pela banda e os que o retiro deve fornecer.' },
+    { dia:'Sábado (noite) · 22h00–23h30', titulo:'Louvor, oração e ministração', equipe:'Banda convidada ou músicos disponíveis, conforme alinhamento',
+      status:'Equipe de apoio musical a confirmar',
+      obs:'Alinhar previamente com o ministrante, preparar músicas apropriadas, evitar interrupções desnecessárias, manter instrumentos e microfones preparados, equipe técnica presente durante toda a programação.' },
+    { dia:'Domingo · 09h00–09h30', titulo:'Louvor da manhã', equipe:'Banda Casa Farol — formação de domingo',
+      formacao:['Filipe — voz e teclado','Rodrigo — voz e violão','Rogério — baixo','Diego — bateria'],
+      ministro:'Filipe (principal)', resp:'Técnico: Gustavo', status:'Formação definida; repertório e preparação técnica pendentes',
+      obs:'Vocais previstos: Filipe e Rodrigo. Objetivo: preparar para a 5ª ministração. Repertório a definir, passagem de som a agendar.' },
+    { dia:'Domingo · 11h00–11h15', titulo:'Louvor de transição', equipe:'Mesma formação de domingo',
+      formacao:['Filipe — voz e teclado','Rodrigo — voz e violão','Rogério — baixo','Diego — bateria'],
+      obs:'Objetivo: preparar os adolescentes para a 6ª ministração.' },
+    { dia:'Domingo · 12h30–13h30', titulo:'Louvor e oração final no sítio', equipe:'Formação de domingo (podendo ser adaptada)',
+      obs:'Preparar repertório adequado, alinhar com a liderança, respeitar o momento de oração, coordenar a finalização com almoço e desmontagem.' },
+    { dia:'Domingo · 19h00 (Casa Farol)', titulo:'Culto de encerramento', equipe:'A confirmar', status:'Equipe de louvor a confirmar',
+      obs:'Possibilidade de participação especial dos adolescentes. Pendências: confirmar equipe musical, definir repertório, confirmar participação dos adolescentes, preparar equipamentos e projeção, definir passagem de som, alinhar com a liderança da igreja. Não usar automaticamente a formação de domingo de manhã — a escala ainda não foi confirmada.' }
+  ];
+  let progLouvorCounter = 0;
+  function renderProgramacaoLouvor(){
+    const host = document.getElementById('programacaoLouvorCard');
+    host.innerHTML = PROGRAMACAO_LOUVOR.map(it => {
+      const id = 'pl-' + (progLouvorCounter++);
+      const lines = [];
+      lines.push(`<p><b>Equipe:</b> ${escapeHtml(it.equipe)}</p>`);
+      if(it.formacao) lines.push('<p><b>Formação:</b></p><ul class="sched-bullets">' + it.formacao.map(f=>`<li>${escapeHtml(f)}</li>`).join('') + '</ul>');
+      if(it.ministro) lines.push(`<p><b>Ministro de louvor:</b> ${escapeHtml(it.ministro)}</p>`);
+      if(it.resp) lines.push(`<p><b>${escapeHtml(it.resp)}</b></p>`);
+      if(it.obs) lines.push(`<p>${escapeHtml(it.obs)}</p>`);
+      if(it.status) lines.push(`<p class="sched-obs">${escapeHtml(it.status)}</p>`);
+      return `<div class="sched-row sched-row-click" data-toggle-act="${id}">
+          <div class="sched-time">${it.dia}</div>
+          <div class="sched-desc"><b>${escapeHtml(it.titulo)}</b></div>
+        </div>
+        <div class="sched-detail" id="${id}" style="display:none;">${lines.join('')}</div>`;
+    }).join('');
+    host.querySelectorAll('[data-toggle-act]').forEach(row => {
+      row.addEventListener('click', () => {
+        const detail = document.getElementById(row.dataset.toggleAct);
+        detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
+      });
+    });
+  }
+  renderProgramacaoLouvor();
+  document.getElementById('louvorStatMomentos').textContent = PROGRAMACAO_LOUVOR.length;
+
+  const NECESSIDADES_FORMACAO = [
+    ['Sexta-feira', 'Voz, teclado, violão, baixo e bateria — microfone para Filipe, conexão para teclado/violão/baixo, captação de bateria conforme estrutura, retornos adequados.'],
+    ['Sábado de manhã', 'Banda de adolescentes — levantar os equipamentos após a definição dos integrantes.'],
+    ['Sábado à noite', 'Banda convidada de Gramado — solicitar a relação técnica da banda antes de fechar a estrutura.'],
+    ['Domingo de manhã', 'Duas vozes, teclado, violão, baixo e bateria — microfone para Filipe e Rodrigo, conexão para teclado/violão/baixo, captação de bateria, retornos adequados.']
+  ];
+  document.getElementById('necessidadesCard').innerHTML = NECESSIDADES_FORMACAO.map(([t,d]) =>
+    `<div class="sched-row"><div class="sched-desc"><b>${escapeHtml(t)}</b><span class="sub">${escapeHtml(d)}</span></div></div>`
+  ).join('') + '<div class="sched-row"><div class="sched-desc" style="font-style:italic; color:var(--muted);">A quantidade exata de canais e equipamentos depende da estrutura de áudio definida por Gustavo.</div></div>';
+
+  // ---------- Músicos (bandas a confirmar) ----------
+  function renderMusicos(){
+    const docs = porTipo('musico');
+    const host = document.getElementById('musicosList');
+    if(docs.length === 0){ host.innerHTML = '<div class="empty-state">Nenhum músico cadastrado ainda nessas equipes.</div>'; }
+    else{
+      host.innerHTML = docs.map(m => `
+        <div class="list-card hard-sm">
+          <div class="ttl">${escapeHtml(m.nome)}</div>
+          <div class="sub2">${escapeHtml(m.funcao||'-')} · ${escapeHtml(m.equipe||'-')}</div>
+          <div class="sub2">${[m.data, m.horario].filter(Boolean).map(escapeHtml).join(' · ') || '-'}</div>
+          ${m.contato ? `<div class="sub2">Contato: ${escapeHtml(m.contato)}</div>` : ''}
+          ${m.observacoes ? `<div class="sub2">${escapeHtml(m.observacoes)}</div>` : ''}
+          <button class="delete-x" data-del-musico="${m.id}">Remover</button>
+        </div>
+      `).join('');
+      host.querySelectorAll('[data-del-musico]').forEach(btn => {
+        btn.addEventListener('click', async () => { await sbDelete(btn.dataset.delMusico); await loadAllDados(); });
+      });
+    }
+    document.getElementById('louvorStatMusicos').textContent = docs.length + 5;
+  }
+  document.getElementById('toggleMusicoForm').addEventListener('click', () => document.getElementById('musicoForm').classList.add('is-open'));
+  document.getElementById('cancelMusicoBtn').addEventListener('click', () => document.getElementById('musicoForm').classList.remove('is-open'));
+  document.getElementById('saveMusicoBtn').addEventListener('click', async () => {
+    const nome = document.getElementById('musicoNomeInput').value.trim();
+    const funcao = document.getElementById('musicoFuncaoInput').value.trim();
+    const equipe = document.getElementById('musicoEquipeInput').value;
+    const data = document.getElementById('musicoDataInput').value.trim();
+    const horario = document.getElementById('musicoHorarioInput').value.trim();
+    const contato = document.getElementById('musicoContatoInput').value.trim();
+    const observacoes = document.getElementById('musicoObsInput').value.trim();
+    if(!nome) return;
+    await sbInsert('musico', { nome, funcao, equipe, data, horario, contato, observacoes, criadoEm: new Date().toISOString() });
+    ['musicoNomeInput','musicoFuncaoInput','musicoDataInput','musicoHorarioInput','musicoContatoInput','musicoObsInput'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('musicoForm').classList.remove('is-open');
+    await loadAllDados();
+  });
+
+  // ---------- Repertório ----------
+  const MUSICA_STATUS_LABELS = {sugerida:'Sugerida', selecionada:'Selecionada', em_ensaio:'Em ensaio', ensaiada:'Ensaiada', confirmada:'Confirmada'};
+  const MUSICA_STATUS_CYCLE = ['sugerida','selecionada','em_ensaio','ensaiada','confirmada'];
+  function renderRepertorio(){
+    const docs = porTipo('musica_louvor');
+    const host = document.getElementById('repertorioList');
+    if(docs.length === 0){ host.innerHTML = '<div class="empty-state">Nenhuma música cadastrada ainda.</div>'; }
+    else{
+      host.innerHTML = docs.map(m => `
+        <div class="list-card hard-sm">
+          <div class="row-top">
+            <div>
+              <div class="ttl">${escapeHtml(m.titulo)}</div>
+              <div class="sub2">${[m.artista, m.tom ? 'Tom: '+m.tom : null].filter(Boolean).map(escapeHtml).join(' · ') || '-'}</div>
+              <div class="sub2">${[m.ministro, m.equipe, m.dia].filter(Boolean).map(escapeHtml).join(' · ') || '-'}</div>
+              ${m.link ? `<div class="sub2"><a href="${escapeHtml(m.link)}" target="_blank" rel="noopener">Link de referência</a></div>` : ''}
+              ${m.observacoes ? `<div class="sub2">${escapeHtml(m.observacoes)}</div>` : ''}
+            </div>
+            <button class="status-chip ${m.status==='confirmada'||m.status==='ensaiada' ? 'concluido' : (m.status==='em_ensaio'||m.status==='selecionada' ? 'andamento' : 'pendente')}" data-musica-id="${m.id}" data-status="${m.status||'sugerida'}">${MUSICA_STATUS_LABELS[m.status||'sugerida']}</button>
+          </div>
+          <button class="delete-x" data-del-musica="${m.id}">Remover</button>
+        </div>
+      `).join('');
+      host.querySelectorAll('[data-musica-id]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const next = MUSICA_STATUS_CYCLE[(MUSICA_STATUS_CYCLE.indexOf(btn.dataset.status)+1) % MUSICA_STATUS_CYCLE.length];
+          const reg = ALL_DADOS.find(d => d.id === btn.dataset.musicaId);
+          if(!reg) return;
+          await sbUpdate(reg.id, stripMeta(Object.assign({}, reg, {status: next})));
+          await loadAllDados();
+        });
+      });
+      host.querySelectorAll('[data-del-musica]').forEach(btn => {
+        btn.addEventListener('click', async () => { await sbDelete(btn.dataset.delMusica); await loadAllDados(); });
+      });
+    }
+    document.getElementById('louvorStatMusicas').textContent = docs.length;
+  }
+  document.getElementById('toggleMusicaForm').addEventListener('click', () => document.getElementById('musicaForm').classList.add('is-open'));
+  document.getElementById('cancelMusicaBtn').addEventListener('click', () => document.getElementById('musicaForm').classList.remove('is-open'));
+  document.getElementById('saveMusicaBtn').addEventListener('click', async () => {
+    const titulo = document.getElementById('musicaTituloInput').value.trim();
+    const artista = document.getElementById('musicaArtistaInput').value.trim();
+    const tom = document.getElementById('musicaTomInput').value.trim();
+    const ministro = document.getElementById('musicaMinistroInput').value.trim();
+    const equipe = document.getElementById('musicaEquipeInput').value.trim();
+    const dia = document.getElementById('musicaDiaInput').value.trim();
+    const link = document.getElementById('musicaLinkInput').value.trim();
+    const status = document.getElementById('musicaStatusInput').value;
+    const observacoes = document.getElementById('musicaObsInput').value.trim();
+    if(!titulo) return;
+    await sbInsert('musica_louvor', { titulo, artista, tom, ministro, equipe, dia, link, status, observacoes, criadoEm: new Date().toISOString() });
+    ['musicaTituloInput','musicaArtistaInput','musicaTomInput','musicaMinistroInput','musicaEquipeInput','musicaDiaInput','musicaLinkInput','musicaObsInput'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('musicaForm').classList.remove('is-open');
+    await loadAllDados();
+  });
+
+  // ---------- Ensaios (um registro editável por banda) ----------
+  const ENSAIOS_BANDAS = [
+    {key:'sexta', nome:'Banda de sexta', integrantes:'Filipe, Rodrigo, Rogério, Phelps'},
+    {key:'adolescentes', nome:'Banda de adolescentes', integrantes:'A confirmar'},
+    {key:'gramado', nome:'Banda de Gramado (preparação)', integrantes:'A confirmar'},
+    {key:'domingo', nome:'Banda de domingo', integrantes:'Filipe, Rodrigo, Rogério, Diego'}
+  ];
+  function renderEnsaios(){
+    const docs = porTipo('ensaio_louvor');
+    const host = document.getElementById('ensaiosCard');
+    host.innerHTML = ENSAIOS_BANDAS.map(b => {
+      const reg = docs.find(d => d.banda === b.key) || {};
+      return `
+      <div class="list-card hard-sm">
+        <div class="ttl">${escapeHtml(b.nome)}</div>
+        <div class="sub2">Integrantes: ${escapeHtml(b.integrantes)}</div>
+        <div class="sub2">Data: ${escapeHtml(reg.data||'a definir')} · Horário: ${escapeHtml(reg.horario||'a definir')} · Local: ${escapeHtml(reg.local||'a definir')}</div>
+        ${reg.musicas ? `<div class="sub2">Músicas: ${escapeHtml(reg.musicas)}</div>` : ''}
+        ${reg.pendencias ? `<div class="sub2">Pendências: ${escapeHtml(reg.pendencias)}</div>` : ''}
+        <button class="ver-mais-btn press" data-edit-ensaio="${b.key}" style="margin-top:10px;">Editar</button>
+        <div class="add-form hard-sm" id="ensaioForm-${b.key}">
+          <div class="form-row">
+            <input type="text" id="ensaioData-${b.key}" placeholder="Data" value="${escapeHtml(reg.data||'')}">
+            <input type="text" id="ensaioHorario-${b.key}" placeholder="Horário" value="${escapeHtml(reg.horario||'')}">
+          </div>
+          <input type="text" id="ensaioLocal-${b.key}" placeholder="Local" value="${escapeHtml(reg.local||'')}">
+          <textarea id="ensaioMusicas-${b.key}" placeholder="Repertório do ensaio">${escapeHtml(reg.musicas||'')}</textarea>
+          <textarea id="ensaioPendencias-${b.key}" placeholder="Pendências / observações">${escapeHtml(reg.pendencias||'')}</textarea>
+          <div class="form-actions">
+            <button class="btn-cancel press" data-cancel-ensaio="${b.key}" type="button">Cancelar</button>
+            <button class="btn-save press" data-save-ensaio="${b.key}" type="button">Salvar</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    host.querySelectorAll('[data-edit-ensaio]').forEach(btn => {
+      btn.addEventListener('click', () => document.getElementById('ensaioForm-' + btn.dataset.editEnsaio).classList.add('is-open'));
+    });
+    host.querySelectorAll('[data-cancel-ensaio]').forEach(btn => {
+      btn.addEventListener('click', () => document.getElementById('ensaioForm-' + btn.dataset.cancelEnsaio).classList.remove('is-open'));
+    });
+    host.querySelectorAll('[data-save-ensaio]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const key = btn.dataset.saveEnsaio;
+        const payload = {
+          banda: key,
+          data: document.getElementById('ensaioData-'+key).value.trim(),
+          horario: document.getElementById('ensaioHorario-'+key).value.trim(),
+          local: document.getElementById('ensaioLocal-'+key).value.trim(),
+          musicas: document.getElementById('ensaioMusicas-'+key).value.trim(),
+          pendencias: document.getElementById('ensaioPendencias-'+key).value.trim()
+        };
+        const existente = porTipo('ensaio_louvor').find(d => d.banda === key);
+        if(existente) await sbUpdate(existente.id, payload);
+        else await sbInsert('ensaio_louvor', Object.assign({criadoEm: new Date().toISOString()}, payload));
+        await loadAllDados();
+      });
+    });
+    document.getElementById('louvorStatEnsaios').textContent = docs.filter(d => d.data).length;
+  }
+
+  // ---------- Passagens de som ----------
+  const PASSAGEM_STATUS_LABELS = {a_agendar:'A agendar', agendada:'Agendada', concluida:'Concluída'};
+  const PASSAGEM_STATUS_CYCLE = ['a_agendar','agendada','concluida'];
+  function renderPassagens(){
+    const docs = porTipo('passagem_som');
+    const host = document.getElementById('passagensList');
+    if(docs.length === 0){ host.innerHTML = '<div class="empty-state">Nenhuma passagem de som agendada ainda.</div>'; }
+    else{
+      host.innerHTML = docs.map(p => `
+        <div class="list-card hard-sm">
+          <div class="row-top">
+            <div>
+              <div class="ttl">${escapeHtml(p.equipe)}</div>
+              <div class="sub2">${[p.data, p.horario].filter(Boolean).map(escapeHtml).join(' · ') || '-'} ${p.responsavel ? '· ' + escapeHtml(p.responsavel) : ''}</div>
+              ${p.observacoes ? `<div class="sub2">${escapeHtml(p.observacoes)}</div>` : ''}
+            </div>
+            <button class="status-chip ${p.status==='concluida' ? 'concluido' : (p.status==='agendada' ? 'andamento' : 'pendente')}" data-passagem-id="${p.id}" data-status="${p.status||'a_agendar'}">${PASSAGEM_STATUS_LABELS[p.status||'a_agendar']}</button>
+          </div>
+          <button class="delete-x" data-del-passagem="${p.id}">Remover</button>
+        </div>
+      `).join('');
+      host.querySelectorAll('[data-passagem-id]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const next = PASSAGEM_STATUS_CYCLE[(PASSAGEM_STATUS_CYCLE.indexOf(btn.dataset.status)+1) % PASSAGEM_STATUS_CYCLE.length];
+          const reg = ALL_DADOS.find(d => d.id === btn.dataset.passagemId);
+          if(!reg) return;
+          await sbUpdate(reg.id, stripMeta(Object.assign({}, reg, {status: next})));
+          await loadAllDados();
+        });
+      });
+      host.querySelectorAll('[data-del-passagem]').forEach(btn => {
+        btn.addEventListener('click', async () => { await sbDelete(btn.dataset.delPassagem); await loadAllDados(); });
+      });
+    }
+  }
+  document.getElementById('togglePassagemForm').addEventListener('click', () => document.getElementById('passagemForm').classList.add('is-open'));
+  document.getElementById('cancelPassagemBtn').addEventListener('click', () => document.getElementById('passagemForm').classList.remove('is-open'));
+  document.getElementById('savePassagemBtn').addEventListener('click', async () => {
+    const equipe = document.getElementById('passagemEquipeInput').value.trim();
+    const data = document.getElementById('passagemDataInput').value.trim();
+    const horario = document.getElementById('passagemHorarioInput').value.trim();
+    const responsavel = document.getElementById('passagemRespInput').value.trim();
+    const status = document.getElementById('passagemStatusInput').value;
+    const observacoes = document.getElementById('passagemObsInput').value.trim();
+    if(!equipe) return;
+    await sbInsert('passagem_som', { equipe, data, horario, responsavel, status, observacoes, criadoEm: new Date().toISOString() });
+    ['passagemEquipeInput','passagemDataInput','passagemHorarioInput','passagemRespInput','passagemObsInput'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('passagemForm').classList.remove('is-open');
+    await loadAllDados();
+  });
+
+  // ---------- Checklist final (toggleável, salvo em um doc único) ----------
+  const CHECKLIST_LOUVOR_GRUPOS = {
+    equipes: { elId:'checkGrupoEquipes', itens: [
+      ['eq1','Definir formação de sexta-feira.', true], ['eq2','Confirmar integrantes da banda de adolescentes.', false],
+      ['eq3','Confirmar integrantes da banda de Gramado.', false], ['eq4','Definir formação de domingo de manhã.', true],
+      ['eq5','Confirmar equipe do culto de domingo à noite.', false]
+    ]},
+    repertorio: { elId:'checkGrupoRepertorio', itens: [
+      ['rep1','Disponibilizar link do aplicativo Casa Farol Louvor.', true], ['rep2','Disponibilizar playlist do Spotify.', true],
+      ['rep3','Selecionar repertório de sexta.', false], ['rep4','Selecionar repertório da banda de adolescentes.', false],
+      ['rep5','Confirmar repertório da banda de Gramado.', false], ['rep6','Selecionar repertório de domingo.', false],
+      ['rep7','Confirmar repertório do culto de encerramento.', false], ['rep8','Definir tons e versões.', false]
+    ]},
+    ensaios: { elId:'checkGrupoEnsaios', itens: [
+      ['ens1','Agendar ensaio de sexta.', false], ['ens2','Agendar ensaio dos adolescentes.', false],
+      ['ens3','Alinhar preparação da banda de Gramado.', false], ['ens4','Agendar ensaio de domingo.', false]
+    ]},
+    tecnica: { elId:'checkGrupoTecnica', itens: [
+      ['tec1','Conferir estrutura de som do sítio.', false], ['tec2','Confirmar disponibilidade dos instrumentos.', false],
+      ['tec3','Conferir microfones e cabos.', false], ['tec4','Definir necessidades de retorno.', false],
+      ['tec5','Solicitar necessidades técnicas da banda de Gramado.', false], ['tec6','Organizar passagens de som.', false],
+      ['tec7','Testar projeção.', false], ['tec8','Conferir equipamentos para o culto de encerramento.', false]
+    ]}
+  };
+  function getChecklistLouvorDoc(){ return porTipo('checklist_louvor')[0]; }
+  function renderChecklistLouvor(){
+    const reg = getChecklistLouvorDoc();
+    Object.values(CHECKLIST_LOUVOR_GRUPOS).forEach(grupo => {
+      const host = document.getElementById(grupo.elId);
+      host.innerHTML = grupo.itens.map(([key, texto, padrao]) => {
+        const checked = reg ? !!reg[key] : padrao;
+        return `<div class="sched-row sched-row-click" data-check-key="${key}" data-default="${padrao}" style="gap:10px;">
+          <div style="flex-shrink:0; width:20px; height:20px; border:2px solid var(--ink); border-radius:5px; background:${checked ? 'var(--green)' : '#fff'}; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:0.7rem;">${checked ? '✓' : ''}</div>
+          <div class="sched-desc" style="${checked ? 'text-decoration:line-through; color:var(--muted);' : ''}">${escapeHtml(texto)}</div>
+        </div>`;
+      }).join('');
+    });
+    document.querySelectorAll('[data-check-key]').forEach(row => {
+      row.addEventListener('click', async () => {
+        const key = row.dataset.checkKey;
+        const current = getChecklistLouvorDoc();
+        const currentVal = current ? !!current[key] : (row.dataset.default === 'true');
+        const payload = Object.assign({}, current ? stripMeta(current) : {}, {[key]: !currentVal});
+        if(current) await sbUpdate(current.id, payload);
+        else await sbInsert('checklist_louvor', Object.assign({criadoEm: new Date().toISOString()}, payload));
+        await loadAllDados();
+      });
+    });
+  }
+
+  // ---------- PALAVRAS E MINISTRAÇÕES ----------
+  document.querySelectorAll('[data-pal-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-pal-tab]').forEach(b => b.classList.toggle('is-active', b === btn));
+      document.querySelectorAll('[id^="palTab-"]').forEach(p => p.classList.toggle('is-active', p.id === 'palTab-' + btn.dataset.palTab));
+    });
+  });
+
+  const MINISTRACOES = [
+    { num:1, key:'1', dia:'Sexta', horario:'21h30–22h30', tema:'CENTRALIDADE',
+      pergunta:'O que está no centro da minha vida?',
+      objetivo:'Provocar reflexão sobre prioridades, identidade, distrações e aquilo que ocupa o primeiro lugar no coração. A 1ª noite introduz o tema do retiro.',
+      direcionamentos:['O que ocupa meus pensamentos?','O que influencia minhas decisões?','Onde encontro minha identidade?','Quem está conduzindo minha vida?','O que significa colocar Jesus no centro?'],
+      aplicacao:'Convidar cada adolescente a reconhecer o que tem ocupado o centro da sua vida.',
+      seguinte:'Oração e pequenos grupos, 22h30–23h00.' },
+    { num:2, key:'2', dia:'Sábado', horario:'09h30–10h30', tema:'O PROPÓSITO ETERNO DE DEUS',
+      pergunta:'Por que fomos criados? Qual é o plano de Deus desde o princípio?',
+      objetivo:'Apresentar aos adolescentes a compreensão do propósito eterno de Deus.',
+      direcionamentos:['Deus possui um propósito.','Nossa existência não é sem sentido.','A vida encontra direção no propósito de Deus.','O propósito não se limita aos nossos interesses individuais.'],
+      aplicacao:'Levar os adolescentes a compreender que a vida cristã faz parte de algo maior do que seus planos pessoais.' },
+    { num:3, key:'3', dia:'Sábado', horario:'11h15–12h30', tema:'JESUS NO CENTRO',
+      pergunta:'Jesus é apenas uma parte da minha vida ou realmente ocupa o centro?',
+      objetivo:'Apresentar a centralidade de Cristo na identidade, nas escolhas e no propósito de vida.',
+      direcionamentos:['Quem é Jesus?','O que significa viver para Cristo?','Nossa identidade encontra sentido nele.','Jesus não é apenas um complemento da vida.','Seguir Jesus envolve escolhas e prioridades.'],
+      aplicacao:'Desafiar os adolescentes a examinar como Cristo influencia suas decisões cotidianas.' },
+    { num:4, key:'4', dia:'Sábado (noite)', horario:'20h45–22h00', tema:'ENTREGA',
+      pergunta:'Se Jesus realmente é o centro, o que precisa sair do centro?',
+      objetivo:'Conduzir os adolescentes a uma resposta pessoal diante da mensagem do retiro. Principal momento de reflexão e oração da programação.',
+      direcionamentos:['Reconhecer aquilo que ocupa o lugar de Cristo.','Refletir sobre prioridades e escolhas.','Compreender o significado de entrega.','Responder pessoalmente ao convite de seguir Jesus.'],
+      aplicacao:'Criar espaço para oração, reflexão e acompanhamento espiritual.',
+      seguinte:'Oração e ministração individual, 22h00–23h30.' },
+    { num:5, key:'5', dia:'Domingo', horario:'09h30–10h30', tema:'UMA FAMÍLIA DE MUITOS FILHOS SEMELHANTES A JESUS',
+      pergunta:'Qual é o meu lugar na família de Deus?',
+      objetivo:'Trabalhar a dimensão comunitária do propósito de Deus — igreja, relacionamentos, discipulado e pertencimento.',
+      direcionamentos:['A vida cristã não é isolada.','Pertencimento e comunhão.','Relacionamentos que fortalecem a fé.','Discipulado e crescimento.','Semelhança com Jesus na maneira de viver.'],
+      aplicacao:'Estimular os adolescentes a valorizarem a comunidade cristã e os relacionamentos de discipulado.' },
+    { num:6, key:'6', dia:'Domingo', horario:'11h15–12h30', tema:'EU FAÇO PARTE DESSE PROPÓSITO',
+      pergunta:'Como vou viver esse propósito quando voltar para casa?',
+      objetivo:'Transformar o conteúdo do retiro em direcionamentos práticos pra vida cotidiana — família, escola, amizades, internet e redes sociais, relacionamentos, igreja, escolhas e decisões.',
+      direcionamentos:['O propósito continua depois do retiro.','Seguir Jesus envolve decisões diárias.','A fé precisa aparecer nas atitudes.','Cada adolescente possui responsabilidade na maneira como vive e se relaciona.'],
+      aplicacao:'Convidar os adolescentes a assumir compromissos concretos para a continuidade da caminhada cristã.',
+      seguinte:'Louvor e oração final no sítio, 12h30–13h30.' }
+  ];
+  const PREGADOR_STATUS_LABELS = {a_convidar:'A convidar', convidado:'Convidado', aguardando:'Aguardando confirmação', confirmado:'Confirmado', material_recebido:'Material recebido', preparado:'Preparado'};
+  const PREGADOR_STATUS_CYCLE = ['a_convidar','convidado','aguardando','confirmado','material_recebido','preparado'];
+
+  document.getElementById('painelMinistracoesCard').innerHTML = MINISTRACOES.map(m =>
+    `<div class="sched-row"><div class="sched-time">${escapeHtml(m.num + '. ' + m.dia)}<br>${escapeHtml(m.horario.split('–')[0])}</div><div class="sched-desc">${escapeHtml(m.tema)}</div></div>`
+  ).join('');
+
+  let ministCounter = 0;
+  function renderMinistracoesDetalhe(){
+    const pregadores = porTipo('pregador');
+    const host = document.getElementById('ministracoesDetalheCard');
+    host.innerHTML = MINISTRACOES.map(m => {
+      const id = 'mn-' + (ministCounter++);
+      const preg = pregadores.find(p => p.ministracao === m.key);
+      const lines = [];
+      lines.push(`<p><b>Pergunta central:</b> ${escapeHtml(m.pergunta)}</p>`);
+      lines.push(`<p><b>Objetivo:</b> ${escapeHtml(m.objetivo)}</p>`);
+      lines.push('<p><b>Direcionamentos sugeridos:</b></p><ul class="sched-bullets">' + m.direcionamentos.map(d=>`<li>${escapeHtml(d)}</li>`).join('') + '</ul>');
+      lines.push(`<p><b>Aplicação:</b> ${escapeHtml(m.aplicacao)}</p>`);
+      if(m.seguinte) lines.push(`<p><b>Momento seguinte:</b> ${escapeHtml(m.seguinte)}</p>`);
+      lines.push(`<p><b>Referências bíblicas:</b> A definir com o pregador.</p>`);
+      lines.push(`<p><b>Pregador:</b> ${preg ? escapeHtml(preg.nome) + ' — ' + PREGADOR_STATUS_LABELS[preg.status||'a_convidar'] : 'A confirmar'}</p>`);
+      return `<div class="sched-row sched-row-click" data-toggle-act="${id}">
+          <div class="sched-time">${escapeHtml(m.num + '. ' + m.dia)}<br>${escapeHtml(m.horario)}</div>
+          <div class="sched-desc"><b>${escapeHtml(m.tema)}</b></div>
+        </div>
+        <div class="sched-detail" id="${id}" style="display:none;">${lines.join('')}</div>`;
+    }).join('');
+    host.querySelectorAll('[data-toggle-act]').forEach(row => {
+      row.addEventListener('click', () => {
+        const detail = document.getElementById(row.dataset.toggleAct);
+        detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
+      });
+    });
+  }
+
+  function renderPregadores(){
+    const docs = porTipo('pregador');
+    const host = document.getElementById('pregadoresList');
+    if(docs.length === 0){ host.innerHTML = '<div class="empty-state">Nenhum pregador cadastrado ainda.</div>'; }
+    else{
+      const minLabel = key => {
+        const m = MINISTRACOES.find(x => x.key === key);
+        return m ? ('Ministração ' + m.num + ' — ' + m.tema) : (key === 'devocional' ? 'Devocional de sábado' : key);
+      };
+      host.innerHTML = docs.map(p => `
+        <div class="list-card hard-sm">
+          <div class="row-top">
+            <div>
+              <div class="ttl">${escapeHtml(p.nome)}</div>
+              <div class="sub2">${escapeHtml(minLabel(p.ministracao))}</div>
+              ${p.horarioChegada ? `<div class="sub2">Chegada: ${escapeHtml(p.horarioChegada)}</div>` : ''}
+              ${p.necessidadesTecnicas ? `<div class="sub2">Necessidades técnicas: ${escapeHtml(p.necessidadesTecnicas)}</div>` : ''}
+              ${p.materiais ? `<div class="sub2">Materiais: ${escapeHtml(p.materiais)}</div>` : ''}
+              ${p.contato ? `<div class="sub2">Contato: ${escapeHtml(p.contato)}</div>` : ''}
+              ${p.observacoes ? `<div class="sub2">${escapeHtml(p.observacoes)}</div>` : ''}
+            </div>
+            <button class="status-chip ${p.status==='preparado'||p.status==='confirmado'||p.status==='material_recebido' ? 'concluido' : (p.status==='convidado'||p.status==='aguardando' ? 'andamento' : 'pendente')}" data-pregador-id="${p.id}" data-status="${p.status||'a_convidar'}">${PREGADOR_STATUS_LABELS[p.status||'a_convidar']}</button>
+          </div>
+          <button class="delete-x" data-del-pregador="${p.id}">Remover</button>
+        </div>
+      `).join('');
+      host.querySelectorAll('[data-pregador-id]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const next = PREGADOR_STATUS_CYCLE[(PREGADOR_STATUS_CYCLE.indexOf(btn.dataset.status)+1) % PREGADOR_STATUS_CYCLE.length];
+          const reg = ALL_DADOS.find(d => d.id === btn.dataset.pregadorId);
+          if(!reg) return;
+          await sbUpdate(reg.id, stripMeta(Object.assign({}, reg, {status: next})));
+          await loadAllDados();
+        });
+      });
+      host.querySelectorAll('[data-del-pregador]').forEach(btn => {
+        btn.addEventListener('click', async () => { await sbDelete(btn.dataset.delPregador); await loadAllDados(); });
+      });
+    }
+  }
+  document.getElementById('togglePregadorForm').addEventListener('click', () => document.getElementById('pregadorForm').classList.add('is-open'));
+  document.getElementById('cancelPregadorBtn').addEventListener('click', () => document.getElementById('pregadorForm').classList.remove('is-open'));
+  document.getElementById('savePregadorBtn').addEventListener('click', async () => {
+    const nome = document.getElementById('pregadorNomeInput').value.trim();
+    const ministracao = document.getElementById('pregadorMinistracaoInput').value;
+    const contato = document.getElementById('pregadorContatoInput').value.trim();
+    const horarioChegada = document.getElementById('pregadorChegadaInput').value.trim();
+    const necessidadesTecnicas = document.getElementById('pregadorNecessidadesInput').value.trim();
+    const materiais = document.getElementById('pregadorMateriaisInput').value.trim();
+    const status = document.getElementById('pregadorStatusInput').value;
+    const observacoes = document.getElementById('pregadorObsInput').value.trim();
+    if(!nome) return;
+    await sbInsert('pregador', { nome, ministracao, contato, horarioChegada, necessidadesTecnicas, materiais, status, observacoes, criadoEm: new Date().toISOString() });
+    ['pregadorNomeInput','pregadorContatoInput','pregadorChegadaInput','pregadorNecessidadesInput','pregadorMateriaisInput','pregadorObsInput'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('pregadorForm').classList.remove('is-open');
+    await loadAllDados();
+  });
+
+  // ---------- Intercessão ----------
+  function renderIntercessores(){
+    const docs = porTipo('intercessor');
+    const host = document.getElementById('intercessoresList');
+    if(docs.length === 0){ host.innerHTML = '<div class="empty-state">Nenhum integrante cadastrado ainda.</div>'; return; }
+    host.innerHTML = docs.map(i => `
+      <div class="list-card hard-sm">
+        <div class="ttl">${escapeHtml(i.nome)}</div>
+        <div class="sub2">${[i.periodo, i.horario, i.local].filter(Boolean).map(escapeHtml).join(' · ') || '-'}</div>
+        ${i.observacoes ? `<div class="sub2">${escapeHtml(i.observacoes)}</div>` : ''}
+        <button class="delete-x" data-del-intercessor="${i.id}">Remover</button>
+      </div>
+    `).join('');
+    host.querySelectorAll('[data-del-intercessor]').forEach(btn => {
+      btn.addEventListener('click', async () => { await sbDelete(btn.dataset.delIntercessor); await loadAllDados(); });
+    });
+  }
+  document.getElementById('toggleIntercessorForm').addEventListener('click', () => document.getElementById('intercessorForm').classList.add('is-open'));
+  document.getElementById('cancelIntercessorBtn').addEventListener('click', () => document.getElementById('intercessorForm').classList.remove('is-open'));
+  document.getElementById('saveIntercessorBtn').addEventListener('click', async () => {
+    const nome = document.getElementById('intercessorNomeInput').value.trim();
+    const periodo = document.getElementById('intercessorPeriodoInput').value.trim();
+    const horario = document.getElementById('intercessorHorarioInput').value.trim();
+    const local = document.getElementById('intercessorLocalInput').value.trim();
+    const observacoes = document.getElementById('intercessorObsInput').value.trim();
+    if(!nome) return;
+    await sbInsert('intercessor', { nome, periodo, horario, local, observacoes, criadoEm: new Date().toISOString() });
+    ['intercessorNomeInput','intercessorPeriodoInput','intercessorHorarioInput','intercessorLocalInput','intercessorObsInput'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('intercessorForm').classList.remove('is-open');
+    await loadAllDados();
+  });
+
+  // ---------- Pequenos grupos ----------
+  function renderGrupos(){
+    const docs = porTipo('pequeno_grupo');
+    const host = document.getElementById('gruposList');
+    if(docs.length === 0){ host.innerHTML = '<div class="empty-state">Nenhum grupo cadastrado ainda.</div>'; return; }
+    host.innerHTML = docs.map(g => `
+      <div class="list-card hard-sm">
+        <div class="row-top">
+          <div>
+            <div class="ttl">${escapeHtml(g.nome)}</div>
+            <div class="sub2">Líder: ${escapeHtml(g.lider||'-')}</div>
+            <div class="sub2">${[g.local, g.horario].filter(Boolean).map(escapeHtml).join(' · ') || '-'}</div>
+          </div>
+          <span class="status-chip ${g.status==='definido' ? 'concluido' : 'pendente'}">${g.status==='definido' ? 'Definido' : 'A definir'}</span>
+        </div>
+        <button class="delete-x" data-del-grupo="${g.id}">Remover</button>
+      </div>
+    `).join('');
+    host.querySelectorAll('[data-del-grupo]').forEach(btn => {
+      btn.addEventListener('click', async () => { await sbDelete(btn.dataset.delGrupo); await loadAllDados(); });
+    });
+  }
+  document.getElementById('toggleGrupoForm').addEventListener('click', () => document.getElementById('grupoForm').classList.add('is-open'));
+  document.getElementById('cancelGrupoBtn').addEventListener('click', () => document.getElementById('grupoForm').classList.remove('is-open'));
+  document.getElementById('saveGrupoBtn').addEventListener('click', async () => {
+    const nome = document.getElementById('grupoNomeInput').value.trim();
+    const lider = document.getElementById('grupoLiderInput').value.trim();
+    const local = document.getElementById('grupoLocalInput').value.trim();
+    const horario = document.getElementById('grupoHorarioInput').value.trim();
+    const status = document.getElementById('grupoStatusInput').value;
+    if(!nome) return;
+    await sbInsert('pequeno_grupo', { nome, lider, local, horario, status, criadoEm: new Date().toISOString() });
+    ['grupoNomeInput','grupoLiderInput','grupoLocalInput','grupoHorarioInput'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('grupoForm').classList.remove('is-open');
+    await loadAllDados();
+  });
+
+  // ---------- Checklist de Palavras e Ministrações ----------
+  const CHECKLIST_MINIST_GRUPOS = {
+    conteudo: { elId:'checkGrupoConteudo', itens: [
+      ['co1','Definir a sequência temática das seis ministrações.', true], ['co2','Confirmar os seis pregadores.', false],
+      ['co3','Confirmar o responsável pelo devocional.', false], ['co4','Confirmar referências bíblicas.', false],
+      ['co5','Alinhar a conexão entre as mensagens.', false], ['co6','Receber materiais dos pregadores.', false],
+      ['co7','Revisar necessidades técnicas.', false]
+    ]},
+    oracao: { elId:'checkGrupoOracao', itens: [
+      ['or1','Confirmar equipe de intercessão.', false], ['or2','Definir escalas.', false],
+      ['or3','Organizar pequenos grupos.', false], ['or4','Confirmar líderes responsáveis.', false],
+      ['or5','Alinhar orientações de acolhimento e proteção dos adolescentes.', false], ['or6','Confirmar apoio pastoral para situações delicadas.', false]
+    ]},
+    cultoEnc: { elId:'checkGrupoCultoEnc', itens: [
+      ['ce1','Confirmar programação com a liderança da igreja.', false], ['ce2','Confirmar pregador.', false],
+      ['ce3','Confirmar testemunhos, se houver.', false], ['ce4','Preparar vídeo, se aprovado.', false],
+      ['ce5','Alinhar participação dos adolescentes.', false], ['ce6','Confirmar materiais e projeção.', false]
+    ]}
+  };
+  function getChecklistMinistDoc(){ return porTipo('checklist_ministracoes')[0]; }
+  function renderChecklistMinistracoes(){
+    const reg = getChecklistMinistDoc();
+    Object.values(CHECKLIST_MINIST_GRUPOS).forEach(grupo => {
+      const host = document.getElementById(grupo.elId);
+      host.innerHTML = grupo.itens.map(([key, texto, padrao]) => {
+        const checked = reg ? !!reg[key] : padrao;
+        return `<div class="sched-row sched-row-click" data-check2-key="${key}" data-default="${padrao}" style="gap:10px;">
+          <div style="flex-shrink:0; width:20px; height:20px; border:2px solid var(--ink); border-radius:5px; background:${checked ? 'var(--green)' : '#fff'}; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:0.7rem;">${checked ? '✓' : ''}</div>
+          <div class="sched-desc" style="${checked ? 'text-decoration:line-through; color:var(--muted);' : ''}">${escapeHtml(texto)}</div>
+        </div>`;
+      }).join('');
+    });
+    document.querySelectorAll('[data-check2-key]').forEach(row => {
+      row.addEventListener('click', async () => {
+        const key = row.dataset.check2Key;
+        const current = getChecklistMinistDoc();
+        const currentVal = current ? !!current[key] : (row.dataset.default === 'true');
+        const payload = Object.assign({}, current ? stripMeta(current) : {}, {[key]: !currentVal});
+        if(current) await sbUpdate(current.id, payload);
+        else await sbInsert('checklist_ministracoes', Object.assign({criadoEm: new Date().toISOString()}, payload));
+        await loadAllDados();
+      });
+    });
+  }
   document.querySelectorAll('[data-alim-tab]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('[data-alim-tab]').forEach(b => b.classList.toggle('is-active', b === btn));
@@ -1337,6 +3053,21 @@
     renderComprasRegistro();
     recalcEstoque();
     renderEquipeCozinha();
+    renderMateriaisProducao();
+    renderProducaoIndicadores();
+    renderEquipesGincana();
+    renderPlacar();
+    renderMateriaisGincana();
+    renderMusicos();
+    renderRepertorio();
+    renderEnsaios();
+    renderPassagens();
+    renderChecklistLouvor();
+    renderMinistracoesDetalhe();
+    renderPregadores();
+    renderIntercessores();
+    renderGrupos();
+    renderChecklistMinistracoes();
   }
   loadAllDados();
   setInterval(loadAllDados, 45000);
@@ -1428,7 +3159,10 @@
         <div class="row-top">
           <div>
             <div class="ttl">${escapeHtml(d.titulo)}</div>
-            <div class="sub2">${[showArea ? (AREA_NOMES[d.area]||d.area) : null, d.responsavel, d.prazo].filter(Boolean).map(escapeHtml).join(' · ') || '-'}</div>
+            <div class="sub2">${[showArea ? (AREA_NOMES[d.area]||d.area) : null, d.responsavel, d.local, d.prazo].filter(Boolean).map(escapeHtml).join(' · ') || '-'}</div>
+            ${d.descricao ? `<div class="sub2">${escapeHtml(d.descricao)}</div>` : ''}
+            ${d.materiais ? `<div class="sub2">Materiais: ${escapeHtml(d.materiais)}</div>` : ''}
+            ${d.observacoes ? `<div class="sub2">${escapeHtml(d.observacoes)}</div>` : ''}
           </div>
           <button class="status-chip ${d.status||'pendente'}" data-tarefa-id="${d.id}" data-status="${d.status||'pendente'}">${TAREFA_LABELS[d.status||'pendente']}</button>
         </div>
@@ -1487,13 +3221,15 @@
   document.getElementById('cancelProducaoBtn').addEventListener('click', () => document.getElementById('producaoForm').classList.remove('is-open'));
   document.getElementById('saveProducaoBtn').addEventListener('click', async () => {
     const titulo = document.getElementById('producaoTituloInput').value.trim();
+    const descricao = document.getElementById('producaoDescInput').value.trim();
+    const local = document.getElementById('producaoLocalInput').value.trim();
     const responsavel = document.getElementById('producaoRespInput').value.trim();
+    const materiais = document.getElementById('producaoMateriaisInput').value.trim();
     const prazo = document.getElementById('producaoPrazoInput').value.trim();
+    const observacoes = document.getElementById('producaoObsInput').value.trim();
     if(!titulo) return;
-    await sbInsert('tarefa', { area:'producao', titulo, responsavel, prazo, status:'pendente', criadoEm: new Date().toISOString() });
-    document.getElementById('producaoTituloInput').value = '';
-    document.getElementById('producaoRespInput').value = '';
-    document.getElementById('producaoPrazoInput').value = '';
+    await sbInsert('tarefa', { area:'producao', titulo, descricao, local, responsavel, materiais, prazo, observacoes, status:'pendente', criadoEm: new Date().toISOString() });
+    ['producaoTituloInput','producaoDescInput','producaoLocalInput','producaoRespInput','producaoMateriaisInput','producaoPrazoInput','producaoObsInput'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('producaoForm').classList.remove('is-open');
     await loadAllDados();
   });
