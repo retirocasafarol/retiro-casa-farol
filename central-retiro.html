@@ -227,11 +227,20 @@
 <body>
 
   <div class="perfil-overlay hidden" id="perfilOverlay">
-    <div class="perfil-card hard-sm">
+    <div class="perfil-card hard-sm" id="perfilEscolhaStep">
       <h2>Quem é você?</h2>
       <button type="button" class="perfil-opcao press" data-perfil="coordenacao"><b>Coordenação geral</b><span>Filipe, Daniela, Ander ou Fran — visão completa do retiro</span></button>
       <button type="button" class="perfil-opcao press" data-perfil="lider"><b>Líder de equipe</b><span>Coordena uma área específica (cozinha, louvor, produção, etc.)</span></button>
       <button type="button" class="perfil-opcao press" data-perfil="voluntario"><b>Voluntário</b><span>Quero ver minhas tarefas, escalas e comunicados</span></button>
+    </div>
+    <div class="perfil-card hard-sm" id="perfilSenhaStep" style="display:none;">
+      <h2 id="perfilSenhaTitulo">Senha</h2>
+      <input type="password" id="perfilSenhaInput" placeholder="Digite a senha" style="width:100%; padding:12px 14px; border-radius:11px; border:2.5px solid var(--ink); font-family:'Manrope',sans-serif; font-weight:600; font-size:0.9rem; margin-bottom:8px;">
+      <p id="perfilSenhaErro" style="display:none; color:var(--red); font-weight:700; font-size:0.78rem; margin:0 0 12px;">Senha incorreta, tenta de novo.</p>
+      <div class="form-actions" style="margin-top:4px;">
+        <button class="btn-cancel press" id="perfilSenhaVoltarBtn" type="button">Voltar</button>
+        <button class="btn-save press" id="perfilSenhaEntrarBtn" type="button">Entrar</button>
+      </div>
     </div>
   </div>
 
@@ -1485,25 +1494,62 @@
     const label = document.getElementById('perfilAtualLabel');
     if(label) label.textContent = PERFIL_LABELS[perfil] || perfil;
   }
+  const PERFIL_SENHAS = {coordenacao:'12131415', lider:'0102030405', voluntario:'1a2b3c'};
   function initPerfil(){
     const salvo = localStorage.getItem('perfilAcesso');
     const overlay = document.getElementById('perfilOverlay');
+    const escolhaStep = document.getElementById('perfilEscolhaStep');
+    const senhaStep = document.getElementById('perfilSenhaStep');
+    const senhaInput = document.getElementById('perfilSenhaInput');
+    const senhaErro = document.getElementById('perfilSenhaErro');
+    const senhaTitulo = document.getElementById('perfilSenhaTitulo');
+    let perfilEscolhido = null;
+
     if(salvo){
       aplicarPerfil(salvo);
       overlay.classList.add('hidden');
     }else{
       overlay.classList.remove('hidden');
     }
-    document.querySelectorAll('.perfil-opcao').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const perfil = btn.dataset.perfil;
-        localStorage.setItem('perfilAcesso', perfil);
-        aplicarPerfil(perfil);
+
+    function mostrarEscolha(){
+      escolhaStep.style.display = 'block';
+      senhaStep.style.display = 'none';
+      senhaInput.value = '';
+      senhaErro.style.display = 'none';
+      perfilEscolhido = null;
+    }
+    function mostrarSenha(perfil){
+      perfilEscolhido = perfil;
+      senhaTitulo.textContent = 'Senha — ' + (PERFIL_LABELS[perfil] || perfil);
+      escolhaStep.style.display = 'none';
+      senhaStep.style.display = 'block';
+      senhaErro.style.display = 'none';
+      senhaInput.value = '';
+      setTimeout(() => senhaInput.focus(), 50);
+    }
+    function tentarEntrar(){
+      if(!perfilEscolhido) return;
+      if(senhaInput.value === PERFIL_SENHAS[perfilEscolhido]){
+        localStorage.setItem('perfilAcesso', perfilEscolhido);
+        aplicarPerfil(perfilEscolhido);
         overlay.classList.add('hidden');
-      });
+      }else{
+        senhaErro.style.display = 'block';
+        senhaInput.value = '';
+        senhaInput.focus();
+      }
+    }
+
+    document.querySelectorAll('.perfil-opcao').forEach(btn => {
+      btn.addEventListener('click', () => mostrarSenha(btn.dataset.perfil));
     });
+    document.getElementById('perfilSenhaVoltarBtn').addEventListener('click', mostrarEscolha);
+    document.getElementById('perfilSenhaEntrarBtn').addEventListener('click', tentarEntrar);
+    senhaInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') tentarEntrar(); });
+
     const trocarBtn = document.getElementById('trocarPerfilBtn');
-    if(trocarBtn) trocarBtn.addEventListener('click', () => overlay.classList.remove('hidden'));
+    if(trocarBtn) trocarBtn.addEventListener('click', () => { mostrarEscolha(); overlay.classList.remove('hidden'); });
   }
   initPerfil();
 
