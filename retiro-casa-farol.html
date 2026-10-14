@@ -1726,6 +1726,23 @@
     document.querySelector('.closed-screen').style.display = 'none';
     document.getElementById('mainSiteContent').style.display = 'block';
 
+    // libera e já deixa marcado o lote da exceção (padrão: 2º lote; use &lote=1 para o 1º)
+    const loteExcecao = params.get('lote') === '1' ? '1' : '2';
+    document.querySelectorAll('.lote-opt').forEach(opt => {
+      opt.classList.remove('selected');
+      if(opt.getAttribute('data-value') === loteExcecao){
+        opt.classList.remove('disabled');
+        const tagFechado = opt.querySelector('.lote-closed-tag');
+        if(tagFechado) tagFechado.remove();
+        opt.classList.add('selected');
+        selectedLote = loteExcecao;
+        atualizarNotaSaldo(selectedLote);
+      }else{
+        // os demais lotes continuam indisponíveis
+        if(!opt.classList.contains('disabled')) opt.classList.add('disabled');
+      }
+    });
+
     const nomeConvidado = params.get('nome');
     if(nomeConvidado){
       const nomeInput = document.getElementById('nome');
@@ -2026,7 +2043,7 @@
   document.getElementById('closeAdmin').addEventListener('click', () => adminOverlay.classList.remove('active'));
   document.getElementById('loginBtn').addEventListener('click', handleLogin);
 
-  document.getElementById('exceptLinkOutput').value = window.location.origin + window.location.pathname + '?vaga=excecao';
+  document.getElementById('exceptLinkOutput').value = window.location.origin + window.location.pathname + '?vaga=excecao&lote=2';
 
   document.getElementById('exceptCopiarBtn').addEventListener('click', () => {
     const output = document.getElementById('exceptLinkOutput');
