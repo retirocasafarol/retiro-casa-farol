@@ -53,6 +53,36 @@
   .home-hero .tagline{font-weight:700; font-size:0.86rem; margin:0 0 8px; color:var(--violet-d);}
   .home-hero .meta{color:var(--muted); font-weight:700; font-size:0.84rem; margin:0;}
   .home-hero .meta-note{color:var(--muted); font-weight:600; font-size:0.74rem; margin:8px 0 0; font-style:italic;}
+  .home-hero .perfil-indicator{margin:10px 0 0; font-size:0.72rem; font-weight:700; color:var(--violet-d);}
+  .perfil-trocar-btn{background:none; border:none; color:var(--violet-d); font-weight:700; font-size:0.72rem; text-decoration:underline; cursor:pointer; padding:0;}
+
+  .only-coordenacao, .only-lider-ou-coordenacao{display:none;}
+  body.perfil-coordenacao .only-coordenacao{display:block;}
+  body.perfil-coordenacao .only-lider-ou-coordenacao, body.perfil-lider .only-lider-ou-coordenacao{display:block;}
+  body.perfil-voluntario .hide-for-voluntario{display:none !important;}
+  .gestao-link-card{flex-direction:row; align-items:center; gap:12px; margin-bottom:18px; padding:16px;}
+  body.perfil-coordenacao .gestao-link-card{display:flex;}
+
+  .perfil-overlay{
+    position:fixed; inset:0; background:var(--paper); z-index:200; display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  .perfil-overlay.hidden{display:none;}
+  .perfil-card{max-width:400px; width:100%; background:#fff; padding:30px 24px;}
+  .perfil-card h2{font-family:'Archivo Black',sans-serif; font-size:1.3rem; margin:0 0 8px; text-transform:uppercase;}
+  .perfil-card p{color:var(--muted); font-weight:600; font-size:0.85rem; margin:0 0 20px; line-height:1.5;}
+  .perfil-opcao{
+    display:block; width:100%; text-align:left; background:#fff; border:2.5px solid var(--ink); border-radius:14px;
+    padding:14px 16px; margin-bottom:10px; cursor:pointer; font-family:'Manrope',sans-serif;
+  }
+  .perfil-opcao b{display:block; font-size:0.92rem; margin-bottom:2px;}
+  .perfil-opcao span{display:block; color:var(--muted); font-weight:600; font-size:0.76rem;}
+  .perfil-opcao:active{background:var(--paper-2);}
+
+  .ver-mais-btn{
+    background:var(--ink); color:var(--paper); border:2px solid var(--ink); border-radius:100px;
+    padding:6px 14px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:0.72rem; cursor:pointer; white-space:nowrap;
+  }
 
   .resumo-row{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;}
   .resumo-card{background:#fff; padding:14px 12px; text-align:center;}
@@ -196,6 +226,16 @@
 </head>
 <body>
 
+  <div class="perfil-overlay hidden" id="perfilOverlay">
+    <div class="perfil-card hard-sm">
+      <h2>Quem é você?</h2>
+      <p>Isso só ajusta o que aparece em destaque pra você — não é uma senha, é só pra facilitar a navegação.</p>
+      <button type="button" class="perfil-opcao press" data-perfil="coordenacao"><b>Coordenação geral</b><span>Filipe, Daniela, Ander ou Fran — visão completa do retiro</span></button>
+      <button type="button" class="perfil-opcao press" data-perfil="lider"><b>Líder de equipe</b><span>Coordena uma área específica (cozinha, louvor, produção, etc.)</span></button>
+      <button type="button" class="perfil-opcao press" data-perfil="voluntario"><b>Voluntário</b><span>Quero ver minhas tarefas, escalas e comunicados</span></button>
+    </div>
+  </div>
+
   <div class="topbar" id="topbar" style="display:none;">
     <button class="back" id="backBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg></button>
     <h1 id="topbarTitle">Área</h1>
@@ -211,7 +251,13 @@
         <p class="tagline">23–25 Outubro · "O Propósito Eterno de Deus"</p>
         <p class="meta">Sítio Comunhão Familiar, Três Coroas/RS — em frente à Heineken</p>
         <p class="meta-note">Aplicativo exclusivo para a organização do retiro</p>
+        <p class="perfil-indicator">Perfil: <span id="perfilAtualLabel">—</span> · <button type="button" id="trocarPerfilBtn" class="perfil-trocar-btn">trocar</button></p>
       </div>
+
+      <a class="area-card hard-sm press only-coordenacao gestao-link-card" href="#gestao">
+        <span class="ic" style="font-size:1.8rem;">📊</span>
+        <span><span class="lab2" style="display:block; font-size:0.9rem;">Gestão Geral do Retiro</span><span class="sub2" style="display:block; font-weight:600; color:var(--muted); font-size:0.74rem;">Visão panorâmica — só coordenação</span></span>
+      </a>
 
       <div class="resumo-row" id="resumoRow">
         <div class="resumo-card hard-sm"><div class="resumo-num" id="resumoDias">3</div><div class="resumo-lab">dias de retiro</div></div>
@@ -248,8 +294,8 @@
         <div class="empty-state">Nenhum aviso ainda.</div>
       </div>
 
-      <div class="section-label">Pendências do retiro</div>
-      <div class="avisos-list" id="homePendenciasList">
+      <div class="section-label hide-for-voluntario">Pendências do retiro</div>
+      <div class="avisos-list hide-for-voluntario" id="homePendenciasList">
         <div class="empty-state">Nenhuma pendência cadastrada ainda.</div>
       </div>
 
@@ -330,9 +376,40 @@
         <div class="section-label">Refeições — detalhes e quantidades</div>
         <div class="day-card hard-sm" id="refeicoesCard"></div>
 
-        <div class="section-label">Esta versão substitui</div>
+        <div class="section-label">Diretrizes do cardápio</div>
+        <div class="list-card hard-sm">
+          <ul class="sched-bullets">
+            <li>Comida farta e simples, com poucas preparações complexas</li>
+            <li>Evitar desperdício e priorizar ingredientes usados em mais de uma refeição</li>
+            <li>Comprar conforme o número final de inscritos</li>
+            <li>Considerar alergias e restrições alimentares</li>
+          </ul>
+        </div>
+
+        <div class="section-label">Lógica de aproveitamento</div>
+        <div class="list-card hard-sm">
+          <ul class="sched-bullets">
+            <li>Pão + queijo + presunto → cafés da manhã e lanche de domingo</li>
+            <li>Bolo → cafés e lanches</li>
+            <li>Banana → cafés e gincana</li>
+            <li>Frango → lasanha e almoço de domingo</li>
+            <li>Carne bovina → carreteiro e lasanha de carne</li>
+            <li>Massa, molho e queijo → as duas versões de lasanha</li>
+            <li>Arroz → carreteiro e almoço de domingo</li>
+            <li>Tomate e verduras → saladas</li>
+            <li>Suco → refeições e lanches</li>
+          </ul>
+        </div>
+
+        <div class="section-label">Cuidados importantes</div>
         <div class="list-card hard-sm" style="background:var(--amber-bg);">
-          <p style="margin:0; font-weight:700; color:var(--amber); font-size:0.82rem;">Lasanha · galinhada · linguiça no carreteiro · iogurte · presunto/apresuntado · sanduíches de frios no lanche de domingo não fazem mais parte do cardápio.</p>
+          <p style="margin:0 0 8px; font-weight:700; color:var(--amber); font-size:0.82rem;">A cozinha deve receber, antes das compras, as informações de alergias, intolerâncias e restrições alimentares das inscrições — acesso restrito aos responsáveis.</p>
+          <p style="margin:0; font-weight:700; color:var(--amber); font-size:0.82rem;">Garantir água potável durante todo o retiro. Comprar perecíveis perto da data; antecipar secos, bebidas e descartáveis só quando houver vantagem real.</p>
+        </div>
+
+        <div class="section-label">Próxima etapa</div>
+        <div class="list-card hard-sm">
+          <p style="margin:0; font-weight:600; font-size:0.82rem;">Após o fechamento das inscrições: confirmar adolescentes, voluntários, banda e convidados → definir quantidades e margem de segurança → cotar fornecedores → selecionar compras → calcular custo por refeição, custo total e custo por participante.</p>
         </div>
       </div>
 
@@ -1303,18 +1380,134 @@
       </div>
     </div>
 
+    <!-- ============ GESTÃO GERAL (SÓ COORDENAÇÃO) ============ -->
+    <div class="view" id="view-gestao" style="display:none;">
+      <p class="info-note">Painel exclusivo dos 4 coordenadores (Filipe, Daniela, Ander, Fran) — visão consolidada das 10 etapas. Atualiza automaticamente conforme as equipes registram o trabalho.</p>
+
+      <div class="next-card hard-sm" style="margin-bottom:18px;">
+        <p class="lab">Preparação do retiro</p>
+        <p class="act" id="gestaoPercentPreparo" style="font-size:1.8rem;">–%</p>
+        <p class="time" id="gestaoPercentDesc">calculado pelas tarefas cadastradas</p>
+      </div>
+
+      <div class="section-label">Situação das 10 etapas</div>
+      <div class="day-card hard-sm" id="gestaoEtapasCard" style="margin-bottom:18px;"></div>
+
+      <div class="section-label">Decisões pendentes da coordenação</div>
+      <div class="list-card hard-sm" style="background:var(--amber-bg); margin-bottom:18px;">
+        <ul class="sched-bullets" id="gestaoDecisoesList" style="color:var(--amber); font-weight:700; font-size:0.82rem;"></ul>
+      </div>
+
+      <div class="section-label">Pendências críticas e sem responsável</div>
+      <div id="gestaoPendenciasCriticasList" style="margin-bottom:18px;"></div>
+
+      <div class="section-label">Próximas 24 horas</div>
+      <div class="day-card hard-sm" id="gestaoProximas24hCard" style="margin-bottom:18px;"></div>
+
+      <div class="section-label">Orçamento e gastos (onde registrado)</div>
+      <div class="day-card hard-sm" id="gestaoOrcamentoCard" style="margin-bottom:18px;"></div>
+
+      <div class="section-label">Inscrições, equipe e acomodação</div>
+      <div class="resumo-row" style="margin-bottom:18px;">
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="gestaoStatVoluntarios">13</div><div class="resumo-lab">voluntários inscritos</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="gestaoStatColaboradores">–</div><div class="resumo-lab">colaboradores adicionais</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num" id="gestaoStatAdolescentes">30</div><div class="resumo-lab">adolescentes previstos</div></div>
+        <div class="resumo-card hard-sm"><div class="resumo-num">13</div><div class="resumo-lab">pernoite definido (PDF)</div></div>
+      </div>
+
+      <div class="section-label">Foco por coordenador</div>
+      <div class="day-card hard-sm">
+        <div class="sched-row"><div class="sched-desc"><b>Filipe</b> — Louvor e direcionamento geral</div><a class="ver-mais-btn press" href="#louvor" style="text-decoration:none;">Ver →</a></div>
+        <div class="sched-row"><div class="sched-desc"><b>Daniela</b> — Operação e cuidado das pessoas</div><a class="ver-mais-btn press" href="#palavras" style="text-decoration:none;">Ver →</a></div>
+        <div class="sched-row"><div class="sched-desc"><b>Ander</b> — Programação e logística</div><a class="ver-mais-btn press" href="#cronograma" style="text-decoration:none;">Ver →</a></div>
+        <div class="sched-row"><div class="sched-desc"><b>Fran</b> — Produção e decoração</div><a class="ver-mais-btn press" href="#producao" style="text-decoration:none;">Ver →</a></div>
+      </div>
+    </div>
+
     <!-- ============ DOCUMENTOS ============ -->
     <div class="view" id="view-documentos" style="display:none;">
-      <div class="placeholder-card hard-sm">
-        <div class="ic">📁</div>
-        <h3>Biblioteca de documentos</h3>
-        <p>Em breve: cronograma geral em PDF, cardápio operacional, lista de compras e doações, produção e decoração, gincanas e dinâmicas, louvor e técnica, palavras e ministrações, e o organograma completo — tudo pra abrir direto pelo celular.</p>
+      <p class="info-note">Links e referências oficiais do retiro, organizados por categoria. Cronograma, cardápio, repertório e o quiz já têm sua própria área no app — aqui ficam os demais documentos (PDFs, planilhas, links externos).</p>
+
+      <input type="text" id="docSearchInput" placeholder="Buscar por nome, categoria ou responsável" style="width:100%; padding:11px 14px; border-radius:11px; border:2.5px solid var(--ink); font-family:'Manrope',sans-serif; font-weight:600; font-size:0.86rem; background:#fff; margin-bottom:18px;">
+
+      <div class="section-label">Documentos pendentes</div>
+      <div id="docsPendentesList"></div>
+
+      <div class="section-label">Categorias</div>
+      <div id="docCategoriasCard"></div>
+
+      <button class="add-btn press" id="toggleDocForm">+ Adicionar documento ou link</button>
+      <div class="add-form hard-sm" id="docForm">
+        <input type="text" id="docTituloInput" placeholder="Título">
+        <textarea id="docDescInput" placeholder="Descrição (opcional)"></textarea>
+        <select id="docCategoriaInput">
+          <option value="Inscrições e participantes">01 · Inscrições e participantes</option>
+          <option value="Voluntários e equipes">02 · Voluntários e equipes</option>
+          <option value="Cronograma e programação">03 · Cronograma e programação</option>
+          <option value="Alimentação e cozinha">04 · Alimentação e cozinha</option>
+          <option value="Produção e decoração">05 · Produção e decoração</option>
+          <option value="Gincanas e dinâmicas">06 · Gincanas e dinâmicas</option>
+          <option value="Louvor e técnica">07 · Louvor e técnica</option>
+          <option value="Palavras e ministrações">08 · Palavras e ministrações</option>
+          <option value="Financeiro e comprovantes">09 · Financeiro e comprovantes</option>
+          <option value="Comunicação e divulgação">10 · Comunicação e divulgação</option>
+          <option value="Saúde, segurança e autorizações">11 · Saúde, segurança e autorizações</option>
+          <option value="Registros e encerramento">12 · Registros e encerramento</option>
+        </select>
+        <input type="text" id="docLinkInput" placeholder="Link (Google Drive, PDF, etc.)">
+        <div class="form-row">
+          <input type="text" id="docRespInput" placeholder="Responsável">
+          <input type="text" id="docPrazoInput" placeholder="Prazo (opcional)">
+        </div>
+        <select id="docStatusInput">
+          <option value="pendente">Pendente</option>
+          <option value="aguardando_envio">Aguardando envio</option>
+          <option value="recebido">Recebido</option>
+          <option value="em_revisao">Em revisão</option>
+          <option value="aprovado">Aprovado</option>
+          <option value="substituido">Substituído</option>
+          <option value="arquivado">Arquivado</option>
+        </select>
+        <div class="form-actions">
+          <button class="btn-cancel press" id="cancelDocBtn" type="button">Cancelar</button>
+          <button class="btn-save press" id="saveDocBtn" type="button">Salvar</button>
+        </div>
       </div>
     </div>
 
   </div>
 
 <script>
+  // ---------- PERFIL DE ACESSO (sem senha — só organiza a navegação) ----------
+  const PERFIL_LABELS = {coordenacao:'Coordenação geral', lider:'Líder de equipe', voluntario:'Voluntário'};
+  function aplicarPerfil(perfil){
+    ['coordenacao','lider','voluntario'].forEach(p => document.body.classList.remove('perfil-' + p));
+    document.body.classList.add('perfil-' + perfil);
+    const label = document.getElementById('perfilAtualLabel');
+    if(label) label.textContent = PERFIL_LABELS[perfil] || perfil;
+  }
+  function initPerfil(){
+    const salvo = localStorage.getItem('perfilAcesso');
+    const overlay = document.getElementById('perfilOverlay');
+    if(salvo){
+      aplicarPerfil(salvo);
+      overlay.classList.add('hidden');
+    }else{
+      overlay.classList.remove('hidden');
+    }
+    document.querySelectorAll('.perfil-opcao').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const perfil = btn.dataset.perfil;
+        localStorage.setItem('perfilAcesso', perfil);
+        aplicarPerfil(perfil);
+        overlay.classList.add('hidden');
+      });
+    });
+    const trocarBtn = document.getElementById('trocarPerfilBtn');
+    if(trocarBtn) trocarBtn.addEventListener('click', () => overlay.classList.remove('hidden'));
+  }
+  initPerfil();
+
   // ---------- dados estáticos do cronograma ----------
   const SITIO = 'Sítio Comunhão Familiar';
   const CASA_FAROL = 'Igreja Casa Farol, Três Coroas/RS';
@@ -1532,85 +1725,84 @@
 
   // ---------- ALIMENTAÇÃO: refeições, totais, materiais ----------
   const REFEICOES = [
-    {dia:'Sexta · 23/10', hora:'19h30', titulo:'Jantar — Cachorro-quente',
-      cardapio:'Cachorro-quente com molho, milho e batata-palha; ketchup, mostarda, refrigerante e água.',
-      itens:[['Pães de cachorro-quente','90 a 100 un.'],['Salsichas','90 a 100 un.'],['Molho de tomate','3 kg (parte do total geral)'],['Milho drenado','2 kg'],['Batata-palha','1,5 a 2 kg'],['Ketchup / mostarda','1–2 kg / 500 g–1 kg (uso ao longo do evento)'],['Refrigerante','15 litros']],
-      preparo:'Preparar molho e aquecer salsichas próximo ao jantar. Servir inicialmente 1 cachorro-quente por pessoa e oferecer repetição conforme disponibilidade; 90 a 100 unidades permitem sobra de serviço. Manter água disponível.'},
+    {dia:'Sexta · 23/10', hora:'19h30', titulo:'Jantar de chegada — Cachorro-quente completo',
+      cardapio:'Pão de cachorro-quente, salsicha, molho de tomate temperado, milho, batata-palha, ketchup, mostarda, refrigerante e água.',
+      itens:[['Pão de cachorro-quente','A definir'],['Salsicha','A definir'],['Molho de tomate temperado','A definir'],['Milho','A definir'],['Batata-palha','A definir'],['Ketchup','A definir'],['Mostarda','A definir'],['Refrigerante','A definir']],
+      preparo:'Refeição de baixo custo, rápida de preparar e servir, com ótima aceitação entre adolescentes. Ideal para a chegada.'},
     {dia:'Sábado · 24/10', hora:'08h00', titulo:'Café da manhã',
-      cardapio:'Pão francês, queijo, mortadela, margarina, bolo, banana, café, leite e água.',
-      itens:[['Pão francês','70 un.'],['Queijo muçarela','1,5 kg'],['Mortadela','1,5 kg'],['Margarina','Até 500 g'],['Bolo simples','3 kg'],['Bananas','40 un.'],['Leite integral','8 litros'],['Café / açúcar','Parte do estoque de 1 kg / 3–4 kg']],
-      preparo:'Organizar os alimentos em mesa de serviço. Repor frios em pequenas quantidades, mantendo o restante refrigerado. Preparar café e leite. Reservar ingredientes necessários para domingo.',
-      obs:'Não incluir: presunto, apresuntado ou iogurte.'},
+      cardapio:'Pão francês, presunto/apresuntado, queijo, margarina, bolo simples, banana, café, leite, iogurte ou bebida láctea e água.',
+      itens:[['Pão francês','A definir'],['Presunto/apresuntado','A definir'],['Queijo','A definir'],['Margarina','A definir'],['Bolo simples','A definir'],['Banana','A definir'],['Café','A definir'],['Leite','A definir'],['Iogurte ou bebida láctea','A definir']],
+      preparo:'Café reforçado para sustentar a manhã. Priorizar bolos caseiros e embalagens econômicas de bebida láctea/iogurte.'},
     {dia:'Sábado · 24/10', hora:'12h30', titulo:'Almoço — Carreteiro',
-      cardapio:'Carreteiro somente com carne bovina, salada de repolho e tomate, farofa, suco e água.',
-      itens:[['Carne bovina para carreteiro','7 kg'],['Arroz cru','4 kg'],['Repolho','2 unidades médias'],['Tomate','2 kg'],['Farofa / farinha de mandioca','2 a 3 kg'],['Cebola / alho / temperos','Retirar do estoque geral'],['Suco pronto','15 litros']],
-      preparo:'Preparar o carreteiro exclusivamente com carne bovina. Preparar a salada separadamente. Servir a farofa como acompanhamento. Organizar o serviço para 50 pessoas.',
-      obs:'Não incluir: galinhada ou linguiça.'},
+      cardapio:'Carreteiro, salada de repolho, tomate, farofa, suco e água.',
+      itens:[['Carreteiro','A definir'],['Repolho','A definir'],['Tomate','A definir'],['Farofa','A definir'],['Suco','A definir']],
+      preparo:'Um único prato principal bem servido, em vez de carreteiro e galinhada. Reduz custo, mão de obra e possíveis sobras.'},
     {dia:'Sábado · 24/10', hora:'Tarde', titulo:'Lanche da gincana',
-      cardapio:'Bolo simples, bolachas doces e salgadas, banana, suco e água.',
-      itens:[['Bolo simples','3 kg'],['Bolachas doces','2,5 kg'],['Bolachas salgadas','2,5 kg'],['Bananas','30 un.'],['Suco pronto','15 litros']],
-      preparo:'Organizar mesa de apoio no intervalo da gincana. Oferecer água continuamente, especialmente durante atividades físicas.',
+      cardapio:'Bolo simples, bolacha doce, bolacha salgada, banana, suco e água.',
+      itens:[['Bolo simples','A definir'],['Bolacha doce','A definir'],['Bolacha salgada','A definir'],['Banana','A definir'],['Suco','A definir']],
+      preparo:'Lanche simples e energético, servido sem interromper excessivamente a gincana.',
       obs:'Horário acompanha a pausa da gincana — confirmar o momento exato com a programação.'},
-    {dia:'Sábado · 24/10', hora:'19h00', titulo:'Jantar — Macarronada',
-      cardapio:'Macarronada com dois molhos separados: carne moída e frango desfiado; salada, suco e água. Sem lasanha.',
-      itens:[['Macarrão seco','6 a 7 kg no total'],['Carne moída','4 kg'],['Frango desossado','4 a 5 kg'],['Molho de tomate','7 a 9 kg (saldo após sexta)'],['Tomate','3 kg para salada'],['Repolho / alface','1 repolho + 3 pés de alface'],['Cebola / alho / temperos','Retirar do estoque geral'],['Suco pronto','15 litros']],
-      preparo:'Cozinhar a massa em etapas e preparar os dois molhos em panelas identificadas. A distribuição dos molhos entre participantes deve ser ajustada no serviço; não presumir metade exata para cada opção.'},
+    {dia:'Sábado · 24/10', hora:'19h00', titulo:'Jantar — Lasanha de carne e lasanha de frango',
+      cardapio:'Lasanha de carne (recheio de carne moída e molho) e lasanha de frango (recheio de frango desfiado e molho), massa de lasanha, queijo, salada verde simples, suco e água.',
+      itens:[['Massa de lasanha','A definir'],['Carne moída','A definir'],['Frango desfiado','A definir'],['Molho de tomate','A definir'],['Queijo','A definir'],['Salada verde simples','A definir'],['Suco','A definir']],
+      preparo:'Oferecer duas opções de lasanha, carne e frango, para atender diferentes preferências. Planejar a proporção de cada sabor conforme o número final de participantes, aproveitando ingredientes em comum (massa, queijo e molho) para controlar os custos.'},
     {dia:'Domingo · 25/10', hora:'08h00', titulo:'Café da manhã',
-      cardapio:'Pão francês, queijo, mortadela, margarina, bolo, banana, café, leite e água.',
-      itens:[['Pão francês','70 un.'],['Queijo muçarela','1,5 kg'],['Mortadela','1,5 kg'],['Margarina','Até 500 g'],['Bolo simples','3 kg'],['Bananas','40 un.'],['Leite integral','8 litros'],['Café / açúcar','Saldo do estoque geral']],
-      preparo:'Organizar o serviço da mesma forma que no sábado. Reservar pão e margarina para o lanche da tarde. Conferir o estoque restante.',
-      obs:'Não incluir: presunto, apresuntado ou iogurte.'},
+      cardapio:'Pão francês, presunto/apresuntado, queijo, margarina, bolo simples, banana, café, leite, iogurte ou bebida láctea e água.',
+      itens:[['Pão francês','A definir'],['Presunto/apresuntado','A definir'],['Queijo','A definir'],['Margarina','A definir'],['Bolo simples','A definir'],['Banana','A definir'],['Café','A definir'],['Leite','A definir'],['Iogurte ou bebida láctea','A definir']],
+      preparo:'Repetir o padrão de sábado facilita as compras, o preparo e o controle de estoque.'},
     {dia:'Domingo · 25/10', hora:'13h30', titulo:'Almoço — Frango assado',
-      cardapio:'Coxa e sobrecoxa assadas, arroz branco, maionese de batata, salada, refrigerante e água.',
-      itens:[['Coxa e sobrecoxa com osso','18 kg'],['Arroz cru','4 kg'],['Batata para maionese','9 a 10 kg'],['Maionese pronta','3 a 4 kg'],['Tomate','3 kg'],['Repolho / alface','1 repolho + 5 pés de alface'],['Cenoura (opcional)','Até 2 kg'],['Refrigerante','15 litros']],
-      preparo:'Temperar o frango com antecedência sob refrigeração. Verificar capacidade de forno/assadeiras e iniciar o assado a tempo. Manter a maionese refrigerada até servir.'},
-    {dia:'Domingo · 25/10', hora:'15h30', titulo:'Lanche',
-      cardapio:'Pão com margarina ou geleia, bolo simples, suco e água. Sem sanduíche de frios.',
-      itens:[['Pão francês','60 un.'],['Margarina','Até 1 kg (saldo da compra)'],['Geleia','1,5 kg'],['Bolo simples','3 kg'],['Suco pronto','15 litros']],
-      preparo:'Montar mesa simples e deixar margarina e geleia em recipientes de serviço. Embalar adequadamente alimentos remanescentes que estejam próprios para consumo.'}
+      cardapio:'Frango assado, arroz branco, maionese de batata, salada, refrigerante e água.',
+      itens:[['Frango assado','A definir'],['Arroz branco','A definir'],['Maionese de batata','A definir'],['Salada','A definir'],['Refrigerante','A definir']],
+      preparo:'Última grande refeição no sítio. Comparar frango assado pronto e preparo no local, considerando gás, temperos, estrutura e mão de obra.'},
+    {dia:'Domingo · 25/10', hora:'15h30', titulo:'Lanche de encerramento',
+      cardapio:'Sanduíche frio (pão, presunto/apresuntado e queijo), bolo, suco e água.',
+      itens:[['Pão','A definir'],['Presunto/apresuntado','A definir'],['Queijo','A definir'],['Bolo','A definir'],['Suco','A definir']],
+      preparo:'Lanche antes da saída para o culto das 19h. Aproveitar os ingredientes já previstos para os cafés da manhã, respeitando o armazenamento seguro.'}
   ];
-  // categoria, nome, quantidade (texto exibido), quantidadeNecessaria (número p/ cálculo), unidade
+  // categoria, nome, quantidade (texto exibido), quantidadeNecessaria (número p/ cálculo — 0 = ainda não definida), unidade
+  // Quantidades a definir após o fechamento das inscrições (conforme cardápio atualizado).
   const INGREDIENTES_NECESSARIOS = [
-    ['Açougue e proteínas','Salsicha','90 a 100 unidades',100,'un'],
-    ['Açougue e proteínas','Carne bovina para carreteiro','7 kg',7,'kg'],
-    ['Açougue e proteínas','Carne moída','4 kg',4,'kg'],
-    ['Açougue e proteínas','Frango desossado','4 a 5 kg',5,'kg'],
-    ['Açougue e proteínas','Coxas e sobrecoxas','18 kg',18,'kg'],
-    ['Padaria','Pão de cachorro-quente','90 a 100 unidades',100,'un'],
-    ['Padaria','Pão francês','200 unidades',200,'un'],
-    ['Padaria','Bolo simples','12 kg',12,'kg'],
-    ['Frios e laticínios','Queijo muçarela','3 kg',3,'kg'],
-    ['Frios e laticínios','Mortadela','3 kg',3,'kg'],
-    ['Frios e laticínios','Margarina','2 kg',2,'kg'],
-    ['Frios e laticínios','Leite','16 litros',16,'L'],
-    ['Mercearia','Arroz cru','8 kg',8,'kg'],
-    ['Mercearia','Macarrão seco','6 a 7 kg',7,'kg'],
-    ['Mercearia','Molho de tomate','10 a 12 kg',12,'kg'],
-    ['Mercearia','Milho escorrido','2 kg',2,'kg'],
-    ['Mercearia','Batata-palha','1,5 a 2 kg',2,'kg'],
-    ['Mercearia','Bolacha doce','2,5 kg',2.5,'kg'],
-    ['Mercearia','Bolacha salgada','2,5 kg',2.5,'kg'],
-    ['Mercearia','Farofa ou farinha de mandioca','2 a 3 kg',3,'kg'],
-    ['Mercearia','Café','1 kg',1,'kg'],
-    ['Mercearia','Açúcar','3 a 4 kg',4,'kg'],
-    ['Mercearia','Geleia','1,5 kg',1.5,'kg'],
-    ['Mercearia','Ketchup','1 a 2 kg',2,'kg'],
-    ['Mercearia','Mostarda','500 g a 1 kg',1,'kg'],
-    ['Mercearia','Maionese pronta','3 a 4 kg',4,'kg'],
-    ['Mercearia','Óleo','3 a 4 litros',4,'L'],
-    ['Mercearia','Sal e temperos','conforme necessidade',0,''],
-    ['Hortifrúti','Banana','100 a 120 unidades',120,'un'],
-    ['Hortifrúti','Repolho','4 a 5 unidades médias',5,'un'],
-    ['Hortifrúti','Tomate','8 kg',8,'kg'],
-    ['Hortifrúti','Batata','9 a 10 kg',10,'kg'],
-    ['Hortifrúti','Alface','8 pés',8,'pés'],
-    ['Hortifrúti','Cebola','4 a 5 kg',5,'kg'],
-    ['Hortifrúti','Alho','500 g',0.5,'kg'],
-    ['Hortifrúti','Cenoura','até 2 kg, opcional',2,'kg'],
-    ['Hortifrúti','Cheiro-verde','5 maços',5,'maços'],
-    ['Bebidas','Refrigerante','30 litros',30,'L'],
-    ['Bebidas','Suco em pó ou concentrado','suficiente para 60 litros',60,'L'],
-    ['Bebidas','Água potável','fornecimento contínuo e reserva',0,'']
+    ['Açougue e proteínas','Salsicha','a definir',0,'un'],
+    ['Açougue e proteínas','Carne para carreteiro','a definir',0,'kg'],
+    ['Açougue e proteínas','Carne moída (lasanha)','a definir',0,'kg'],
+    ['Açougue e proteínas','Frango (lasanha e almoço)','a definir',0,'kg'],
+    ['Açougue e proteínas','Presunto/apresuntado','a definir',0,'kg'],
+    ['Padaria','Pão de cachorro-quente','a definir',0,'un'],
+    ['Padaria','Pão francês','a definir',0,'un'],
+    ['Padaria','Bolos','a definir',0,'kg'],
+    ['Frios e laticínios','Queijo','a definir',0,'kg'],
+    ['Frios e laticínios','Presunto/apresuntado','a definir',0,'kg'],
+    ['Frios e laticínios','Margarina','a definir',0,'kg'],
+    ['Frios e laticínios','Leite','a definir',0,'L'],
+    ['Frios e laticínios','Iogurte ou bebida láctea','a definir',0,''],
+    ['Mercearia','Arroz','a definir',0,'kg'],
+    ['Mercearia','Massa de lasanha','a definir',0,'kg'],
+    ['Mercearia','Molho de tomate','a definir',0,'kg'],
+    ['Mercearia','Milho','a definir',0,'kg'],
+    ['Mercearia','Batata-palha','a definir',0,'kg'],
+    ['Mercearia','Farofa/farinha','a definir',0,'kg'],
+    ['Mercearia','Bolachas','a definir',0,'kg'],
+    ['Mercearia','Ketchup','a definir',0,'kg'],
+    ['Mercearia','Mostarda','a definir',0,'kg'],
+    ['Mercearia','Café','a definir',0,'kg'],
+    ['Mercearia','Açúcar','a definir',0,'kg'],
+    ['Mercearia','Temperos','conforme necessidade',0,''],
+    ['Hortifrúti','Banana','a definir',0,'un'],
+    ['Hortifrúti','Repolho','a definir',0,''],
+    ['Hortifrúti','Tomate','a definir',0,'kg'],
+    ['Hortifrúti','Folhas (salada)','a definir',0,''],
+    ['Hortifrúti','Batata','a definir',0,'kg'],
+    ['Bebidas','Refrigerante','a definir',0,'L'],
+    ['Bebidas','Suco','a definir',0,'L'],
+    ['Bebidas','Água potável','fornecimento contínuo',0,''],
+    ['Apoio da cozinha','Guardanapos','a definir',0,''],
+    ['Apoio da cozinha','Papel-toalha','a definir',0,''],
+    ['Apoio da cozinha','Sacos de lixo','a definir',0,''],
+    ['Apoio da cozinha','Detergente','a definir',0,''],
+    ['Apoio da cozinha','Esponjas','a definir',0,''],
+    ['Apoio da cozinha','Papel-alumínio','a definir',0,''],
+    ['Apoio da cozinha','Filme plástico','a definir',0,''],
+    ['Apoio da cozinha','Recipientes e descartáveis necessários','a definir',0,'']
   ];
   const MATERIAIS_LIMPEZA = [
     ['Papel-toalha','6 rolos grandes ou 12 comuns'], ['Papel-alumínio','2 rolos de 30 m'], ['Filme plástico','2 rolos de 30 m'],
@@ -2990,6 +3182,184 @@
       });
     });
   }
+
+  // ---------- DOCUMENTOS (ETAPA 10) ----------
+  const DOC_CATEGORIAS = [
+    'Inscrições e participantes', 'Voluntários e equipes', 'Cronograma e programação', 'Alimentação e cozinha',
+    'Produção e decoração', 'Gincanas e dinâmicas', 'Louvor e técnica', 'Palavras e ministrações',
+    'Financeiro e comprovantes', 'Comunicação e divulgação', 'Saúde, segurança e autorizações', 'Registros e encerramento'
+  ];
+  const DOC_STATUS_LABELS = {pendente:'Pendente', aguardando_envio:'Aguardando envio', recebido:'Recebido', em_revisao:'Em revisão', aprovado:'Aprovado', substituido:'Substituído', arquivado:'Arquivado'};
+  const DOC_STATUS_CYCLE = ['pendente','aguardando_envio','recebido','em_revisao','aprovado','substituido','arquivado'];
+
+  function docCard(d){
+    return `
+      <div class="list-card hard-sm">
+        <div class="row-top">
+          <div>
+            <div class="ttl">${escapeHtml(d.titulo)}</div>
+            ${d.descricao ? `<div class="sub2">${escapeHtml(d.descricao)}</div>` : ''}
+            <div class="sub2">${[d.responsavel, d.prazo].filter(Boolean).map(escapeHtml).join(' · ') || '-'}</div>
+            ${d.link ? `<div class="sub2"><a href="${escapeHtml(d.link)}" target="_blank" rel="noopener">Abrir link ↗</a></div>` : ''}
+          </div>
+          <button class="status-chip ${d.status==='aprovado'||d.status==='recebido' ? 'concluido' : (d.status==='em_revisao'||d.status==='aguardando_envio' ? 'andamento' : 'pendente')}" data-doc-id="${d.id}" data-status="${d.status||'pendente'}">${DOC_STATUS_LABELS[d.status||'pendente']}</button>
+        </div>
+        <button class="delete-x" data-del-doc="${d.id}">Remover</button>
+      </div>`;
+  }
+  function wireDocCards(host){
+    host.querySelectorAll('[data-doc-id]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const next = DOC_STATUS_CYCLE[(DOC_STATUS_CYCLE.indexOf(btn.dataset.status)+1) % DOC_STATUS_CYCLE.length];
+        const reg = ALL_DADOS.find(d => d.id === btn.dataset.docId);
+        if(!reg) return;
+        await sbUpdate(reg.id, stripMeta(Object.assign({}, reg, {status: next})));
+        await loadAllDados();
+      });
+    });
+    host.querySelectorAll('[data-del-doc]').forEach(btn => {
+      btn.addEventListener('click', async () => { await sbDelete(btn.dataset.delDoc); await loadAllDados(); });
+    });
+  }
+
+  let docCatCounter = 0;
+  function renderDocumentos(){
+    const termo = (document.getElementById('docSearchInput').value || '').trim().toLowerCase();
+    const todos = porTipo('documento').filter(d => {
+      if(!termo) return true;
+      return [d.titulo, d.categoria, d.responsavel, d.descricao].filter(Boolean).some(v => v.toLowerCase().includes(termo));
+    });
+
+    const pendentesHost = document.getElementById('docsPendentesList');
+    const pendentes = todos.filter(d => ['pendente','aguardando_envio'].includes(d.status||'pendente'));
+    pendentesHost.innerHTML = pendentes.length === 0
+      ? '<div class="empty-state">Nenhum documento pendente no momento.</div>'
+      : pendentes.map(docCard).join('');
+    wireDocCards(pendentesHost);
+
+    const catHost = document.getElementById('docCategoriasCard');
+    catHost.innerHTML = DOC_CATEGORIAS.map(cat => {
+      const docs = todos.filter(d => d.categoria === cat);
+      const id = 'doccat-' + (docCatCounter++);
+      const body = docs.length === 0
+        ? '<div class="empty-state">Nenhum documento cadastrado nesta categoria ainda.</div>'
+        : docs.map(docCard).join('');
+      return `<div class="sched-row sched-row-click" data-toggle-act="${id}">
+          <div class="sched-desc"><b>${escapeHtml(cat)}</b><span class="sub">${docs.length} documento(s)</span></div>
+        </div>
+        <div class="sched-detail" id="${id}" style="display:none; padding-left:18px;">${body}</div>`;
+    }).join('');
+    catHost.querySelectorAll('[data-toggle-act]').forEach(row => {
+      row.addEventListener('click', () => {
+        const detail = document.getElementById(row.dataset.toggleAct);
+        detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
+      });
+    });
+    wireDocCards(catHost);
+  }
+  document.getElementById('docSearchInput').addEventListener('input', renderDocumentos);
+  document.getElementById('toggleDocForm').addEventListener('click', () => document.getElementById('docForm').classList.add('is-open'));
+  document.getElementById('cancelDocBtn').addEventListener('click', () => document.getElementById('docForm').classList.remove('is-open'));
+  document.getElementById('saveDocBtn').addEventListener('click', async () => {
+    const titulo = document.getElementById('docTituloInput').value.trim();
+    const descricao = document.getElementById('docDescInput').value.trim();
+    const categoria = document.getElementById('docCategoriaInput').value;
+    const link = document.getElementById('docLinkInput').value.trim();
+    const responsavel = document.getElementById('docRespInput').value.trim();
+    const prazo = document.getElementById('docPrazoInput').value.trim();
+    const status = document.getElementById('docStatusInput').value;
+    if(!titulo) return;
+    await sbInsert('documento', { titulo, descricao, categoria, link, responsavel, prazo, status, criadoEm: new Date().toISOString() });
+    ['docTituloInput','docDescInput','docLinkInput','docRespInput','docPrazoInput'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('docForm').classList.remove('is-open');
+    await loadAllDados();
+  });
+
+  // ---------- GESTÃO GERAL DO RETIRO (só coordenação) ----------
+  const GESTAO_ETAPAS = [
+    {nome:'1. Cronograma geral', areaKey:null, nota:'Horários definidos. Pendente: pregadores e formação da banda de sábado.'},
+    {nome:'2. Alimentação e cozinha', areaKey:'alimentacao', nota:'Cardápio definido. Quantidades a definir após o fechamento das inscrições.'},
+    {nome:'3. Produção e decoração', areaKey:'producao', nota:null},
+    {nome:'4. Gincanas e dinâmicas', areaKey:'gincanas', nota:null},
+    {nome:'5. Louvor e técnica', areaKey:'louvor', nota:'Sexta e domingo definidos. Pendente: banda de adolescentes e culto de encerramento.'},
+    {nome:'6. Palavras e ministrações', areaKey:'palavras', nota:'Pendente: os 6 pregadores ainda não confirmados.'},
+    {nome:'7. Equipes e responsabilidades', areaKey:'equipes', nota:null},
+    {nome:'8. Comunicados', areaKey:'comunicados', nota:null},
+    {nome:'9. Notificações automáticas', areaKey:null, nota:null},
+    {nome:'10. Documentos', areaKey:null, nota:null}
+  ];
+  const DECISOES_PENDENTES_COORDENACAO = [
+    'Confirmar os 6 pregadores das ministrações (Daniela + liderança).',
+    'Definir a banda de adolescentes de sábado de manhã.',
+    'Confirmar quem conduz o louvor do culto de encerramento de domingo.',
+    'Confirmar integrantes e necessidades técnicas da banda de Gramado.',
+    'Confirmar responsável pela condução da abertura de sexta-feira.',
+    'Confirmar responsável pela atividade das camisetas de domingo.',
+    'Verificar se "Moise Soares" (PDF de inscritos) e "Moisés" (apoio técnico) são a mesma pessoa.',
+    'Providenciar o arquivo oficial do logotipo CENTRALIDADE/Casa Farol e a paleta aprovada.',
+    'Reunir o conjunto de fotos oficiais do retiro, quando disponível.'
+  ];
+  function renderGestaoGeral(){
+    const tarefas = porTipo('tarefa');
+    const total = tarefas.length;
+    const concluidas = tarefas.filter(t => t.status === 'concluido').length;
+    const pct = total > 0 ? Math.round((concluidas/total)*100) : 0;
+    document.getElementById('gestaoPercentPreparo').textContent = pct + '%';
+    document.getElementById('gestaoPercentDesc').textContent = `${concluidas} de ${total} tarefa(s) concluída(s)`;
+
+    document.getElementById('gestaoEtapasCard').innerHTML = GESTAO_ETAPAS.map(e => {
+      const ts = e.areaKey ? tarefas.filter(t => t.area === e.areaKey) : [];
+      const tsTotal = ts.length, tsConc = ts.filter(t => t.status==='concluido').length;
+      const resumoTarefas = e.areaKey ? (tsTotal > 0 ? `${tsConc}/${tsTotal} tarefas concluídas` : 'Nenhuma tarefa cadastrada') : '';
+      return `<div class="sched-row"><div class="sched-desc"><b>${escapeHtml(e.nome)}</b>${resumoTarefas ? `<span class="sub">${escapeHtml(resumoTarefas)}</span>` : ''}${e.nota ? `<span class="sub" style="color:var(--amber);">${escapeHtml(e.nota)}</span>` : ''}</div></div>`;
+    }).join('');
+
+    document.getElementById('gestaoDecisoesList').innerHTML = DECISOES_PENDENTES_COORDENACAO.map(d => `<li>${escapeHtml(d)}</li>`).join('');
+
+    const now = new Date();
+    const criticas = tarefas.filter(t => {
+      if((t.status||'pendente') === 'concluido') return false;
+      const atrasada = parsePrazo(t.prazo) && parsePrazo(t.prazo) < now;
+      return t.prioridade === 'alta' || !t.responsavel || atrasada;
+    });
+    const critHost = document.getElementById('gestaoPendenciasCriticasList');
+    critHost.innerHTML = criticas.length === 0
+      ? '<div class="empty-state">Nenhuma pendência crítica no momento.</div>'
+      : criticas.slice(0,8).map(t => `
+        <div class="list-card hard-sm">
+          <div class="ttl">${t.prioridade==='alta' ? '🔺 ' : ''}${escapeHtml(t.titulo)}</div>
+          <div class="sub2">${escapeHtml(AREA_NOMES[t.area]||t.area||'-')} · ${t.responsavel ? escapeHtml(t.responsavel) : 'sem responsável'}${t.prazo ? ' · ' + escapeHtml(t.prazo) : ''}</div>
+        </div>`).join('');
+
+    // próximas 24h
+    const todasAtividades = [];
+    Object.keys(CRONOGRAMA).forEach(key => {
+      const d = CRONOGRAMA[key];
+      d.periods.forEach(p => p.items.forEach(it => {
+        todasAtividades.push({ when: new Date(d.date + 'T' + it.start + ':00-03:00'), titulo: it.titulo, dia: d.label, time: it.time });
+      }));
+    });
+    const em24h = todasAtividades.filter(a => a.when > now && a.when - now <= 24*60*60*1000).sort((a,b) => a.when - b.when);
+    document.getElementById('gestaoProximas24hCard').innerHTML = em24h.length === 0
+      ? '<div class="sched-row"><div class="sched-desc">Nenhuma atividade do cronograma nas próximas 24h a partir de agora.</div></div>'
+      : em24h.map(a => `<div class="sched-row"><div class="sched-time">${a.dia.split('·')[0].trim()} ${a.time}</div><div class="sched-desc">${escapeHtml(a.titulo)}</div></div>`).join('');
+
+    // orçamento
+    const materiais = porTipo('material_producao');
+    const comprasAlim = porTipo('compra');
+    const custoPrevMateriais = materiais.reduce((s,m) => s + (Number(m.custoPrevisto)||0), 0);
+    const custoRealMateriais = materiais.reduce((s,m) => s + (Number(m.custoRealizado)||0), 0);
+    const gastoAlim = comprasAlim.reduce((s,c) => s + ((Number(c.valorUnitario)||0) * (Number(c.quantidadeComprada)||0)), 0);
+    document.getElementById('gestaoOrcamentoCard').innerHTML = `
+      <div class="sched-row"><div class="sched-desc">Produção — custo previsto</div><div class="sched-time">${custoPrevMateriais > 0 ? 'R$ '+custoPrevMateriais.toFixed(2).replace('.',',') : '-'}</div></div>
+      <div class="sched-row"><div class="sched-desc">Produção — custo realizado</div><div class="sched-time">${custoRealMateriais > 0 ? 'R$ '+custoRealMateriais.toFixed(2).replace('.',',') : '-'}</div></div>
+      <div class="sched-row"><div class="sched-desc">Alimentação — gasto registrado</div><div class="sched-time">${gastoAlim > 0 ? 'R$ '+gastoAlim.toFixed(2).replace('.',',') : '-'}</div></div>
+      <div class="sched-row"><div class="sched-desc" style="font-style:italic; color:var(--muted);">Só soma o que já foi registrado manualmente pelas equipes — sem preços presumidos.</div></div>
+    `;
+
+    document.getElementById('gestaoStatColaboradores').textContent = porTipo('colaborador').length;
+  }
+
   document.querySelectorAll('[data-alim-tab]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('[data-alim-tab]').forEach(b => b.classList.toggle('is-active', b === btn));
@@ -3274,7 +3644,7 @@
   const AREA_TITLES = {
     cronograma:'Cronograma geral', alimentacao:'Alimentação e cozinha', producao:'Produção e decoração',
     gincanas:'Gincanas e dinâmicas', louvor:'Louvor e técnica', palavras:'Palavras e ministrações',
-    equipes:'Equipe e pendências', comunicados:'Comunicados', documentos:'Documentos', automacoes:'Notificações'
+    equipes:'Equipe e pendências', comunicados:'Comunicados', documentos:'Documentos', automacoes:'Notificações', gestao:'Gestão Geral do Retiro'
   };
   function showView(name){
     document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
@@ -3384,6 +3754,8 @@
     renderColaboradores();
     renderEquipesStats();
     renderChecklistEquipes();
+    renderDocumentos();
+    renderGestaoGeral();
   }
   loadAllDados();
   setInterval(loadAllDados, 45000);
