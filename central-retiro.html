@@ -222,6 +222,16 @@
   footer.appfoot{text-align:center; margin-top:28px; color:var(--muted); font-size:0.74rem; font-weight:600;}
 
   @media(max-width:380px){ .grid-menu{gap:8px;} }
+  .pin-sub{text-align:center; margin:-10px 0 18px !important;}
+  .pin-dots{display:flex; justify-content:center; gap:14px; margin-bottom:12px;}
+  .pin-dots span{width:18px; height:18px; border-radius:50%; border:2.5px solid var(--ink); background:#fff; transition:background .1s;}
+  .pin-dots span.on{background:var(--ink);}
+  .pin-dots.erro{animation:pinshake .35s;}
+  @keyframes pinshake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+  .pin-erro{color:var(--red) !important; font-weight:700 !important; font-size:0.78rem !important; text-align:center; margin:0 0 12px !important;}
+  .pin-pad{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; max-width:270px; margin:8px auto 0;}
+  .pin-key{aspect-ratio:1; border-radius:50%; background:#fff; border:2.5px solid var(--ink); box-shadow:3px 3px 0 var(--shadow-c); font-family:'Archivo Black',sans-serif; font-size:1.5rem; color:var(--ink); padding:0;}
+  .pin-voltar{display:block; margin:20px auto 0; background:none; border:none; color:var(--muted); font-family:'Manrope',sans-serif; font-weight:700; font-size:0.85rem; cursor:pointer;}
 </style>
 </head>
 <body>
@@ -234,13 +244,25 @@
       <button type="button" class="perfil-opcao press" data-perfil="voluntario"><b>Voluntário</b><span>Quero ver minhas tarefas, escalas e comunicados</span></button>
     </div>
     <div class="perfil-card hard-sm" id="perfilSenhaStep" style="display:none;">
-      <h2 id="perfilSenhaTitulo">Senha</h2>
-      <input type="password" id="perfilSenhaInput" placeholder="Digite a senha" style="width:100%; padding:12px 14px; border-radius:11px; border:2.5px solid var(--ink); font-family:'Manrope',sans-serif; font-weight:600; font-size:0.9rem; margin-bottom:8px;">
-      <p id="perfilSenhaErro" style="display:none; color:var(--red); font-weight:700; font-size:0.78rem; margin:0 0 12px;">Senha incorreta, tenta de novo.</p>
-      <div class="form-actions" style="margin-top:4px;">
-        <button class="btn-cancel press" id="perfilSenhaVoltarBtn" type="button">Voltar</button>
-        <button class="btn-save press" id="perfilSenhaEntrarBtn" type="button">Entrar</button>
+      <h2 id="perfilSenhaTitulo">PIN</h2>
+      <p class="pin-sub">Digite o PIN de 4 dígitos</p>
+      <div class="pin-dots" id="pinDots"><span></span><span></span><span></span><span></span></div>
+      <p id="perfilSenhaErro" class="pin-erro" style="display:none;">PIN incorreto, tenta de novo.</p>
+      <div class="pin-pad" id="pinPad">
+        <button type="button" class="pin-key press" data-k="1">1</button>
+        <button type="button" class="pin-key press" data-k="2">2</button>
+        <button type="button" class="pin-key press" data-k="3">3</button>
+        <button type="button" class="pin-key press" data-k="4">4</button>
+        <button type="button" class="pin-key press" data-k="5">5</button>
+        <button type="button" class="pin-key press" data-k="6">6</button>
+        <button type="button" class="pin-key press" data-k="7">7</button>
+        <button type="button" class="pin-key press" data-k="8">8</button>
+        <button type="button" class="pin-key press" data-k="9">9</button>
+        <span></span>
+        <button type="button" class="pin-key press" data-k="0">0</button>
+        <button type="button" class="pin-key press" data-k="del" aria-label="Apagar">⌫</button>
       </div>
+      <button class="pin-voltar" id="perfilSenhaVoltarBtn" type="button">← Trocar de pessoa</button>
     </div>
   </div>
 
@@ -1494,16 +1516,17 @@
     const label = document.getElementById('perfilAtualLabel');
     if(label) label.textContent = PERFIL_LABELS[perfil] || perfil;
   }
-  const PERFIL_SENHAS = {coordenacao:'12131415', lider:'0102030405', voluntario:'1a2b3c'};
+  const PERFIL_SENHAS = {coordenacao:'9274', lider:'0102', voluntario:'1234'}; // PINs de 4 dígitos
   function initPerfil(){
     const salvo = localStorage.getItem('perfilAcesso');
     const overlay = document.getElementById('perfilOverlay');
     const escolhaStep = document.getElementById('perfilEscolhaStep');
     const senhaStep = document.getElementById('perfilSenhaStep');
-    const senhaInput = document.getElementById('perfilSenhaInput');
     const senhaErro = document.getElementById('perfilSenhaErro');
     const senhaTitulo = document.getElementById('perfilSenhaTitulo');
+    const dots = document.getElementById('pinDots');
     let perfilEscolhido = null;
+    let pin = '';
 
     if(salvo){
       aplicarPerfil(salvo);
@@ -1512,41 +1535,57 @@
       overlay.classList.remove('hidden');
     }
 
+    function atualizarDots(){
+      [...dots.children].forEach((d,i) => d.classList.toggle('on', i < pin.length));
+    }
+    function limparPin(){ pin = ''; atualizarDots(); }
     function mostrarEscolha(){
       escolhaStep.style.display = 'block';
       senhaStep.style.display = 'none';
-      senhaInput.value = '';
       senhaErro.style.display = 'none';
       perfilEscolhido = null;
+      limparPin();
     }
     function mostrarSenha(perfil){
       perfilEscolhido = perfil;
-      senhaTitulo.textContent = 'Senha — ' + (PERFIL_LABELS[perfil] || perfil);
+      senhaTitulo.textContent = PERFIL_LABELS[perfil] || perfil;
       escolhaStep.style.display = 'none';
       senhaStep.style.display = 'block';
       senhaErro.style.display = 'none';
-      senhaInput.value = '';
-      setTimeout(() => senhaInput.focus(), 50);
+      limparPin();
     }
     function tentarEntrar(){
       if(!perfilEscolhido) return;
-      if(senhaInput.value === PERFIL_SENHAS[perfilEscolhido]){
+      if(pin === PERFIL_SENHAS[perfilEscolhido]){
         localStorage.setItem('perfilAcesso', perfilEscolhido);
         aplicarPerfil(perfilEscolhido);
         overlay.classList.add('hidden');
+        limparPin();
       }else{
         senhaErro.style.display = 'block';
-        senhaInput.value = '';
-        senhaInput.focus();
+        dots.classList.remove('erro'); void dots.offsetWidth; dots.classList.add('erro');
+        limparPin();
       }
+    }
+    function tecla(k){
+      senhaErro.style.display = 'none';
+      if(k === 'del'){ pin = pin.slice(0,-1); atualizarDots(); return; }
+      if(pin.length >= 4) return;
+      pin += k;
+      atualizarDots();
+      if(pin.length === 4) setTimeout(tentarEntrar, 120);
     }
 
     document.querySelectorAll('.perfil-opcao').forEach(btn => {
       btn.addEventListener('click', () => mostrarSenha(btn.dataset.perfil));
     });
+    document.querySelectorAll('.pin-key').forEach(b => b.addEventListener('click', () => tecla(b.dataset.k)));
     document.getElementById('perfilSenhaVoltarBtn').addEventListener('click', mostrarEscolha);
-    document.getElementById('perfilSenhaEntrarBtn').addEventListener('click', tentarEntrar);
-    senhaInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') tentarEntrar(); });
+    document.addEventListener('keydown', (e) => {
+      if(senhaStep.style.display === 'none' || overlay.classList.contains('hidden')) return;
+      if(/^[0-9]$/.test(e.key)) tecla(e.key);
+      else if(e.key === 'Backspace') tecla('del');
+    });
 
     const trocarBtn = document.getElementById('trocarPerfilBtn');
     if(trocarBtn) trocarBtn.addEventListener('click', () => { mostrarEscolha(); overlay.classList.remove('hidden'); });
