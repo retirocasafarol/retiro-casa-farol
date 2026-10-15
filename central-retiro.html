@@ -1275,8 +1275,26 @@
 
       <!-- TAB: VOLUNTÁRIOS INSCRITOS -->
       <div class="tab-panel" id="eqTab-voluntarios">
-        <p class="info-note">Base oficial: PDF de 12/10/2026. Áreas de interesse não significam escala confirmada.</p>
+        <p class="info-note">Base oficial: PDF de 12/10/2026. Áreas de interesse não significam escala confirmada. Quem a coordenação adicionar aparece logo abaixo.</p>
         <div class="day-card hard-sm" id="voluntariosCard" style="margin-bottom:18px;"></div>
+        <div class="section-label">Adicionados pela coordenação</div>
+        <div id="voluntariosExtraList"></div>
+        <div class="only-coordenacao">
+          <button class="add-btn press" id="toggleVoluntarioForm" type="button">+ Adicionar voluntário</button>
+          <div class="add-form hard-sm" id="voluntarioForm">
+            <input type="text" id="volNomeInput" placeholder="Nome completo">
+            <input type="text" id="volAreaInput" placeholder="Áreas de interesse (ex.: Cozinha e recepção)">
+            <select id="volPernoiteInput">
+              <option value="">Pernoite: não informado</option>
+              <option value="dorme">Dorme no retiro</option>
+              <option value="casa">Vai para casa</option>
+            </select>
+            <div class="form-actions">
+              <button class="btn-cancel press" id="cancelVoluntarioBtn" type="button">Cancelar</button>
+              <button class="btn-save press" id="saveVoluntarioBtn" type="button">Salvar</button>
+            </div>
+          </div>
+        </div>
         <div class="section-label">Pernoite (conforme o PDF)</div>
         <div class="day-card hard-sm" id="pernoiteCard"></div>
       </div>
@@ -3124,10 +3142,58 @@
 
   const PERNOITE_DORME = ['Emilly','Adriana','Felipe Herrmann','Renata Regina'];
   const PERNOITE_CASA = ['Keli','Micaele','Francieli','Moise Soares','Dionata','Tainá','Vilmar','Jenifer','Rogério'];
-  document.getElementById('pernoiteCard').innerHTML =
-    `<div class="period-label">Dormem no retiro</div><div class="sched-row"><div class="sched-desc">${escapeHtml(PERNOITE_DORME.join(' · '))}</div></div>` +
-    `<div class="period-label">Vão para casa</div><div class="sched-row"><div class="sched-desc">${escapeHtml(PERNOITE_CASA.join(' · '))}</div></div>` +
-    `<div class="sched-row"><div class="sched-desc" style="font-style:italic; color:var(--muted);">A atualização da disponibilidade de Rogério para os três dias não altera automaticamente sua informação de pernoite.</div></div>`;
+  function renderPernoite(extras){
+    extras = extras || [];
+    const dorme = PERNOITE_DORME.concat(extras.filter(v => v.pernoite === 'dorme').map(v => v.nome));
+    const casa = PERNOITE_CASA.concat(extras.filter(v => v.pernoite === 'casa').map(v => v.nome));
+    const semInfo = extras.filter(v => !v.pernoite).map(v => v.nome);
+    document.getElementById('pernoiteCard').innerHTML =
+      `<div class="period-label">Dormem no retiro</div><div class="sched-row"><div class="sched-desc">${escapeHtml(dorme.join(' · '))}</div></div>` +
+      `<div class="period-label">Vão para casa</div><div class="sched-row"><div class="sched-desc">${escapeHtml(casa.join(' · '))}</div></div>` +
+      (semInfo.length ? `<div class="period-label">Pernoite não informado</div><div class="sched-row"><div class="sched-desc">${escapeHtml(semInfo.join(' · '))}</div></div>` : '') +
+      `<div class="sched-row"><div class="sched-desc" style="font-style:italic; color:var(--muted);">A atualização da disponibilidade de Rogério para os três dias não altera automaticamente sua informação de pernoite.</div></div>`;
+  }
+  renderPernoite([]);
+
+  // ---------- Voluntários adicionados pela coordenação ----------
+  function renderVoluntariosExtra(){
+    const docs = porTipo('voluntario_extra');
+    const host = document.getElementById('voluntariosExtraList');
+    if(docs.length === 0){
+      host.innerHTML = '<div class="empty-state">Nenhum voluntário adicional cadastrado ainda.</div>';
+    }else{
+      host.innerHTML = docs.map(v => `
+        <div class="list-card hard-sm">
+          <div class="ttl">${escapeHtml(v.nome)}</div>
+          <div class="sub2">${escapeHtml(v.area || '-')}${v.pernoite ? ' · ' + (v.pernoite === 'dorme' ? 'dorme no retiro' : 'vai para casa') : ''}</div>
+          <button class="delete-x only-coordenacao" data-del-vol="${v.id}">Remover</button>
+        </div>
+      `).join('');
+      host.querySelectorAll('[data-del-vol]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          if(!confirm('Remover este voluntário?')) return;
+          await sbDelete(btn.dataset.delVol); await loadAllDados();
+        });
+      });
+    }
+    renderPernoite(docs);
+    const total = VOLUNTARIOS_INSCRITOS.length + docs.length;
+    const el = document.getElementById('gestaoStatVoluntarios');
+    if(el) el.textContent = total;
+  }
+  document.getElementById('toggleVoluntarioForm').addEventListener('click', () => document.getElementById('voluntarioForm').classList.add('is-open'));
+  document.getElementById('cancelVoluntarioBtn').addEventListener('click', () => document.getElementById('voluntarioForm').classList.remove('is-open'));
+  document.getElementById('saveVoluntarioBtn').addEventListener('click', async () => {
+    const nome = document.getElementById('volNomeInput').value.trim();
+    const area = document.getElementById('volAreaInput').value.trim();
+    const pernoite = document.getElementById('volPernoiteInput').value;
+    if(!nome) return;
+    await sbInsert('voluntario_extra', { nome, area, pernoite, criadoEm: new Date().toISOString() });
+    ['volNomeInput','volAreaInput'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('volPernoiteInput').value = '';
+    document.getElementById('voluntarioForm').classList.remove('is-open');
+    await loadAllDados();
+  });
 
   const EQUIPES_CONSOLIDADAS = [
     { nome:'Cozinha e alimentação', coord:'Renata Regina Clara Ferreira e Jordana', acrescentados:'Juliano, Jordana',
@@ -3844,6 +3910,7 @@
     renderGrupos();
     renderChecklistMinistracoes();
     renderColaboradores();
+    renderVoluntariosExtra();
     renderEquipesStats();
     renderChecklistEquipes();
     renderDocumentos();
