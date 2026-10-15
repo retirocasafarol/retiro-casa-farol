@@ -239,6 +239,27 @@
   .logo-cent.logo-perfil{max-width:72px; margin-bottom:8px;}
   .logo-cent.logo-pin{max-width:64px; margin-bottom:6px;}
   .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap;}
+  /* botões de ação (Louvor) */
+  .action-row{display:flex; gap:10px; flex-wrap:wrap;}
+  .action-btn{flex:1 1 150px; display:flex; flex-direction:column; justify-content:center; padding:14px 16px; text-decoration:none; color:var(--ink); background:#fff; border:2.5px solid var(--ink); border-radius:14px; font-family:'Manrope',sans-serif;}
+  .action-btn.whatsapp{background:var(--yellow);}
+  .action-btn.whatsapp span{color:var(--ink) !important;}
+  .action-btn.spotify{background:var(--violet); color:#fff;}
+  /* edição da programação do louvor */
+  .pl-edit-btn{background:none; border:none; color:var(--violet-d); font-weight:800; font-size:0.78rem; text-decoration:underline; cursor:pointer; padding:0; margin-top:10px;}
+  .pl-form label{display:block; font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:0.04em; margin:12px 0 4px;}
+  .pl-form input[type=text], .pl-form textarea{width:100%; box-sizing:border-box; border:2px solid var(--ink); border-radius:10px; padding:10px 12px; font-family:'Manrope',sans-serif; font-size:0.9rem; background:#fff;}
+  .pl-form textarea{min-height:70px;}
+  .pl-membro{border:2px solid var(--ink); border-radius:12px; padding:10px; margin-top:8px; background:var(--paper);}
+  .pl-membro .pl-top{display:flex; gap:8px; align-items:center;}
+  .pl-membro .pl-rm{background:none; border:none; font-size:1.1rem; font-weight:800; color:var(--red); cursor:pointer; padding:4px 8px;}
+  .pl-chips{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0;}
+  .pl-chip{border:2px solid var(--ink); border-radius:999px; padding:5px 11px; font-size:0.78rem; font-weight:700; background:#fff; color:var(--ink); cursor:pointer; font-family:'Manrope',sans-serif;}
+  .pl-chip.on{background:var(--ink); color:var(--paper);}
+  .pl-actions{display:flex; gap:8px; margin-top:16px; flex-wrap:wrap;}
+  .pl-actions button{flex:1; border:2.5px solid var(--ink); border-radius:12px; padding:11px; font-weight:800; font-family:'Manrope',sans-serif; cursor:pointer; background:#fff; color:var(--ink);}
+  .pl-actions .pl-save{background:var(--violet); color:#fff;}
+  .pl-restore{display:block; margin:12px auto 0; background:none; border:none; color:var(--muted); font-size:0.72rem; font-weight:700; text-decoration:underline; cursor:pointer;}
 </style>
 </head>
 <body>
@@ -2548,32 +2569,163 @@
     { dia:'Domingo · 19h00 (Casa Farol)', titulo:'Culto de encerramento', equipe:'A confirmar', status:'Equipe de louvor a confirmar',
       obs:'Possibilidade de participação especial dos adolescentes. Pendências: confirmar equipe musical, definir repertório, confirmar participação dos adolescentes, preparar equipamentos e projeção, definir passagem de som, alinhar com a liderança da igreja. Não usar automaticamente a formação de domingo de manhã — a escala ainda não foi confirmada.' }
   ];
-  let progLouvorCounter = 0;
-  function renderProgramacaoLouvor(){
+  // ---- Programação do louvor: editável pela coordenação (salva no Supabase como 'programacao_louvor') ----
+  const INSTRUMENTOS = ['Voz','Teclado','Violão','Guitarra','Baixo','Bateria','Percussão'];
+  let louvorEditando = false;
+  const louvorAbertos = new Set();
+
+  function parseMembro(str){
+    const partes = String(str).split(' — ');
+    const nome = partes[0].trim();
+    const resto = (partes[1] || '').split(/\s*(?:,|\be\b)\s*/).map(x => x.trim()).filter(Boolean);
+    const instrs = [], outros = [];
+    resto.forEach(r => {
+      const hit = INSTRUMENTOS.find(i => i.toLowerCase() === r.toLowerCase());
+      if(hit) instrs.push(hit); else outros.push(r);
+    });
+    return { nome, instrs, outros: outros.join(', ') };
+  }
+  function listaInstrumentos(m){
+    const arr = (m.instrs || []).map(x => x.toLowerCase());
+    if(m.outros) arr.push(m.outros);
+    if(arr.length <= 1) return arr.join('');
+    return arr.slice(0,-1).join(', ') + ' e ' + arr[arr.length-1];
+  }
+  function slotKey(it){ return it.dia + '|' + it.titulo; }
+  function mesclarSlot(it, ov){
+    const m = Object.assign({}, it);
+    m.membros = (it.formacao || []).map(parseMembro);
+    if(ov){
+      ['equipe','ministro','resp','status','obs'].forEach(k => { if(ov[k] !== undefined) m[k] = ov[k]; });
+      if(Array.isArray(ov.membros)) m.membros = ov.membros;
+    }
+    return m;
+  }
+
+  function renderProgramacaoLouvor(overrides){
+    if(louvorEditando) return;
+    overrides = overrides || [];
     const host = document.getElementById('programacaoLouvorCard');
-    host.innerHTML = PROGRAMACAO_LOUVOR.map(it => {
-      const id = 'pl-' + (progLouvorCounter++);
+    host.innerHTML = PROGRAMACAO_LOUVOR.map((base, idx) => {
+      const ov = overrides.find(o => o.slot === slotKey(base));
+      const it = mesclarSlot(base, ov);
+      const id = 'pl-' + idx;
       const lines = [];
-      lines.push(`<p><b>Equipe:</b> ${escapeHtml(it.equipe)}</p>`);
-      if(it.formacao) lines.push('<p><b>Formação:</b></p><ul class="sched-bullets">' + it.formacao.map(f=>`<li>${escapeHtml(f)}</li>`).join('') + '</ul>');
+      if(it.equipe) lines.push(`<p><b>Equipe:</b> ${escapeHtml(it.equipe)}</p>`);
+      if(it.membros.length) lines.push('<p><b>Formação:</b></p><ul class="sched-bullets">' + it.membros.map(m => {
+        const ins = listaInstrumentos(m);
+        return `<li>${escapeHtml(m.nome)}${ins ? ' — ' + escapeHtml(ins) : ''}</li>`;
+      }).join('') + '</ul>');
       if(it.ministro) lines.push(`<p><b>Ministro de louvor:</b> ${escapeHtml(it.ministro)}</p>`);
       if(it.resp) lines.push(`<p><b>${escapeHtml(it.resp)}</b></p>`);
       if(it.obs) lines.push(`<p>${escapeHtml(it.obs)}</p>`);
       if(it.status) lines.push(`<p class="sched-obs">${escapeHtml(it.status)}</p>`);
+      lines.push(`<button type="button" class="pl-edit-btn only-coordenacao" data-pl-edit="${idx}">✏️ Editar este momento</button>`);
+      const aberto = louvorAbertos.has(id) ? 'block' : 'none';
       return `<div class="sched-row sched-row-click" data-toggle-act="${id}">
-          <div class="sched-time">${it.dia}</div>
-          <div class="sched-desc"><b>${escapeHtml(it.titulo)}</b></div>
+          <div class="sched-time">${base.dia}</div>
+          <div class="sched-desc"><b>${escapeHtml(base.titulo)}</b></div>
         </div>
-        <div class="sched-detail" id="${id}" style="display:none;">${lines.join('')}</div>`;
+        <div class="sched-detail" id="${id}" style="display:${aberto};">${lines.join('')}</div>`;
     }).join('');
     host.querySelectorAll('[data-toggle-act]').forEach(row => {
       row.addEventListener('click', () => {
         const detail = document.getElementById(row.dataset.toggleAct);
-        detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
+        const abrir = detail.style.display !== 'block';
+        detail.style.display = abrir ? 'block' : 'none';
+        if(abrir) louvorAbertos.add(row.dataset.toggleAct); else louvorAbertos.delete(row.dataset.toggleAct);
       });
     });
+    host.querySelectorAll('[data-pl-edit]').forEach(btn => {
+      btn.addEventListener('click', () => abrirEditorLouvor(Number(btn.dataset.plEdit), overrides));
+    });
   }
-  renderProgramacaoLouvor();
+
+  function abrirEditorLouvor(idx, overrides){
+    const base = PROGRAMACAO_LOUVOR[idx];
+    const ov = overrides.find(o => o.slot === slotKey(base));
+    const it = mesclarSlot(base, ov);
+    const detail = document.getElementById('pl-' + idx);
+    louvorEditando = true;
+    const membros = it.membros.map(m => ({ nome:m.nome, instrs:[...m.instrs], outros:m.outros || '' }));
+
+    function membroHtml(m, i){
+      return `<div class="pl-membro" data-i="${i}">
+        <div class="pl-top">
+          <input type="text" data-f="nome" placeholder="Nome" value="${escapeHtml(m.nome)}">
+          <button type="button" class="pl-rm" data-rm="${i}" aria-label="Remover pessoa">✕</button>
+        </div>
+        <div class="pl-chips">${INSTRUMENTOS.map(ins => `<button type="button" class="pl-chip${m.instrs.includes(ins) ? ' on' : ''}" data-ins="${ins}">${ins}</button>`).join('')}</div>
+        <input type="text" data-f="outros" placeholder="Outro instrumento (opcional)" value="${escapeHtml(m.outros)}">
+      </div>`;
+    }
+    function lerMembrosDoDom(){
+      return [...detail.querySelectorAll('.pl-membro')].map(el => ({
+        nome: el.querySelector('[data-f=nome]').value.trim(),
+        instrs: [...el.querySelectorAll('.pl-chip.on')].map(c => c.dataset.ins),
+        outros: el.querySelector('[data-f=outros]').value.trim()
+      }));
+    }
+    function desenhar(){
+      detail.innerHTML = `<div class="pl-form">
+        <label>Equipe</label><input type="text" id="plEquipe" value="${escapeHtml(it.equipe || '')}">
+        <label>Ministro de louvor (principal)</label>
+        <input type="text" id="plMinistro" list="plNomes" placeholder="Quem conduz o louvor" value="${escapeHtml(it.ministro || '')}">
+        <datalist id="plNomes">${membros.filter(m=>m.nome).map(m => `<option value="${escapeHtml(m.nome)}">`).join('')}</datalist>
+        <label>Formação — toque nos instrumentos que a pessoa toca (pode ser mais de um)</label>
+        <div id="plMembros">${membros.map(membroHtml).join('')}</div>
+        <button type="button" class="pl-chip" id="plAddMembro" style="margin-top:10px;">+ Adicionar pessoa</button>
+        <label>Técnico / responsáveis</label><input type="text" id="plResp" placeholder="Ex.: Técnico: Gustavo" value="${escapeHtml(it.resp || '')}">
+        <label>Situação</label><input type="text" id="plStatus" value="${escapeHtml(it.status || '')}">
+        <label>Observações</label><textarea id="plObs">${escapeHtml(it.obs || '')}</textarea>
+        <div class="pl-actions">
+          <button type="button" id="plCancel">Cancelar</button>
+          <button type="button" class="pl-save" id="plSave">Salvar</button>
+        </div>
+        ${ov ? '<button type="button" class="pl-restore" id="plRestore">Restaurar texto original</button>' : ''}
+      </div>`;
+      detail.style.display = 'block';
+      detail.querySelectorAll('.pl-chip[data-ins]').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
+      detail.querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', () => {
+        const atual = lerMembrosDoDom(); atual.splice(Number(b.dataset.rm), 1);
+        membros.length = 0; atual.forEach(m => membros.push(m)); desenharPreservando();
+      }));
+      detail.querySelector('#plAddMembro').addEventListener('click', () => {
+        const atual = lerMembrosDoDom(); atual.push({nome:'', instrs:[], outros:''});
+        membros.length = 0; atual.forEach(m => membros.push(m)); desenharPreservando();
+      });
+      detail.querySelector('#plCancel').addEventListener('click', fechar);
+      detail.querySelector('#plSave').addEventListener('click', salvar);
+      const r = detail.querySelector('#plRestore');
+      if(r) r.addEventListener('click', async () => {
+        if(!confirm('Voltar ao texto original deste momento?')) return;
+        await sbDelete(ov.id); louvorEditando = false; await loadAllDados();
+      });
+    }
+    function desenharPreservando(){
+      const campos = ['plEquipe','plMinistro','plResp','plStatus','plObs'].map(id => detail.querySelector('#'+id).value);
+      desenhar();
+      ['plEquipe','plMinistro','plResp','plStatus','plObs'].forEach((id,i) => detail.querySelector('#'+id).value = campos[i]);
+    }
+    function fechar(){ louvorEditando = false; renderProgramacaoLouvor(porTipo('programacao_louvor')); }
+    async function salvar(){
+      const payload = {
+        slot: slotKey(base),
+        equipe: detail.querySelector('#plEquipe').value.trim(),
+        ministro: detail.querySelector('#plMinistro').value.trim(),
+        resp: detail.querySelector('#plResp').value.trim(),
+        status: detail.querySelector('#plStatus').value.trim(),
+        obs: detail.querySelector('#plObs').value.trim(),
+        membros: lerMembrosDoDom().filter(m => m.nome)
+      };
+      if(ov) await sbUpdate(ov.id, stripMeta(Object.assign({}, ov, payload)));
+      else await sbInsert('programacao_louvor', Object.assign(payload, { criadoEm: new Date().toISOString() }));
+      louvorEditando = false;
+      await loadAllDados();
+    }
+    desenhar();
+  }
+  renderProgramacaoLouvor([]);
   document.getElementById('louvorStatMomentos').textContent = PROGRAMACAO_LOUVOR.length;
 
   const NECESSIDADES_FORMACAO = [
@@ -3899,6 +4051,7 @@
     renderEquipesGincana();
     renderPlacar();
     renderMateriaisGincana();
+    renderProgramacaoLouvor(porTipo('programacao_louvor'));
     renderMusicos();
     renderRepertorio();
     renderEnsaios();
