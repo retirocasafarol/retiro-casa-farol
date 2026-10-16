@@ -260,6 +260,16 @@
   .pl-actions button{flex:1; border:2.5px solid var(--ink); border-radius:12px; padding:11px; font-weight:800; font-family:'Manrope',sans-serif; cursor:pointer; background:#fff; color:var(--ink);}
   .pl-actions .pl-save{background:var(--violet); color:#fff;}
   .pl-restore{display:block; margin:12px auto 0; background:none; border:none; color:var(--muted); font-size:0.72rem; font-weight:700; text-decoration:underline; cursor:pointer;}
+  .cr-edit-btn{background:none; border:none; color:var(--violet-d); font-weight:800; font-size:0.78rem; text-decoration:underline; cursor:pointer; padding:0; margin-top:10px;}
+  .cr-add-btn{width:100%; margin-top:12px; border:2.5px dashed var(--ink); border-radius:14px; padding:12px; background:transparent; font-weight:800; font-family:'Manrope',sans-serif; color:var(--ink); cursor:pointer;}
+  .pl-form .cr-row{display:flex; gap:10px;} .pl-form .cr-row > div{flex:1;}
+  .pl-form input[type=time]{width:100%; box-sizing:border-box; border:2px solid var(--ink); border-radius:10px; padding:9px 10px; font-family:'Manrope',sans-serif; font-size:0.9rem; background:#fff;}
+  .pl-danger{color:var(--red) !important;}
+  .cr-removidas{margin-top:12px; font-size:0.75rem; color:var(--muted);}
+  .cr-removidas button{background:none; border:none; color:var(--violet-d); font-weight:700; text-decoration:underline; cursor:pointer; font-size:0.75rem; padding:0 0 0 6px;}
+  .pl-observacao{background:var(--amber-bg); border:2px solid var(--ink); border-radius:12px; padding:10px 12px; margin:10px 0; font-size:0.88rem;}
+  .pl-observacao div{white-space:pre-line; margin-top:4px; font-weight:600;}
+  .pl-spotify{display:inline-block; margin:6px 0 4px; background:var(--violet); color:#fff !important; text-decoration:none; font-weight:800; font-size:0.85rem; padding:10px 14px; border:2.5px solid var(--ink); border-radius:12px; box-shadow:3px 3px 0 var(--ink);}
 </style>
 </head>
 <body>
@@ -1809,46 +1819,192 @@
   }
   const STATUS_LABELS = {programada:'Programada', andamento:'Em andamento', concluida:'Concluída'};
 
+  // ---- Cronograma editável pela coordenação (Supabase: 'cronograma_item' e 'cronograma_dia') ----
+  let cronoEditando = false;
+  const cronoAbertos = new Set();
+  function cronoOvs(){
+    try{ return { itens: porTipo('cronograma_item'), dias: porTipo('cronograma_dia') }; }
+    catch(e){ return { itens: [], dias: [] }; }
+  }
+  function cronoSortKey(st){
+    const m = /^(\d{1,2}):(\d{2})/.exec(st || ''); if(!m) return 99999;
+    let h = Number(m[1]); if(h < 5) h += 24; return h*60 + Number(m[2]);
+  }
+  function cronoItemKey(dayKey, it){ return dayKey + '|' + it.start + '|' + it.titulo; }
+  function cronoDomId(key){ return 'act-' + key.replace(/[^a-zA-Z0-9]/g, '_'); }
+  function fmtHora(t){ return (t || '').replace(':','h'); }
+
+  // devolve o cronograma com as edições aplicadas; cada item ganha _key, _ov, _novo
+  function cronogramaEfetivo(){
+    const ovs = cronoOvs();
+    const out = {}; const removidos = {};
+    Object.keys(CRONOGRAMA).forEach(dayKey => {
+      const d = CRONOGRAMA[dayKey];
+      const diaOv = ovs.dias.find(x => x.dia === dayKey);
+      removidos[dayKey] = [];
+      const periods = d.periods.map(pr => ({ label: pr.label, items: [] }));
+      d.periods.forEach((pr, pi) => pr.items.forEach(base => {
+        const key = cronoItemKey(dayKey, base);
+        const ov = ovs.itens.find(x => x.slot === key);
+        if(ov && ov.oculto){ removidos[dayKey].push({ base, ov, key }); return; }
+        const it = Object.assign({}, base);
+        if(ov) ['time','start','end','titulo','local','desc','resp','equipe','orient','obs'].forEach(k => { if(ov[k] !== undefined) it[k] = ov[k]; });
+        it._key = key; it._ov = ov || null; it._base = base; it._novo = false;
+        periods[pi].items.push(it);
+      }));
+      // atividades novas
+      ovs.itens.filter(x => x.novo && x.dia === dayKey).forEach(ov => {
+        const it = Object.assign({ time: fmtHora(ov.start) }, ov);
+        it._key = 'novo-' + ov.id; it._ov = ov; it._base = null; it._novo = true;
+        let alvo = periods[periods.length-1];
+        for(const pr of periods){
+          if(pr.items.some(x => cronoSortKey(x.start) > cronoSortKey(it.start))){ alvo = pr; break; }
+        }
+        alvo.items.push(it);
+      });
+      periods.forEach(pr => pr.items.sort((x,y) => cronoSortKey(x.start) - cronoSortKey(y.start)));
+      out[dayKey] = Object.assign({}, d, { periods, objetivo: diaOv && diaOv.objetivo !== undefined ? diaOv.objetivo : d.objetivo, _diaOv: diaOv || null });
+    });
+    out._removidos = removidos;
+    return out;
+  }
+
   function renderActivityDetails(it){
     const lines = [];
-    if(Array.isArray(it.desc)) lines.push('<ul class="sched-bullets">' + it.desc.map(l => `<li>${escapeHtml(l)}</li>`).join('') + '</ul>');
-    else if(it.desc) lines.push(`<p>${escapeHtml(it.desc)}</p>`);
+    const desc = it.desc;
+    if(Array.isArray(desc)){
+      const ls = desc.filter(Boolean);
+      if(ls.length > 1) lines.push('<ul class="sched-bullets">' + ls.map(l => `<li>${escapeHtml(l)}</li>`).join('') + '</ul>');
+      else if(ls.length === 1) lines.push(`<p>${escapeHtml(ls[0])}</p>`);
+    }else if(desc) lines.push(`<p>${escapeHtml(desc)}</p>`);
     if(it.local) lines.push(`<p><b>Local:</b> ${escapeHtml(it.local)}</p>`);
     if(it.resp) lines.push(`<p><b>Responsável:</b> ${escapeHtml(it.resp)}</p>`);
     if(it.equipe) lines.push(`<p><b>Equipe:</b> ${escapeHtml(it.equipe)}</p>`);
     if(it.orient) lines.push(`<p><b>Orientações:</b> ${escapeHtml(it.orient)}</p>`);
     if(it.obs) lines.push(`<p class="sched-obs">⚠ ${escapeHtml(it.obs)}</p>`);
+    lines.push(`<button type="button" class="cr-edit-btn only-coordenacao" data-cr-edit="${escapeHtml(it._key)}">✏️ Editar esta atividade</button>`);
     return lines.join('');
   }
 
-  let activityCounter = 0;
   function renderCronograma(){
+    if(cronoEditando) return;
     const host = document.getElementById('cronogramaDays');
     const now = new Date();
+    const CR = cronogramaEfetivo();
+    const ativo = (document.querySelector('.day-tab-btn.is-active') || {}).dataset ? document.querySelector('.day-tab-btn.is-active').dataset.day : 'sex';
     host.innerHTML = Object.keys(CRONOGRAMA).map(key => {
-      const d = CRONOGRAMA[key];
-      const obj = d.objetivo ? `<div class="period-label" style="background:transparent; border:none; padding:10px 18px 0; font-style:italic; text-transform:none; letter-spacing:0; font-size:0.78rem;">${escapeHtml(d.objetivo)}</div>` : '';
+      const d = CR[key];
+      const obj = `<div class="period-label" style="background:transparent; border:none; padding:10px 18px 0; font-style:italic; text-transform:none; letter-spacing:0; font-size:0.78rem;">${d.objetivo ? escapeHtml(d.objetivo) : ''}<button type="button" class="cr-edit-btn only-coordenacao" data-cr-obj="${key}" style="display:block;">✏️ Editar objetivo do dia</button></div>`;
       const body = d.periods.map(p => (p.label ? `<div class="period-label">${p.label}</div>` : '') +
         p.items.map(it => {
-          const id = 'act-' + (activityCounter++);
+          const id = cronoDomId(it._key);
           const status = activityStatus(d, it, now);
           return `<div class="sched-row sched-row-click" data-toggle-act="${id}">
-            <div class="sched-time">${it.time}</div>
+            <div class="sched-time">${escapeHtml(it.time || '')}</div>
             <div class="sched-desc">
               <div class="sched-row-top"><b>${escapeHtml(it.titulo)}</b><span class="status-chip ${status === 'andamento' ? 'andamento' : (status === 'concluida' ? 'concluido' : 'pendente')}">${STATUS_LABELS[status]}</span></div>
             </div>
           </div>
-          <div class="sched-detail" id="${id}" style="display:none;">${renderActivityDetails(it)}</div>`;
+          <div class="sched-detail" id="${id}" style="display:${cronoAbertos.has(id) ? 'block' : 'none'};">${renderActivityDetails(it)}</div>`;
         }).join('')
       ).join('');
-      return `<div class="day-panel${key==='sex' ? ' is-active' : ''}" id="dayPanel-${key}">${obj}<div class="day-card hard-sm">${body}</div></div>`;
+      const rem = CR._removidos[key];
+      const remHtml = rem.length ? `<div class="cr-removidas only-coordenacao">Removidas: ${rem.map((r,i) => `${escapeHtml(r.base.titulo)}<button type="button" data-cr-restore="${escapeHtml(r.key)}">restaurar</button>`).join(' · ')}</div>` : '';
+      return `<div class="day-panel${key===ativo ? ' is-active' : ''}" id="dayPanel-${key}">${obj}<div class="day-card hard-sm">${body}</div>
+        <div class="only-coordenacao"><button type="button" class="cr-add-btn" data-cr-add="${key}">+ Adicionar atividade neste dia</button><div id="crNovo-${key}"></div>${remHtml}</div></div>`;
     }).join('');
 
     host.querySelectorAll('[data-toggle-act]').forEach(row => {
       row.addEventListener('click', () => {
         const detail = document.getElementById(row.dataset.toggleAct);
-        detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
+        const abrir = detail.style.display !== 'block';
+        detail.style.display = abrir ? 'block' : 'none';
+        if(abrir) cronoAbertos.add(row.dataset.toggleAct); else cronoAbertos.delete(row.dataset.toggleAct);
       });
+    });
+    const achar = key => { for(const dk of Object.keys(CRONOGRAMA)) for(const pr of CR[dk].periods) for(const it of pr.items) if(it._key === key) return { dayKey: dk, it }; return null; };
+    host.querySelectorAll('[data-cr-edit]').forEach(btn => btn.addEventListener('click', () => {
+      const f = achar(btn.dataset.crEdit); if(f) abrirEditorCrono({ container: document.getElementById(cronoDomId(f.it._key)), dayKey: f.dayKey, it: f.it });
+    }));
+    host.querySelectorAll('[data-cr-add]').forEach(btn => btn.addEventListener('click', () => {
+      abrirEditorCrono({ container: document.getElementById('crNovo-' + btn.dataset.crAdd), dayKey: btn.dataset.crAdd, it: null });
+    }));
+    host.querySelectorAll('[data-cr-obj]').forEach(btn => btn.addEventListener('click', () => editarObjetivoDia(btn.dataset.crObj, CR[btn.dataset.crObj], btn.parentElement)));
+    host.querySelectorAll('[data-cr-restore]').forEach(btn => btn.addEventListener('click', async () => {
+      for(const dk of Object.keys(CRONOGRAMA)){
+        const r = CR._removidos[dk].find(x => x.key === btn.dataset.crRestore);
+        if(r){ await sbDelete(r.ov.id); await loadAllDados(); return; }
+      }
+    }));
+  }
+
+  function editarObjetivoDia(dayKey, d, box){
+    cronoEditando = true;
+    box.innerHTML = `<div class="pl-form" style="font-style:normal; text-transform:none; letter-spacing:0;">
+      <label>Objetivo do dia</label><textarea id="crObjTxt">${escapeHtml(d.objetivo || '')}</textarea>
+      <div class="pl-actions"><button type="button" id="crObjCancel">Cancelar</button><button type="button" class="pl-save" id="crObjSave">Salvar</button></div></div>`;
+    box.querySelector('#crObjCancel').addEventListener('click', () => { cronoEditando = false; renderCronograma(); });
+    box.querySelector('#crObjSave').addEventListener('click', async () => {
+      const objetivo = box.querySelector('#crObjTxt').value.trim();
+      if(d._diaOv) await sbUpdate(d._diaOv.id, stripMeta(Object.assign({}, d._diaOv, { objetivo })));
+      else await sbInsert('cronograma_dia', { dia: dayKey, objetivo, criadoEm: new Date().toISOString() });
+      cronoEditando = false; await loadAllDados();
+    });
+  }
+
+  function abrirEditorCrono({ container, dayKey, it }){
+    cronoEditando = true;
+    const v = it || { titulo:'', start:'', end:'', local:'', desc:[], resp:'', equipe:'', orient:'', obs:'' };
+    const descTxt = Array.isArray(v.desc) ? v.desc.join('\n') : (v.desc || '');
+    const ov = it ? it._ov : null;
+    container.innerHTML = `<div class="pl-form">
+      <label>Atividade</label><input type="text" id="crTitulo" value="${escapeHtml(v.titulo)}">
+      <div class="cr-row">
+        <div><label>Início</label><input type="time" id="crStart" value="${escapeHtml(v.start || '')}"></div>
+        <div><label>Fim (opcional)</label><input type="time" id="crEnd" value="${escapeHtml(v.end || '')}"></div>
+      </div>
+      <label>Local</label><input type="text" id="crLocal" value="${escapeHtml(v.local || '')}">
+      <label>Descrição — uma linha por item</label><textarea id="crDesc" style="min-height:100px;">${escapeHtml(descTxt)}</textarea>
+      <label>Responsável</label><input type="text" id="crResp" value="${escapeHtml(v.resp || '')}">
+      <label>Equipe</label><input type="text" id="crEquipe" value="${escapeHtml(v.equipe || '')}">
+      <label>Orientações</label><textarea id="crOrient">${escapeHtml(v.orient || '')}</textarea>
+      <label>Alerta / observação</label><input type="text" id="crObs" value="${escapeHtml(v.obs || '')}">
+      <div class="pl-actions">
+        <button type="button" id="crCancel">Cancelar</button>
+        <button type="button" class="pl-save" id="crSave">Salvar</button>
+      </div>
+      ${it ? '<button type="button" class="pl-restore pl-danger" id="crDelete">Excluir esta atividade</button>' : ''}
+      ${ov && !it._novo ? '<button type="button" class="pl-restore" id="crRestore">Restaurar texto original</button>' : ''}
+    </div>`;
+    container.style.display = 'block';
+    const q = id => container.querySelector('#' + id);
+    q('crCancel').addEventListener('click', () => { cronoEditando = false; renderCronograma(); });
+    q('crSave').addEventListener('click', async () => {
+      const titulo = q('crTitulo').value.trim(), start = q('crStart').value, end = q('crEnd').value;
+      if(!titulo){ alert('Dê um nome para a atividade.'); return; }
+      if(!start){ alert('Informe o horário de início.'); return; }
+      const base = it && it._base;
+      const time = (base && base.start === start && (base.end || '') === end) ? base.time : fmtHora(start) + (end ? '–' + fmtHora(end) : '');
+      const payload = { titulo, start, end, time, local: q('crLocal').value.trim(),
+        desc: q('crDesc').value.split('\n').map(x => x.trim()).filter(Boolean),
+        resp: q('crResp').value.trim(), equipe: q('crEquipe').value.trim(), orient: q('crOrient').value.trim(), obs: q('crObs').value.trim() };
+      if(!it){ await sbInsert('cronograma_item', Object.assign(payload, { novo: true, dia: dayKey, criadoEm: new Date().toISOString() })); }
+      else if(ov){ await sbUpdate(ov.id, stripMeta(Object.assign({}, ov, payload))); }
+      else { await sbInsert('cronograma_item', Object.assign(payload, { slot: it._key, criadoEm: new Date().toISOString() })); }
+      cronoEditando = false; await loadAllDados();
+    });
+    const del = q('crDelete');
+    if(del) del.addEventListener('click', async () => {
+      if(!confirm('Excluir esta atividade do cronograma?')) return;
+      if(it._novo) await sbDelete(ov.id);
+      else if(ov) await sbUpdate(ov.id, stripMeta(Object.assign({}, ov, { oculto: true })));
+      else await sbInsert('cronograma_item', { slot: it._key, oculto: true, criadoEm: new Date().toISOString() });
+      cronoEditando = false; await loadAllDados();
+    });
+    const rs = q('crRestore');
+    if(rs) rs.addEventListener('click', async () => {
+      if(!confirm('Voltar ao texto original desta atividade?')) return;
+      await sbDelete(ov.id); cronoEditando = false; await loadAllDados();
     });
   }
   renderCronograma();
@@ -2596,7 +2752,7 @@
     const m = Object.assign({}, it);
     m.membros = (it.formacao || []).map(parseMembro);
     if(ov){
-      ['equipe','ministro','resp','status','obs'].forEach(k => { if(ov[k] !== undefined) m[k] = ov[k]; });
+      ['equipe','ministro','resp','status','obs','observacao','spotify'].forEach(k => { if(ov[k] !== undefined) m[k] = ov[k]; });
       if(Array.isArray(ov.membros)) m.membros = ov.membros;
     }
     return m;
@@ -2619,6 +2775,9 @@
       if(it.ministro) lines.push(`<p><b>Ministro de louvor:</b> ${escapeHtml(it.ministro)}</p>`);
       if(it.resp) lines.push(`<p><b>${escapeHtml(it.resp)}</b></p>`);
       if(it.obs) lines.push(`<p>${escapeHtml(it.obs)}</p>`);
+      if(it.observacao) lines.push(`<div class="pl-observacao"><b>📝 Observação</b><div>${escapeHtml(it.observacao)}</div></div>`);
+      const linkSpotify = /^https?:\/\//i.test(it.spotify || '') ? it.spotify : '';
+      if(linkSpotify) lines.push(`<a class="pl-spotify press" href="${escapeHtml(linkSpotify)}" target="_blank" rel="noopener">🎧 Ouvir as músicas no Spotify</a>`);
       if(it.status) lines.push(`<p class="sched-obs">${escapeHtml(it.status)}</p>`);
       lines.push(`<button type="button" class="pl-edit-btn only-coordenacao" data-pl-edit="${idx}">✏️ Editar este momento</button>`);
       const aberto = louvorAbertos.has(id) ? 'block' : 'none';
@@ -2677,7 +2836,9 @@
         <button type="button" class="pl-chip" id="plAddMembro" style="margin-top:10px;">+ Adicionar pessoa</button>
         <label>Técnico / responsáveis</label><input type="text" id="plResp" placeholder="Ex.: Técnico: Gustavo" value="${escapeHtml(it.resp || '')}">
         <label>Situação</label><input type="text" id="plStatus" value="${escapeHtml(it.status || '')}">
-        <label>Observações</label><textarea id="plObs">${escapeHtml(it.obs || '')}</textarea>
+        <label>Texto do momento (objetivo)</label><textarea id="plObs">${escapeHtml(it.obs || '')}</textarea>
+        <label>Observação da coordenação</label><textarea id="plObservacao" placeholder="Ex.: Vamos estudar essas músicas novas e depois ver algumas do nosso repertório.">${escapeHtml(it.observacao || '')}</textarea>
+        <label>Link do Spotify (músicas deste momento)</label><input type="text" id="plSpotify" inputmode="url" placeholder="https://open.spotify.com/..." value="${escapeHtml(it.spotify || '')}">
         <div class="pl-actions">
           <button type="button" id="plCancel">Cancelar</button>
           <button type="button" class="pl-save" id="plSave">Salvar</button>
@@ -2703,9 +2864,10 @@
       });
     }
     function desenharPreservando(){
-      const campos = ['plEquipe','plMinistro','plResp','plStatus','plObs'].map(id => detail.querySelector('#'+id).value);
+      const IDS = ['plEquipe','plMinistro','plResp','plStatus','plObs','plObservacao','plSpotify'];
+      const campos = IDS.map(id => detail.querySelector('#'+id).value);
       desenhar();
-      ['plEquipe','plMinistro','plResp','plStatus','plObs'].forEach((id,i) => detail.querySelector('#'+id).value = campos[i]);
+      IDS.forEach((id,i) => detail.querySelector('#'+id).value = campos[i]);
     }
     function fechar(){ louvorEditando = false; renderProgramacaoLouvor(porTipo('programacao_louvor')); }
     async function salvar(){
@@ -2716,8 +2878,11 @@
         resp: detail.querySelector('#plResp').value.trim(),
         status: detail.querySelector('#plStatus').value.trim(),
         obs: detail.querySelector('#plObs').value.trim(),
+        observacao: detail.querySelector('#plObservacao').value.trim(),
+        spotify: detail.querySelector('#plSpotify').value.trim(),
         membros: lerMembrosDoDom().filter(m => m.nome)
       };
+      if(payload.spotify && !/^https?:\/\//i.test(payload.spotify)){ alert('O link do Spotify precisa começar com https://'); return; }
       if(ov) await sbUpdate(ov.id, stripMeta(Object.assign({}, ov, payload)));
       else await sbInsert('programacao_louvor', Object.assign(payload, { criadoEm: new Date().toISOString() }));
       louvorEditando = false;
@@ -3643,8 +3808,9 @@
 
     // próximas 24h
     const todasAtividades = [];
+    const CRX = cronogramaEfetivo();
     Object.keys(CRONOGRAMA).forEach(key => {
-      const d = CRONOGRAMA[key];
+      const d = CRX[key];
       d.periods.forEach(p => p.items.forEach(it => {
         todasAtividades.push({ when: new Date(d.date + 'T' + it.start + ':00-03:00'), titulo: it.titulo, dia: d.label, time: it.time });
       }));
@@ -3905,8 +4071,9 @@
   function computeNextActivity(){
     const now = new Date();
     const all = [];
+    const CRX = cronogramaEfetivo();
     Object.keys(CRONOGRAMA).forEach(key => {
-      const d = CRONOGRAMA[key];
+      const d = CRX[key];
       d.periods.forEach(p => p.items.forEach(it => {
         all.push({ when: new Date(d.date + 'T' + it.start + ':00-03:00'), titulo: it.titulo, dayLabel: d.label, time: it.time, local: it.local, resp: it.resp, obs: it.obs });
       }));
@@ -4052,6 +4219,8 @@
     renderPlacar();
     renderMateriaisGincana();
     renderProgramacaoLouvor(porTipo('programacao_louvor'));
+    renderCronograma();
+    computeNextActivity();
     renderMusicos();
     renderRepertorio();
     renderEnsaios();
