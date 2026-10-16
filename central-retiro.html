@@ -270,6 +270,32 @@
   .pl-observacao{background:var(--amber-bg); border:2px solid var(--ink); border-radius:12px; padding:10px 12px; margin:10px 0; font-size:0.88rem;}
   .pl-observacao div{white-space:pre-line; margin-top:4px; font-weight:600;}
   .pl-spotify{display:inline-block; margin:6px 0 4px; background:var(--violet); color:#fff !important; text-decoration:none; font-weight:800; font-size:0.85rem; padding:10px 14px; border:2.5px solid var(--ink); border-radius:12px; box-shadow:3px 3px 0 var(--ink);}
+  /* programação do louvor — visual organizado por dia */
+  #programacaoLouvorCard{background:transparent !important; border:none !important; box-shadow:none !important; overflow:visible;}
+  .pl-dia{display:inline-block; margin:18px 0 8px; padding:6px 14px; border:2.5px solid var(--ink); border-radius:999px; font-family:'Archivo Black',sans-serif; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; color:#fff;}
+  .pl-dia:first-child{margin-top:4px;}
+  .pl-dia.pl-sex{background:var(--violet);} .pl-dia.pl-sab{background:var(--yellow); color:var(--ink);} .pl-dia.pl-dom{background:var(--red);}
+  .pl-card{display:block; background:#fff; border:2.5px solid var(--ink); border-left-width:10px; border-radius:14px; margin-bottom:10px; overflow:hidden; box-shadow:3px 3px 0 var(--ink);}
+  .pl-card.pl-sex{border-left-color:var(--violet);} .pl-card.pl-sab{border-left-color:var(--yellow);} .pl-card.pl-dom{border-left-color:var(--red);}
+  .pl-head{display:flex; align-items:center; gap:12px; width:100%; padding:14px 12px 14px 14px; background:#fff; border:none; text-align:left; cursor:pointer; font-family:'Manrope',sans-serif; color:var(--ink);}
+  .pl-card.aberto .pl-head{background:var(--paper-2); border-bottom:2px solid var(--ink);}
+  .pl-hora{flex:0 0 92px; font-weight:800; font-size:0.8rem; line-height:1.25; color:var(--ink);}
+  .pl-hora small{display:block; font-weight:700; font-size:0.68rem; color:var(--muted); text-transform:uppercase;}
+  .pl-titulo{flex:1; font-weight:800; font-size:0.98rem; line-height:1.25;}
+  .pl-chev{flex:0 0 auto; font-size:1.3rem; font-weight:800; line-height:1; transition:transform .2s; color:var(--muted);}
+  .pl-card.aberto .pl-chev{transform:rotate(180deg); color:var(--ink);}
+  .pl-detail{padding:14px 14px 16px; background:#fff;}
+  .pl-ministro{display:inline-block; background:var(--ink); color:var(--paper); padding:7px 12px; border-radius:10px; font-size:0.85rem; margin-bottom:12px;}
+  .pl-ministro b{color:var(--yellow);}
+  .pl-bloco{margin-bottom:14px;}
+  .pl-lab{display:block; font-size:0.68rem; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); margin-bottom:4px;}
+  .pl-bloco > div{font-size:0.9rem; font-weight:600; line-height:1.4;}
+  .pl-muted{color:var(--muted);}
+  .pl-pessoa{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 0; border-bottom:1px dashed #d9cfb5;}
+  .pl-pessoa:last-child{border-bottom:none;}
+  .pl-insts{display:flex; flex-wrap:wrap; gap:5px; justify-content:flex-end;}
+  .pl-insts i{font-style:normal; font-size:0.72rem; font-weight:800; background:var(--green-bg); color:var(--violet-d); border-radius:999px; padding:3px 9px;}
+  .pl-status{background:var(--amber-bg); color:var(--amber); border-radius:10px; padding:8px 12px; font-size:0.8rem; font-weight:800; margin:10px 0 0;}
 </style>
 </head>
 <body>
@@ -2762,36 +2788,50 @@
     if(louvorEditando) return;
     overrides = overrides || [];
     const host = document.getElementById('programacaoLouvorCard');
+    const DIAS_INFO = { 'Sexta':{cls:'sex', nome:'Sexta-feira · 23/10'}, 'Sábado':{cls:'sab', nome:'Sábado · 24/10'}, 'Domingo':{cls:'dom', nome:'Domingo · 25/10'} };
+    let diaAtual = '';
     host.innerHTML = PROGRAMACAO_LOUVOR.map((base, idx) => {
       const ov = overrides.find(o => o.slot === slotKey(base));
       const it = mesclarSlot(base, ov);
       const id = 'pl-' + idx;
-      const lines = [];
-      if(it.equipe) lines.push(`<p><b>Equipe:</b> ${escapeHtml(it.equipe)}</p>`);
-      if(it.membros.length) lines.push('<p><b>Formação:</b></p><ul class="sched-bullets">' + it.membros.map(m => {
-        const ins = listaInstrumentos(m);
-        return `<li>${escapeHtml(m.nome)}${ins ? ' — ' + escapeHtml(ins) : ''}</li>`;
-      }).join('') + '</ul>');
-      if(it.ministro) lines.push(`<p><b>Ministro de louvor:</b> ${escapeHtml(it.ministro)}</p>`);
-      if(it.resp) lines.push(`<p><b>${escapeHtml(it.resp)}</b></p>`);
-      if(it.obs) lines.push(`<p>${escapeHtml(it.obs)}</p>`);
-      if(it.observacao) lines.push(`<div class="pl-observacao"><b>📝 Observação</b><div>${escapeHtml(it.observacao)}</div></div>`);
+      const [diaTxt, horaTxt] = base.dia.split(' · ');
+      const diaKey = diaTxt.split(' ')[0];
+      const info = DIAS_INFO[diaKey] || { cls:'sex', nome: diaKey };
+      const periodo = (diaTxt.match(/\((.*?)\)/) || [])[1] || '';
+      const cab = diaKey !== diaAtual ? `<div class="pl-dia pl-${info.cls}">${info.nome}</div>` : '';
+      diaAtual = diaKey;
+
+      const det = [];
+      if(it.ministro) det.push(`<div class="pl-ministro">🎤 Ministro de louvor: <b>${escapeHtml(it.ministro)}</b></div>`);
+      if(it.equipe) det.push(`<div class="pl-bloco"><span class="pl-lab">Equipe</span><div>${escapeHtml(it.equipe)}</div></div>`);
+      if(it.membros.length) det.push('<div class="pl-bloco"><span class="pl-lab">Formação</span>' + it.membros.map(m => {
+        const ins = (m.instrs || []).concat(m.outros ? [m.outros] : []);
+        return `<div class="pl-pessoa"><b>${escapeHtml(m.nome)}</b><span class="pl-insts">${ins.map(x => `<i>${escapeHtml(x.toLowerCase())}</i>`).join('')}</span></div>`;
+      }).join('') + '</div>');
+      if(it.resp) det.push(`<div class="pl-bloco"><span class="pl-lab">Técnica / responsáveis</span><div>${escapeHtml(it.resp)}</div></div>`);
+      if(it.obs) det.push(`<div class="pl-bloco"><span class="pl-lab">Objetivo</span><div class="pl-muted">${escapeHtml(String(it.obs).replace(/^Objetivo:\s*/i,''))}</div></div>`);
+      if(it.observacao) det.push(`<div class="pl-observacao"><b>📝 Observação</b><div>${escapeHtml(it.observacao)}</div></div>`);
       const linkSpotify = /^https?:\/\//i.test(it.spotify || '') ? it.spotify : '';
-      if(linkSpotify) lines.push(`<a class="pl-spotify press" href="${escapeHtml(linkSpotify)}" target="_blank" rel="noopener">🎧 Ouvir as músicas no Spotify</a>`);
-      if(it.status) lines.push(`<p class="sched-obs">${escapeHtml(it.status)}</p>`);
-      lines.push(`<button type="button" class="pl-edit-btn only-coordenacao" data-pl-edit="${idx}">✏️ Editar este momento</button>`);
-      const aberto = louvorAbertos.has(id) ? 'block' : 'none';
-      return `<div class="sched-row sched-row-click" data-toggle-act="${id}">
-          <div class="sched-time">${base.dia}</div>
-          <div class="sched-desc"><b>${escapeHtml(base.titulo)}</b></div>
-        </div>
-        <div class="sched-detail" id="${id}" style="display:${aberto};">${lines.join('')}</div>`;
+      if(linkSpotify) det.push(`<a class="pl-spotify press" href="${escapeHtml(linkSpotify)}" target="_blank" rel="noopener">🎧 Ouvir as músicas no Spotify</a>`);
+      if(it.status) det.push(`<div class="pl-status">${escapeHtml(it.status)}</div>`);
+      det.push(`<button type="button" class="pl-edit-btn only-coordenacao" data-pl-edit="${idx}">✏️ Editar este momento</button>`);
+      const aberto = louvorAbertos.has(id);
+      return `${cab}<div class="pl-card pl-${info.cls}${aberto ? ' aberto' : ''}">
+        <button type="button" class="pl-head" data-toggle-act="${id}" aria-expanded="${aberto}">
+          <span class="pl-hora">${escapeHtml(horaTxt || '')}${periodo ? `<small>${escapeHtml(periodo)}</small>` : ''}</span>
+          <span class="pl-titulo">${escapeHtml(base.titulo)}</span>
+          <span class="pl-chev" aria-hidden="true">⌄</span>
+        </button>
+        <div class="pl-detail" id="${id}" style="display:${aberto ? 'block' : 'none'};">${det.join('')}</div>
+      </div>`;
     }).join('');
     host.querySelectorAll('[data-toggle-act]').forEach(row => {
       row.addEventListener('click', () => {
         const detail = document.getElementById(row.dataset.toggleAct);
         const abrir = detail.style.display !== 'block';
         detail.style.display = abrir ? 'block' : 'none';
+        row.setAttribute('aria-expanded', abrir);
+        row.closest('.pl-card').classList.toggle('aberto', abrir);
         if(abrir) louvorAbertos.add(row.dataset.toggleAct); else louvorAbertos.delete(row.dataset.toggleAct);
       });
     });
