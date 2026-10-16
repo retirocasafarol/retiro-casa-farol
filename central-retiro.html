@@ -296,6 +296,23 @@
   .pl-insts{display:flex; flex-wrap:wrap; gap:5px; justify-content:flex-end;}
   .pl-insts i{font-style:normal; font-size:0.72rem; font-weight:800; background:var(--green-bg); color:var(--violet-d); border-radius:999px; padding:3px 9px;}
   .pl-status{background:var(--amber-bg); color:var(--amber); border-radius:10px; padding:8px 12px; font-size:0.8rem; font-weight:800; margin:10px 0 0;}
+  .aviso-overlay{position:fixed; inset:0; background:rgba(42,38,26,0.55); z-index:200; display:flex; align-items:flex-end; justify-content:center; padding:16px;}
+  .aviso-box{background:#fff; border:2.5px solid var(--ink); border-radius:18px; padding:18px; width:100%; max-width:440px; margin-bottom:8px;}
+  .aviso-box h3{font-family:'Archivo Black',sans-serif; font-size:1.1rem; margin:0 0 4px; text-transform:uppercase;}
+  .aviso-box p{margin:0 0 10px; color:var(--muted); font-weight:600; font-size:0.85rem;}
+  .aviso-box textarea{width:100%; box-sizing:border-box; border:2px solid var(--ink); border-radius:10px; padding:10px; font-family:'Manrope',sans-serif; font-size:0.9rem; min-height:70px; margin-bottom:12px;}
+  .aviso-box button{display:block; width:100%; margin-top:8px; padding:12px; border:2.5px solid var(--ink); border-radius:12px; background:var(--violet); color:#fff; font-weight:800; font-family:'Manrope',sans-serif; font-size:0.9rem; cursor:pointer;}
+  .aviso-box button.sec{background:#fff; color:var(--ink);}
+  .ag-item{background:#fff; border:2.5px solid var(--ink); border-radius:14px; padding:12px 14px; margin-bottom:10px; box-shadow:3px 3px 0 var(--ink);}
+  .ag-quando{font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted);}
+  .ag-titulo{font-weight:800; font-size:0.95rem; margin:2px 0;}
+  .ag-sub{font-size:0.78rem; color:var(--muted); font-weight:600;}
+  .ag-chip{display:inline-block; margin-top:6px; padding:3px 10px; border-radius:999px; font-size:0.7rem; font-weight:800; background:var(--amber-bg); color:var(--amber);}
+  .ag-chip.ok{background:var(--green-bg); color:var(--violet-d);} .ag-chip.err{background:var(--red-bg); color:var(--red);} .ag-chip.off{background:#eee; color:#777;}
+  .ag-acao{display:block; margin-top:8px; background:none; border:none; padding:0; color:var(--violet-d); font-weight:800; font-size:0.75rem; text-decoration:underline; cursor:pointer;}
+  .ag-aviso-tipo{display:inline-block; font-size:0.66rem; font-weight:800; background:var(--ink); color:var(--paper); border-radius:6px; padding:2px 7px; margin-right:6px; vertical-align:middle;}
+  .ag-srv{border-radius:12px; padding:10px 12px; font-size:0.8rem; font-weight:700; margin:10px 0;}
+  .ag-srv.ok{background:var(--green-bg); color:var(--violet-d);} .ag-srv.err{background:var(--red-bg); color:var(--red);}
 </style>
 </head>
 <body>
@@ -1489,7 +1506,52 @@
           <li>Funciona mesmo com o app fechado, desde que você tenha tocado em "Ativar" pelo menos uma vez neste celular.</li>
           <li>No iPhone, primeiro adicione esta página à Tela de Início (compartilhar → Adicionar à Tela de Início) e abra por esse ícone antes de ativar.</li>
           <li>Pode desativar a qualquer momento nesta mesma tela.</li>
+          <li>Quando a coordenação publicar um aviso ou alterar algo, você também recebe — líderes e voluntários conforme o público escolhido.</li>
         </ul>
+      </div>
+
+      <div class="only-coordenacao">
+        <div class="section-label">📣 Enviar aviso para a equipe</div>
+        <div class="add-form is-open hard-sm" id="avisoPushForm">
+          <input type="text" id="avPushTitulo" placeholder="Título (ex.: Mudança no horário do jantar)">
+          <textarea id="avPushMsg" placeholder="Mensagem"></textarea>
+          <label class="pl-lab" style="margin-top:8px;">Quem recebe</label>
+          <select id="avPushPublico">
+            <option value="ambos">Líderes e voluntários</option>
+            <option value="lider">Só líderes</option>
+            <option value="voluntario">Só voluntários</option>
+          </select>
+          <label class="pl-lab" style="margin-top:8px;">Área</label>
+          <select id="avPushArea">
+            <option value="todas">Todas as áreas</option>
+            <option value="cozinha">Cozinha e alimentação</option>
+            <option value="louvor">Louvor e técnica</option>
+            <option value="producao">Produção e decoração</option>
+            <option value="gincanas">Gincanas e dinâmicas</option>
+            <option value="recepcao">Recepção</option>
+            <option value="logistica">Logística e transporte</option>
+          </select>
+          <label class="pl-lab" style="margin-top:8px;">Quando enviar</label>
+          <select id="avPushQuando">
+            <option value="agora">Agora</option>
+            <option value="agendar">Agendar para…</option>
+          </select>
+          <input type="datetime-local" id="avPushDataHora" style="display:none;">
+          <label style="display:flex; gap:8px; align-items:center; margin-top:10px; font-weight:700; font-size:0.85rem;"><input type="checkbox" id="avPushUrgente" style="width:auto;"> Urgente (a notificação fica na tela até tocar)</label>
+          <div class="form-actions"><button class="btn-save press" id="avPushEnviar" type="button">Enviar aviso</button></div>
+        </div>
+
+        <div class="section-label">🗓️ Agendador de notificações</div>
+        <div class="list-card hard-sm">
+          <div class="ttl" style="font-size:0.9rem;">Lembrete antes de cada atividade</div>
+          <div class="sub2" style="margin:6px 0 8px;">Avisar quantos minutos antes?</div>
+          <select id="minAntesInput" style="width:100%; padding:10px 12px; border-radius:11px; border:2.5px solid var(--ink); font-family:'Manrope',sans-serif; font-weight:700; background:#fff;">
+            <option value="5">5 minutos</option><option value="10">10 minutos</option><option value="15">15 minutos</option>
+            <option value="30">30 minutos</option><option value="60">1 hora</option>
+          </select>
+        </div>
+        <div id="agendadorStatus"></div>
+        <div id="agendadorList"></div>
       </div>
     </div>
 
@@ -1874,7 +1936,7 @@
         const ov = ovs.itens.find(x => x.slot === key);
         if(ov && ov.oculto){ removidos[dayKey].push({ base, ov, key }); return; }
         const it = Object.assign({}, base);
-        if(ov) ['time','start','end','titulo','local','desc','resp','equipe','orient','obs'].forEach(k => { if(ov[k] !== undefined) it[k] = ov[k]; });
+        if(ov) ['time','start','end','titulo','local','desc','resp','equipe','orient','obs','areas'].forEach(k => { if(ov[k] !== undefined) it[k] = ov[k]; });
         it._key = key; it._ov = ov || null; it._base = base; it._novo = false;
         periods[pi].items.push(it);
       }));
@@ -1974,6 +2036,7 @@
       const objetivo = box.querySelector('#crObjTxt').value.trim();
       if(d._diaOv) await sbUpdate(d._diaOv.id, stripMeta(Object.assign({}, d._diaOv, { objetivo })));
       else await sbInsert('cronograma_dia', { dia: dayKey, objetivo, criadoEm: new Date().toISOString() });
+      await perguntarAviso({ titulo: 'Cronograma atualizado', mensagem: `O objetivo de ${d.label} foi atualizado.`, areas: [] });
       cronoEditando = false; await loadAllDados();
     });
   }
@@ -1983,6 +2046,7 @@
     const v = it || { titulo:'', start:'', end:'', local:'', desc:[], resp:'', equipe:'', orient:'', obs:'' };
     const descTxt = Array.isArray(v.desc) ? v.desc.join('\n') : (v.desc || '');
     const ov = it ? it._ov : null;
+    const areasSel = it ? areasDaAtividade(it).filter(a => PUSH_AREAS_ESPECIFICAS.includes(a)) : [];
     container.innerHTML = `<div class="pl-form">
       <label>Atividade</label><input type="text" id="crTitulo" value="${escapeHtml(v.titulo)}">
       <div class="cr-row">
@@ -1995,6 +2059,8 @@
       <label>Equipe</label><input type="text" id="crEquipe" value="${escapeHtml(v.equipe || '')}">
       <label>Orientações</label><textarea id="crOrient">${escapeHtml(v.orient || '')}</textarea>
       <label>Alerta / observação</label><input type="text" id="crObs" value="${escapeHtml(v.obs || '')}">
+      <label>Quem recebe o lembrete (liderança e coordenação recebem sempre)</label>
+      <div class="pl-chips" id="crAreas">${PUSH_AREAS_ESPECIFICAS.map(a => `<button type="button" class="pl-chip${areasSel.includes(a) ? ' on' : ''}" data-area="${a}">${PUSH_AREAS[a]}</button>`).join('')}</div>
       <div class="pl-actions">
         <button type="button" id="crCancel">Cancelar</button>
         <button type="button" class="pl-save" id="crSave">Salvar</button>
@@ -2004,6 +2070,7 @@
     </div>`;
     container.style.display = 'block';
     const q = id => container.querySelector('#' + id);
+    container.querySelectorAll('#crAreas .pl-chip').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
     q('crCancel').addEventListener('click', () => { cronoEditando = false; renderCronograma(); });
     q('crSave').addEventListener('click', async () => {
       const titulo = q('crTitulo').value.trim(), start = q('crStart').value, end = q('crEnd').value;
@@ -2014,9 +2081,13 @@
       const payload = { titulo, start, end, time, local: q('crLocal').value.trim(),
         desc: q('crDesc').value.split('\n').map(x => x.trim()).filter(Boolean),
         resp: q('crResp').value.trim(), equipe: q('crEquipe').value.trim(), orient: q('crOrient').value.trim(), obs: q('crObs').value.trim() };
+      let areasEsc = [...container.querySelectorAll('#crAreas .pl-chip.on')].map(c => c.dataset.area);
+      if(!areasEsc.length) areasEsc = areasAutomaticas(titulo);
+      payload.areas = areasEsc;
       if(!it){ await sbInsert('cronograma_item', Object.assign(payload, { novo: true, dia: dayKey, criadoEm: new Date().toISOString() })); }
       else if(ov){ await sbUpdate(ov.id, stripMeta(Object.assign({}, ov, payload))); }
       else { await sbInsert('cronograma_item', Object.assign(payload, { slot: it._key, criadoEm: new Date().toISOString() })); }
+      await perguntarAviso({ titulo: 'Cronograma atualizado', mensagem: `${CRONOGRAMA[dayKey].label}: "${titulo}" (${time}) foi ${it ? 'alterada' : 'adicionada'}. Confira o cronograma no app.`, areas: payload.areas });
       cronoEditando = false; await loadAllDados();
     });
     const del = q('crDelete');
@@ -2025,12 +2096,15 @@
       if(it._novo) await sbDelete(ov.id);
       else if(ov) await sbUpdate(ov.id, stripMeta(Object.assign({}, ov, { oculto: true })));
       else await sbInsert('cronograma_item', { slot: it._key, oculto: true, criadoEm: new Date().toISOString() });
+      await perguntarAviso({ titulo: 'Cronograma atualizado', mensagem: `${CRONOGRAMA[dayKey].label}: a atividade "${it.titulo}" foi removida do cronograma.`, areas: areasDaAtividade(it) });
       cronoEditando = false; await loadAllDados();
     });
     const rs = q('crRestore');
     if(rs) rs.addEventListener('click', async () => {
       if(!confirm('Voltar ao texto original desta atividade?')) return;
-      await sbDelete(ov.id); cronoEditando = false; await loadAllDados();
+      await sbDelete(ov.id);
+      await perguntarAviso({ titulo: 'Cronograma atualizado', mensagem: `${CRONOGRAMA[dayKey].label}: "${it.titulo}" voltou ao texto original.`, areas: areasDaAtividade(it) });
+      cronoEditando = false; await loadAllDados();
     });
   }
   renderCronograma();
@@ -2925,6 +2999,7 @@
       if(payload.spotify && !/^https?:\/\//i.test(payload.spotify)){ alert('O link do Spotify precisa começar com https://'); return; }
       if(ov) await sbUpdate(ov.id, stripMeta(Object.assign({}, ov, payload)));
       else await sbInsert('programacao_louvor', Object.assign(payload, { criadoEm: new Date().toISOString() }));
+      await perguntarAviso({ titulo: 'Louvor atualizado', mensagem: `Mudança na programação do louvor: ${base.titulo} (${base.dia}).`, areas: ['louvor'] });
       louvorEditando = false;
       await loadAllDados();
     }
@@ -4238,6 +4313,203 @@
     return copy;
   }
 
+  // ================= AVISOS PUSH + AGENDADOR =================
+  const PUSH_AREAS = { geral:'Geral', lideranca:'Liderança', cozinha:'Cozinha', louvor:'Louvor e técnica', producao:'Produção', gincanas:'Gincanas', recepcao:'Recepção', logistica:'Logística' };
+  const PUSH_AREAS_ESPECIFICAS = ['cozinha','louvor','producao','gincanas','recepcao','logistica'];
+  const PUBLICO_LABEL = { lider:'só líderes', voluntario:'só voluntários', ambos:'líderes e voluntários' };
+
+  function papelAtual(){ return localStorage.getItem('perfilAcesso') || 'voluntario'; }
+  function areasAutomaticas(titulo){
+    const t = String(titulo || '').toLowerCase(); const a = [];
+    if(/café|almoço|jantar|lanche|refei|ceia|cozinha/.test(t)) a.push('cozinha');
+    if(/louvor|banda|música|musica|ensaio/.test(t)) a.push('louvor');
+    if(/gincana|dinâmica|dinamica|circuito/.test(t)) a.push('gincanas');
+    if(/recep|credenc|chegada/.test(t)) a.push('recepcao');
+    if(/traslado|transporte|saída|saida|retorno|partida/.test(t)) a.push('logistica');
+    if(/montagem|decora|camiseta/.test(t)) a.push('producao');
+    return a;
+  }
+  function areasDaAtividade(it){ return Array.isArray(it.areas) ? it.areas : areasAutomaticas(it.titulo); }
+  function fmtDataHora(d){
+    return new Date(d).toLocaleString('pt-BR', { timeZone:'America/Sao_Paulo', weekday:'short', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }).replace('.', '').replace(',', ' ·');
+  }
+  function fmtHoraMin(d){ return new Date(d).toLocaleTimeString('pt-BR', { timeZone:'America/Sao_Paulo', hour:'2-digit', minute:'2-digit' }); }
+  function ultimoDoTipo(tipo){ const l = porTipo(tipo); return l.length ? l[l.length-1] : null; }
+
+  function configPush(){
+    const d = ultimoDoTipo('config_push');
+    return { id: d ? d.id : null, minutosAntes: d && d.minutosAntes ? Number(d.minutosAntes) : 15, desativados: d && Array.isArray(d.desativados) ? d.desativados : [] };
+  }
+  async function salvarConfigPush(patch){
+    const c = configPush(); const novo = { minutosAntes: c.minutosAntes, desativados: c.desativados };
+    Object.assign(novo, patch);
+    if(c.id) await sbUpdate(c.id, novo); else await sbInsert('config_push', novo);
+    await loadAllDados();
+  }
+
+  function montarLembretes(){
+    const cfg = configPush(); const CR = cronogramaEfetivo(); const out = [];
+    Object.keys(CRONOGRAMA).forEach(dk => {
+      CR[dk].periods.forEach(p => p.items.forEach(it => {
+        const inicio = new Date(CRONOGRAMA[dk].date + 'T' + it.start + ':00-03:00');
+        const quando = new Date(inicio.getTime() - cfg.minutosAntes * 60000);
+        out.push({
+          id: it._key, quando: quando.toISOString(), inicio: inicio.toISOString(), atividade: it.titulo,
+          dia: CRONOGRAMA[dk].label, hora: it.time || '', local: it.local || '',
+          areas: Array.from(new Set(areasDaAtividade(it).concat(['geral','lideranca']))),
+          titulo: `⏰ Daqui a ${cfg.minutosAntes >= 60 ? '1 hora' : cfg.minutosAntes + ' min'}: ${it.titulo}`,
+          corpo: [it.time, it.local].filter(Boolean).join(' · '),
+          ativo: !cfg.desativados.includes(it._key)
+        });
+      }));
+    });
+    out.sort((a,b) => a.quando.localeCompare(b.quando));
+    return out;
+  }
+
+  let ultimoHashAgenda = '';
+  async function sincronizarAgendaPush(){
+    if(papelAtual() !== 'coordenacao') return;
+    const lembretes = montarLembretes();
+    const hash = JSON.stringify(lembretes);
+    if(hash === ultimoHashAgenda) return;
+    const doc = ultimoDoTipo('agenda_push');
+    if(doc && doc.hash === hash){ ultimoHashAgenda = hash; return; }
+    const payload = { lembretes, hash, minutosAntes: configPush().minutosAntes, atualizadoEm: new Date().toISOString() };
+    ultimoHashAgenda = hash;
+    if(doc) await sbUpdate(doc.id, payload); else await sbInsert('agenda_push', payload);
+  }
+
+  async function enviarAviso({ titulo, mensagem, publico, areas, urgente, enviarEm }){
+    return sbInsert('aviso_push', {
+      titulo, mensagem, publico: publico || 'ambos', areas: (areas && areas.length) ? areas : ['todas'],
+      urgente: !!urgente, enviarEm: enviarEm || new Date().toISOString(), status: 'pendente',
+      criadoPor: papelAtual(), criadoEm: new Date().toISOString()
+    });
+  }
+
+  // pergunta "avisar a equipe?" depois de uma alteração feita pela coordenação
+  function perguntarAviso({ titulo, mensagem, areas, urgente }){
+    if(papelAtual() !== 'coordenacao') return Promise.resolve('nao');
+    return new Promise(resolve => {
+      const ov = document.createElement('div'); ov.className = 'aviso-overlay';
+      ov.innerHTML = `<div class="aviso-box">
+        <h3>Avisar a equipe?</h3>
+        <p>Quem deve receber uma notificação sobre essa alteração?</p>
+        <textarea id="avMsgRapida">${escapeHtml(mensagem || '')}</textarea>
+        <button type="button" data-p="lider">Só líderes</button>
+        <button type="button" data-p="voluntario">Só voluntários</button>
+        <button type="button" data-p="ambos">Líderes e voluntários</button>
+        <button type="button" class="sec" data-p="nao">Não avisar</button>
+      </div>`;
+      document.body.appendChild(ov);
+      ov.querySelectorAll('button[data-p]').forEach(b => b.addEventListener('click', async () => {
+        const p = b.dataset.p; const msg = ov.querySelector('#avMsgRapida').value.trim();
+        ov.remove();
+        if(p !== 'nao') await enviarAviso({ titulo: titulo || 'Atualização no retiro', mensagem: msg, publico: p, areas, urgente });
+        resolve(p);
+      }));
+    });
+  }
+
+  function renderAgendador(){
+    const host = document.getElementById('agendadorList'); if(!host) return;
+    const cfg = configPush(); const agora = new Date();
+    document.getElementById('minAntesInput').value = String(cfg.minutosAntes);
+    const logs = porTipo('push_log');
+    const st = ultimoDoTipo('push_status');
+    const srv = document.getElementById('agendadorStatus');
+    const minDesde = st && st.ultimaExecucao ? (agora - new Date(st.ultimaExecucao)) / 60000 : null;
+    srv.innerHTML = (minDesde !== null && minDesde < 5)
+      ? `<div class="ag-srv ok">🟢 Servidor de envios ativo (última checagem às ${fmtHoraMin(st.ultimaExecucao)})</div>`
+      : `<div class="ag-srv err">🔴 Servidor de envios não respondeu${st && st.ultimaExecucao ? ' desde ' + fmtDataHora(st.ultimaExecucao) : ' ainda'}. As notificações só saem depois que ele estiver instalado (veja o LEIA-ME).</div>`;
+
+    const itens = [];
+    montarLembretes().forEach(l => {
+      const log = logs.find(x => x.chave === 'lembrete:' + l.id + '@' + l.quando);
+      let chip, cls;
+      if(!l.ativo){ chip = 'Desativado'; cls = 'off'; }
+      else if(log){ chip = `✅ Enviado às ${fmtHoraMin(log.enviadoEm)} (${log.total || 0} pessoas)`; cls = 'ok'; }
+      else if(new Date(l.quando) > agora){ chip = '🕒 Agendado'; cls = ''; }
+      else { chip = '⚠️ Não foi enviado'; cls = 'err'; }
+      itens.push({ quando: new Date(l.quando), html: `<div class="ag-item">
+        <div class="ag-quando">${fmtDataHora(l.quando)}</div>
+        <div class="ag-titulo"><span class="ag-aviso-tipo">LEMBRETE</span>${escapeHtml(l.atividade)}</div>
+        <div class="ag-sub">Atividade às ${escapeHtml(l.hora)} · para: ${escapeHtml(l.areas.filter(a => a !== 'geral' && a !== 'lideranca').map(a => PUSH_AREAS[a]).concat(['liderança']).join(', '))}</div>
+        <span class="ag-chip ${cls}">${chip}</span>
+        <button type="button" class="ag-acao" data-ag-toggle="${escapeHtml(l.id)}">${l.ativo ? 'Desativar este lembrete' : 'Reativar este lembrete'}</button>
+      </div>` });
+    });
+    porTipo('aviso_push').forEach(a => {
+      const quando = new Date(a.enviarEm || a.criadoEm);
+      let chip, cls = '';
+      if(a.status === 'enviado'){ chip = `✅ Enviado às ${fmtHoraMin(a.enviadoEm || quando)} (${a.total || 0} pessoas)`; cls = 'ok'; }
+      else if(a.status === 'cancelado'){ chip = 'Cancelado'; cls = 'off'; }
+      else if(quando > agora){ chip = '🕒 Agendado'; }
+      else { chip = '⏳ Aguardando o servidor'; }
+      const areasTxt = (a.areas || ['todas']).map(x => x === 'todas' ? 'todas as áreas' : (PUSH_AREAS[x] || x)).join(', ');
+      itens.push({ quando, html: `<div class="ag-item">
+        <div class="ag-quando">${fmtDataHora(quando)}</div>
+        <div class="ag-titulo"><span class="ag-aviso-tipo">AVISO</span>${a.urgente ? '⚠ ' : ''}${escapeHtml(a.titulo)}</div>
+        <div class="ag-sub">${escapeHtml(a.mensagem || '')}</div>
+        <div class="ag-sub">Para: ${PUBLICO_LABEL[a.publico] || 'todos'} · ${escapeHtml(areasTxt)}</div>
+        <span class="ag-chip ${cls}">${chip}</span>
+        ${a.status === 'pendente' ? `<button type="button" class="ag-acao" data-ag-cancel="${a.id}">Cancelar este aviso</button>` : ''}
+      </div>` });
+    });
+    const proximos = itens.filter(i => i.quando >= agora).sort((x,y) => x.quando - y.quando);
+    const passados = itens.filter(i => i.quando < agora).sort((x,y) => y.quando - x.quando);
+    host.innerHTML = `<div class="section-label">Próximas notificações (${proximos.length})</div>` +
+      (proximos.map(i => i.html).join('') || '<div class="empty-state">Nenhuma notificação agendada.</div>') +
+      (passados.length ? `<details><summary style="font-weight:800; cursor:pointer; margin:12px 0;">Já passaram (${passados.length})</summary>${passados.map(i => i.html).join('')}</details>` : '');
+    host.querySelectorAll('[data-ag-toggle]').forEach(b => b.addEventListener('click', () => {
+      const id = b.dataset.agToggle; const des = configPush().desativados.slice();
+      const i = des.indexOf(id); if(i >= 0) des.splice(i,1); else des.push(id);
+      salvarConfigPush({ desativados: des });
+    }));
+    host.querySelectorAll('[data-ag-cancel]').forEach(b => b.addEventListener('click', async () => {
+      const a = porTipo('aviso_push').find(x => x.id === b.dataset.agCancel); if(!a) return;
+      await sbUpdate(a.id, Object.assign(stripMeta(a), { status: 'cancelado' })); await loadAllDados();
+    }));
+  }
+
+  document.getElementById('minAntesInput').addEventListener('change', e => salvarConfigPush({ minutosAntes: Number(e.target.value) }));
+  document.getElementById('avPushQuando').addEventListener('change', e => {
+    document.getElementById('avPushDataHora').style.display = e.target.value === 'agendar' ? 'block' : 'none';
+  });
+  document.getElementById('avPushEnviar').addEventListener('click', async () => {
+    const titulo = document.getElementById('avPushTitulo').value.trim();
+    const mensagem = document.getElementById('avPushMsg').value.trim();
+    if(!titulo || !mensagem){ alert('Preencha o título e a mensagem.'); return; }
+    let enviarEm = new Date().toISOString();
+    if(document.getElementById('avPushQuando').value === 'agendar'){
+      const v = document.getElementById('avPushDataHora').value;
+      if(!v){ alert('Escolha a data e a hora do envio.'); return; }
+      enviarEm = new Date(v + ':00-03:00').toISOString();
+    }
+    const area = document.getElementById('avPushArea').value;
+    await enviarAviso({ titulo, mensagem, publico: document.getElementById('avPushPublico').value, areas: [area],
+      urgente: document.getElementById('avPushUrgente').checked, enviarEm });
+    ['avPushTitulo','avPushMsg','avPushDataHora'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('avPushUrgente').checked = false;
+    alert('Aviso registrado! O servidor envia em até 1 minuto (ou na hora agendada).');
+    await loadAllDados();
+  });
+
+  let ultimoPapelSync = null;
+  async function atualizarPapelAssinatura(){
+    try{
+      if(!swRegistration) return;
+      const sub = await swRegistration.pushManager.getSubscription(); if(!sub) return;
+      const ja = porTipo('push_subscription').find(x => x.endpoint === sub.endpoint);
+      const papel = papelAtual();
+      if(ja && ja.papel !== papel && ultimoPapelSync !== papel){
+        ultimoPapelSync = papel;
+        await sbUpdate(ja.id, Object.assign(stripMeta(ja), { papel }));
+      }
+    }catch(e){ console.error(e); }
+  }
+
   // ---------- estado vivo em memória, recarregado do Supabase ----------
   let ALL_DADOS = [];
 
@@ -4261,6 +4533,9 @@
     renderProgramacaoLouvor(porTipo('programacao_louvor'));
     renderCronograma();
     computeNextActivity();
+    renderAgendador();
+    sincronizarAgendaPush().catch(console.error);
+    atualizarPapelAssinatura();
     renderMusicos();
     renderRepertorio();
     renderEnsaios();
@@ -4346,6 +4621,7 @@
     const urgente = document.getElementById('comunicadoUrgenteInput').checked;
     if(!titulo || !mensagem) return;
     await sbInsert('comunicado', { titulo, mensagem, responsavel, urgente, criadoEm: new Date().toISOString() });
+    if(papelAtual() === 'coordenacao') await perguntarAviso({ titulo, mensagem, areas: [], urgente });
     document.getElementById('comunicadoTituloInput').value = '';
     document.getElementById('comunicadoMsgInput').value = '';
     document.getElementById('comunicadoRespInput').value = '';
@@ -4531,10 +4807,10 @@
       }
       const perfil = document.getElementById('notifPerfilInput').value;
       const subJson = sub.toJSON();
-      await sbInsert('push_subscription', {
-        endpoint: subJson.endpoint, p256dh: subJson.keys.p256dh, auth: subJson.keys.auth,
-        perfil, ativo: true, criadoEm: new Date().toISOString()
-      });
+      const dadosSub = { endpoint: subJson.endpoint, p256dh: subJson.keys.p256dh, auth: subJson.keys.auth,
+        perfil, papel: papelAtual(), ativo: true, criadoEm: new Date().toISOString() };
+      const jaExiste = porTipo('push_subscription').find(x => x.endpoint === subJson.endpoint);
+      if(jaExiste) await sbUpdate(jaExiste.id, dadosSub); else await sbInsert('push_subscription', dadosSub);
       statusTitulo.textContent = '✅ Notificações ativadas neste celular';
       statusDesc.textContent = 'Você vai receber avisos da sua área pouco antes de cada atividade.';
       btn.style.display = 'none';
