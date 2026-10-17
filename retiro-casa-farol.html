@@ -553,6 +553,7 @@
   .closed-sub{color:var(--muted); font-weight:600; font-size:0.95rem; line-height:1.5; margin-bottom:4px;}
   .closed-blessing{font-weight:700; font-size:0.95rem; margin-top:14px; margin-bottom:22px;}
   .closed-divider{height:1.5px; background:rgba(20,20,26,0.12); margin:22px 0 18px;}
+  body.modo-voluntario #inscricao{display:none !important;}
 </style>
 </head>
 <body>
@@ -1170,6 +1171,15 @@
         <input type="text" id="exceptLinkOutput" readonly>
         <div class="except-link-row">
           <button type="button" id="exceptCopiarBtn">Copiar link</button>
+        </div>
+      </div>
+
+      <div class="except-link-card hard-sm">
+        <div class="except-link-title">Link para inscrever voluntários</div>
+        <p class="except-link-sub">Abre direto o formulário de voluntário, mesmo com as inscrições dos adolescentes encerradas. Pode mandar para quem quiser servir.</p>
+        <input type="text" id="volLinkOutput" readonly>
+        <div class="except-link-row">
+          <button type="button" id="volCopiarBtn">Copiar link</button>
         </div>
       </div>
 
@@ -2038,12 +2048,32 @@
     }
   });
 
+  // ---------- link só para voluntários (?voluntario=1) ----------
+  (function initLinkVoluntario(){
+    const params = new URLSearchParams(window.location.search);
+    if(params.get('voluntario') !== '1' && window.location.hash !== '#voluntario') return;
+    document.querySelector('.closed-screen').style.display = 'none';
+    document.getElementById('mainSiteContent').style.display = 'block';
+    document.body.classList.add('modo-voluntario');
+    document.getElementById('volOverlay').classList.add('active');
+    window.scrollTo(0,0);
+  })();
+
   document.getElementById('openAdmin').addEventListener('click', () => adminOverlay.classList.add('active'));
   document.getElementById('openAdminFromClosed').addEventListener('click', () => adminOverlay.classList.add('active'));
   document.getElementById('closeAdmin').addEventListener('click', () => adminOverlay.classList.remove('active'));
   document.getElementById('loginBtn').addEventListener('click', handleLogin);
 
   document.getElementById('exceptLinkOutput').value = window.location.origin + window.location.pathname + '?vaga=excecao&lote=2';
+  document.getElementById('volLinkOutput').value = window.location.origin + window.location.pathname + '?voluntario=1';
+  document.getElementById('volCopiarBtn').addEventListener('click', () => {
+    const output = document.getElementById('volLinkOutput');
+    const btn = document.getElementById('volCopiarBtn');
+    navigator.clipboard.writeText(output.value).then(() => {
+      const t = btn.textContent; btn.textContent = 'Copiado! ✓';
+      setTimeout(() => { btn.textContent = t; }, 2000);
+    }).catch(() => { output.select(); btn.textContent = 'Selecione e copie'; });
+  });
 
   document.getElementById('exceptCopiarBtn').addEventListener('click', () => {
     const output = document.getElementById('exceptLinkOutput');
