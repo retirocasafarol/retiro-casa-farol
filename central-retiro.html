@@ -1510,7 +1510,7 @@
         </ul>
       </div>
 
-      <div class="only-coordenacao">
+      <div class="only-lider-ou-coordenacao">
         <div class="section-label">📣 Enviar aviso para a equipe</div>
         <div class="add-form is-open hard-sm" id="avisoPushForm">
           <input type="text" id="avPushTitulo" placeholder="Título (ex.: Mudança no horário do jantar)">
@@ -1518,6 +1518,7 @@
           <label class="pl-lab" style="margin-top:8px;">Quem recebe</label>
           <select id="avPushPublico">
             <option value="ambos">Líderes e voluntários</option>
+            <option value="todos">Todos (coordenação, líderes e voluntários)</option>
             <option value="lider">Só líderes</option>
             <option value="voluntario">Só voluntários</option>
           </select>
@@ -1531,16 +1532,20 @@
             <option value="recepcao">Recepção</option>
             <option value="logistica">Logística e transporte</option>
           </select>
-          <label class="pl-lab" style="margin-top:8px;">Quando enviar</label>
-          <select id="avPushQuando">
-            <option value="agora">Agora</option>
-            <option value="agendar">Agendar para…</option>
-          </select>
-          <input type="datetime-local" id="avPushDataHora" style="display:none;">
+          <div class="only-coordenacao">
+            <label class="pl-lab" style="margin-top:8px;">Quando enviar</label>
+            <select id="avPushQuando">
+              <option value="agora">Agora</option>
+              <option value="agendar">Agendar para…</option>
+            </select>
+            <input type="datetime-local" id="avPushDataHora" style="display:none;">
+          </div>
           <label style="display:flex; gap:8px; align-items:center; margin-top:10px; font-weight:700; font-size:0.85rem;"><input type="checkbox" id="avPushUrgente" style="width:auto;"> Urgente (a notificação fica na tela até tocar)</label>
           <div class="form-actions"><button class="btn-save press" id="avPushEnviar" type="button">Enviar aviso</button></div>
         </div>
+      </div>
 
+      <div class="only-coordenacao">
         <div class="section-label">🗓️ Agendador de notificações</div>
         <div class="list-card hard-sm">
           <div class="ttl" style="font-size:0.9rem;">Lembrete antes de cada atividade</div>
@@ -1658,6 +1663,8 @@
   function aplicarPerfil(perfil){
     ['coordenacao','lider','voluntario'].forEach(p => document.body.classList.remove('perfil-' + p));
     document.body.classList.add('perfil-' + perfil);
+    const selPub = document.getElementById('avPushPublico');
+    if(selPub) selPub.value = (perfil === 'lider') ? 'todos' : 'ambos';
     const label = document.getElementById('perfilAtualLabel');
     if(label) label.textContent = PERFIL_LABELS[perfil] || perfil;
   }
@@ -4316,7 +4323,7 @@
   // ================= AVISOS PUSH + AGENDADOR =================
   const PUSH_AREAS = { geral:'Geral', lideranca:'Liderança', cozinha:'Cozinha', louvor:'Louvor e técnica', producao:'Produção', gincanas:'Gincanas', recepcao:'Recepção', logistica:'Logística' };
   const PUSH_AREAS_ESPECIFICAS = ['cozinha','louvor','producao','gincanas','recepcao','logistica'];
-  const PUBLICO_LABEL = { lider:'só líderes', voluntario:'só voluntários', ambos:'líderes e voluntários' };
+  const PUBLICO_LABEL = { lider:'só líderes', voluntario:'só voluntários', ambos:'líderes e voluntários', todos:'todos (coordenação, líderes e voluntários)' };
 
   function papelAtual(){ return localStorage.getItem('perfilAcesso') || 'voluntario'; }
   function areasAutomaticas(titulo){
@@ -4452,7 +4459,7 @@
         <div class="ag-quando">${fmtDataHora(quando)}</div>
         <div class="ag-titulo"><span class="ag-aviso-tipo">AVISO</span>${a.urgente ? '⚠ ' : ''}${escapeHtml(a.titulo)}</div>
         <div class="ag-sub">${escapeHtml(a.mensagem || '')}</div>
-        <div class="ag-sub">Para: ${PUBLICO_LABEL[a.publico] || 'todos'} · ${escapeHtml(areasTxt)}</div>
+        <div class="ag-sub">Para: ${PUBLICO_LABEL[a.publico] || 'todos'} · ${escapeHtml(areasTxt)}${a.criadoPor === 'lider' ? ' · enviado por um líder' : ''}</div>
         <span class="ag-chip ${cls}">${chip}</span>
         ${a.status === 'pendente' ? `<button type="button" class="ag-acao" data-ag-cancel="${a.id}">Cancelar este aviso</button>` : ''}
       </div>` });
