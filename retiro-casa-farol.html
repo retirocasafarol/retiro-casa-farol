@@ -776,6 +776,108 @@
     </div>
   </div>
 
+  <!-- CULTO DE SÁBADO (só o culto, sem pagar o retiro) -->
+  <div class="next-overlay" id="sabOverlay">
+    <div class="next-hero" style="background:#f3efe4;">
+      <button type="button" class="nav-back-btn press" id="closeSabBtn" style="margin-bottom:16px;">← Voltar</button>
+      <h2>Culto de sábado à noite 🌙</h2>
+      <p>Sábado, 24/10 · 20h · Sítio Comunhão Familiar (RS-115, em frente à Heineken). O culto é <b>sem custo</b>. Se quiser, dá pra garantir a janta e a camiseta.</p>
+    </div>
+
+    <div class="next-body">
+      <div class="form-card hard">
+        <form id="sabForm">
+          <div class="field">
+            <label>Nome completo</label>
+            <input type="text" id="sabNome" required placeholder="Seu nome completo">
+          </div>
+
+          <div class="field">
+            <label>WhatsApp</label>
+            <input type="tel" id="sabTel" required placeholder="(11) 90000-0000">
+          </div>
+
+          <div class="field">
+            <label>Congrega na Casa Farol?</label>
+            <div class="choice-row" data-field="sabCongrega">
+              <div class="choice-opt hard-sm" data-value="sim">Sim</div>
+              <div class="choice-opt hard-sm" data-value="nao">Não</div>
+            </div>
+          </div>
+
+          <div class="pix-card hard-sm" style="background:#e6ecd0;">
+            <div class="pix-title">🎶 Culto · 20h</div>
+            <div class="pix-note" style="margin-top:0;"><b>Sem custo.</b> Sua vaga no culto já está garantida com a inscrição.</div>
+          </div>
+
+          <div class="field">
+            <label>🍝 Janta · 19h · R$20</label>
+            <div class="field-hint" style="font-size:0.78rem; color:var(--muted); font-weight:600; margin-bottom:6px;">Macarronada com molho de carne ou frango</div>
+            <div class="choice-row" data-field="sabJanta">
+              <div class="choice-opt hard-sm" data-value="sim">Quero a janta</div>
+              <div class="choice-opt hard-sm" data-value="nao">Não quero</div>
+            </div>
+          </div>
+
+          <div class="field" id="sabJantaBox" style="display:none;">
+            <label>Alergia ou restrição alimentar (se tiver)</label>
+            <input type="text" id="sabRestricao" placeholder="Opcional">
+          </div>
+
+          <div class="field">
+            <label>👕 Camiseta · R$30</label>
+            <div class="choice-row" data-field="sabCamiseta">
+              <div class="choice-opt hard-sm" data-value="sim">Quero a camiseta</div>
+              <div class="choice-opt hard-sm" data-value="nao">Não quero</div>
+            </div>
+          </div>
+
+          <div class="field" id="sabTamanhoBox" style="display:none;">
+            <label>Tamanho da camiseta</label>
+            <div class="choice-row" data-field="sabTamanho">
+              <div class="choice-opt hard-sm" data-value="P">P</div>
+              <div class="choice-opt hard-sm" data-value="M">M</div>
+              <div class="choice-opt hard-sm" data-value="G">G</div>
+              <div class="choice-opt hard-sm" data-value="GG">GG</div>
+            </div>
+          </div>
+
+          <div class="pix-card hard-sm" id="sabResumo" style="display:none;">
+            <div class="pix-title">Resumo</div>
+            <div id="sabResumoLinhas"></div>
+            <div id="sabPixBlock" style="display:none; margin-top:12px;">
+              <div class="pix-title" style="font-size:0.85rem;">Dados do Pix</div>
+              <div class="pix-row"><span>Nome</span><b>Franciele Bariviera</b></div>
+              <div class="pix-row"><span>Chave (telefone)</span><b id="sabPixChaveTxt">(48) 98836-2228</b></div>
+              <div class="pix-row"><span>Instituição</span><b>CC Litorânea</b></div>
+              <button type="button" class="pix-copy-btn press" id="sabPixCopyBtn">Copiar chave Pix</button>
+              <div class="pix-note">Depois de pagar, envie o comprovante pra <b>líder Franciele</b> pelo WhatsApp. A janta e a camiseta são confirmadas com o pagamento.</div>
+            </div>
+          </div>
+
+          <div class="form-error" id="sabFormError" style="display:none;">Preencha os campos obrigatórios antes de enviar.</div>
+          <button type="submit" class="submit-btn press" id="sabSubmitBtn" style="margin-top:10px;">Confirmar presença no culto 🙌</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRMAÇÃO DO CULTO DE SÁBADO -->
+  <div class="next-overlay" id="sabNextOverlay">
+    <div class="next-hero" style="background:#f3efe4;">
+      <h2>Presença confirmada! 🎉</h2>
+      <p id="sabNextResumo">Te esperamos no culto de sábado.</p>
+      <div class="ticket-badge" id="sabNextTicketId">Nº ---</div>
+      <button class="wa-share-btn press" id="sabSendWhatsappBtn">
+        <span>Receber os detalhes no WhatsApp</span>
+      </button>
+      <button class="wa-share-btn press" id="sabComprovanteBtn" style="display:none; margin-top:10px;">
+        <span>Enviar comprovante do Pix</span>
+      </button>
+      <button type="button" class="nav-back-btn press" id="closeSabNextBtn" style="margin-top:16px;">Fechar</button>
+    </div>
+  </div>
+
   <!-- FORM -->
   <section class="form-section" id="inscricao">
     <div class="head">
@@ -1183,6 +1285,15 @@
         </div>
       </div>
 
+      <div class="except-link-card hard-sm">
+        <div class="except-link-title">Link do culto de sábado (só o culto)</div>
+        <p class="except-link-sub">Para os adolescentes que vão só no culto de sábado à noite. Sem custo; janta (R$20) e camiseta (R$30) opcionais.</p>
+        <input type="text" id="sabLinkOutput" readonly>
+        <div class="except-link-row">
+          <button type="button" id="sabCopiarBtn">Copiar link</button>
+        </div>
+      </div>
+
       <div class="stat-group-label">🧑‍🎓 Adolescentes</div>
       <div class="stat-row stat-row-3">
         <div class="stat-card hard-sm"><div class="num" id="statTotal">–</div><div class="lab">Inscritos</div></div>
@@ -1196,9 +1307,17 @@
         <div class="stat-card hard-sm"><div class="num" id="statVolDorme">–</div><div class="lab">Voluntários que dormem</div></div>
       </div>
 
+      <div class="stat-group-label">🌙 Culto de sábado</div>
+      <div class="stat-row stat-row-3">
+        <div class="stat-card hard-sm"><div class="num" id="statSabTotal">–</div><div class="lab">Inscritos</div></div>
+        <div class="stat-card hard-sm"><div class="num" id="statSabJanta">–</div><div class="lab">Janta</div></div>
+        <div class="stat-card hard-sm"><div class="num" id="statSabCamiseta">–</div><div class="lab">Camisetas</div></div>
+      </div>
+
       <div class="admin-tabs">
         <button type="button" class="admin-tab-btn is-active" id="tabBtnAdolescentes">🧑‍🎓 Adolescentes</button>
         <button type="button" class="admin-tab-btn" id="tabBtnVoluntarios">🙋 Voluntários</button>
+        <button type="button" class="admin-tab-btn" id="tabBtnSabado">🌙 Sábado</button>
       </div>
 
       <div class="admin-tab-panel" id="tabAdolescentes">
@@ -1218,6 +1337,13 @@
         </div>
         <div class="reg-list" id="volList">
           <div class="loading-state">Carregando voluntários...</div>
+        </div>
+      </div>
+
+      <div class="admin-tab-panel" id="tabSabado" style="display:none;">
+        <div class="attn-box" id="sabAdminResumo" style="margin-bottom:12px;">Carregando...</div>
+        <div class="reg-list" id="sabList">
+          <div class="loading-state">Carregando inscrições do culto...</div>
         </div>
       </div>
     </div>
@@ -1443,6 +1569,7 @@
 
     document.getElementById('volAreaOutraBox').style.display = (Array.isArray(choiceValues.volArea) && choiceValues.volArea.includes('outro')) ? 'block' : 'none';
     document.getElementById('volPixBox').style.display = (choiceValues.volDorme === 'sim') ? 'block' : 'none';
+    atualizarSabado();
   }
 
   // ---------- copiar chave pix (voluntário) ----------
@@ -2048,6 +2175,229 @@
     }
   });
 
+  // ---------- culto de sábado (?sabado=1) ----------
+  const SAB_PRECO_JANTA = 20, SAB_PRECO_CAMISETA = 30;
+  function sabCalculo(){
+    const janta = choiceValues.sabJanta === 'sim';
+    const camiseta = choiceValues.sabCamiseta === 'sim';
+    const tam = choiceValues.sabTamanho || '';
+    const total = (janta ? SAB_PRECO_JANTA : 0) + (camiseta ? SAB_PRECO_CAMISETA : 0);
+    return { janta, camiseta, tam, total };
+  }
+  function atualizarSabado(){
+    const box = document.getElementById('sabResumo');
+    if(!box) return;
+    const c = sabCalculo();
+    document.getElementById('sabFormError').style.display = 'none';
+    document.getElementById('sabJantaBox').style.display = c.janta ? 'block' : 'none';
+    document.getElementById('sabTamanhoBox').style.display = c.camiseta ? 'block' : 'none';
+    const escolheu = choiceValues.sabJanta || choiceValues.sabCamiseta;
+    box.style.display = escolheu ? 'block' : 'none';
+    const linha = (t, v) => `<div class="pix-row"><span>${t}</span><b>${v}</b></div>`;
+    document.getElementById('sabResumoLinhas').innerHTML =
+      linha('🎶 Culto · 20h', 'Sem custo') +
+      (c.janta ? linha('🍝 Janta · 19h', 'R$20') : '') +
+      (c.camiseta ? linha('👕 Camiseta' + (c.tam ? ' (' + c.tam + ')' : ''), 'R$30') : '') +
+      linha('Total a pagar', c.total > 0 ? 'R$' + c.total : 'R$0 — sem custo');
+    document.getElementById('sabPixBlock').style.display = c.total > 0 ? 'block' : 'none';
+  }
+
+  document.getElementById('sabPixCopyBtn').addEventListener('click', () => {
+    const chave = document.getElementById('sabPixChaveTxt').textContent.trim();
+    const btn = document.getElementById('sabPixCopyBtn');
+    navigator.clipboard.writeText(chave).then(() => {
+      btn.textContent = 'Copiado! ✓';
+      setTimeout(() => { btn.textContent = 'Copiar chave Pix'; }, 2000);
+    }).catch(() => { btn.textContent = 'Copie manualmente: ' + chave; });
+  });
+  document.getElementById('closeSabBtn').addEventListener('click', () => { document.getElementById('sabOverlay').classList.remove('active'); window.scrollTo(0,0); });
+  document.getElementById('closeSabNextBtn').addEventListener('click', () => { document.getElementById('sabNextOverlay').classList.remove('active'); window.scrollTo(0,0); });
+
+  const sabForm = document.getElementById('sabForm');
+  const sabFormError = document.getElementById('sabFormError');
+  const sabSubmitBtn = document.getElementById('sabSubmitBtn');
+  sabForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nome = document.getElementById('sabNome').value.trim();
+    const tel = document.getElementById('sabTel').value.trim();
+    const c = sabCalculo();
+    const faltaTamanho = c.camiseta && !c.tam;
+    if(!nome || !tel || !choiceValues.sabCongrega || !choiceValues.sabJanta || !choiceValues.sabCamiseta || faltaTamanho){
+      sabFormError.textContent = faltaTamanho ? 'Escolha o tamanho da camiseta.' : 'Preencha os campos obrigatórios antes de enviar.';
+      sabFormError.style.display = 'block';
+      sabFormError.scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
+    sabFormError.style.display = 'none';
+    sabSubmitBtn.disabled = true;
+    sabSubmitBtn.textContent = 'Enviando...';
+
+    const ticket = 'SAB-' + Math.floor(1000 + Math.random()*9000);
+    const record = {
+      tipoInscricao: 'sabado',
+      nome: nome,
+      telAdolescente: tel,
+      congregaCasaFarol: choiceValues.sabCongrega,
+      janta: c.janta ? 'sim' : 'nao',
+      restricaoJanta: c.janta ? document.getElementById('sabRestricao').value.trim() : '',
+      camiseta: c.camiseta ? 'sim' : 'nao',
+      tamanhoCamiseta: c.camiseta ? c.tam : '',
+      totalPagar: c.total,
+      statusPagamentoSab: c.total > 0 ? 'pendente' : 'sem_custo',
+      ticket: ticket,
+      criadoEm: new Date().toISOString()
+    };
+
+    try{
+      const supabaseId = await saveToSupabase(record);
+      let storageOk = false;
+      try{
+        const current = await loadRegistrations();
+        current.push(record);
+        storageOk = await saveRegistrations(current);
+      }catch(storageErr){
+        console.warn('Armazenamento interno indisponível (normal fora do Claude):', storageErr);
+      }
+      if(!supabaseId && !storageOk) throw new Error('Nenhum destino de envio funcionou');
+
+      const resumoTxt = ['Culto de sábado · 24/10 · 20h'];
+      if(c.janta) resumoTxt.push('janta às 19h (R$20)');
+      if(c.camiseta) resumoTxt.push('camiseta ' + c.tam + ' (R$30)');
+      document.getElementById('sabNextResumo').textContent = resumoTxt.join(' · ') + (c.total > 0 ? ' — total R$' + c.total + '.' : ' — sem custo.');
+      document.getElementById('sabNextTicketId').textContent = 'Nº ' + ticket;
+
+      const linhas = [
+        '*PRESENÇA CONFIRMADA!* 🎉', '',
+        '🌙 *Culto de sábado à noite*', '📅 Sábado, 24/10 · 20h',
+        '📍 Sítio Comunhão Familiar — RS-115, em frente à Heineken', ''
+      ];
+      if(c.janta) linhas.push('🍝 *Janta às 19h* — macarronada com molho de carne ou frango (R$20)');
+      if(c.camiseta) linhas.push('👕 *Camiseta tamanho ' + c.tam + '* (R$30)');
+      if(c.total > 0){
+        linhas.push('', '💰 *Total: R$' + c.total + '*', 'Pix (telefone): (48) 98836-2228 — Franciele Bariviera (CC Litorânea)', 'Depois de pagar, envie o comprovante pra líder Franciele. 🙏🏻');
+      }else{
+        linhas.push('💛 O culto é *sem custo* — é só chegar!');
+      }
+      linhas.push('', 'Te esperamos! Chama um amigo pra ir junto 🔥');
+      const telRaw = tel.replace(/\D/g, '');
+      const waPhone = telRaw ? ('55' + telRaw.replace(/^55/, '')) : '';
+      const waMsg = encodeURIComponent(linhas.join('\n'));
+      document.getElementById('sabSendWhatsappBtn').onclick = () => window.open(waPhone ? ('https://wa.me/' + waPhone + '?text=' + waMsg) : ('https://wa.me/?text=' + waMsg), '_blank');
+      const btnComp = document.getElementById('sabComprovanteBtn');
+      if(c.total > 0){
+        const msgComp = encodeURIComponent('Oi Franciele! Segue o comprovante do Pix do culto de sábado.\nNome: ' + nome + '\n' + (c.janta ? 'Janta: R$20\n' : '') + (c.camiseta ? 'Camiseta ' + c.tam + ': R$30\n' : '') + 'Total: R$' + c.total + '\nTicket: ' + ticket);
+        btnComp.style.display = 'flex';
+        btnComp.onclick = () => window.open('https://wa.me/5548988362228?text=' + msgComp, '_blank');
+      }else{
+        btnComp.style.display = 'none';
+      }
+
+      sabForm.reset();
+      document.querySelectorAll('[data-field^="sab"] .choice-opt').forEach(o => o.classList.remove('selected'));
+      ['sabCongrega','sabJanta','sabCamiseta','sabTamanho'].forEach(k => delete choiceValues[k]);
+      atualizarSabado();
+      sabSubmitBtn.disabled = false;
+      sabSubmitBtn.textContent = 'Confirmar presença no culto 🙌';
+      document.getElementById('sabNextOverlay').classList.add('active');
+      window.scrollTo(0,0);
+    }catch(err){
+      console.error('Erro ao enviar inscrição do culto de sábado:', err);
+      sabFormError.textContent = 'Não foi possível enviar agora. Verifique sua internet e tente de novo em alguns segundos.';
+      sabFormError.style.display = 'block';
+      sabSubmitBtn.disabled = false;
+      sabSubmitBtn.textContent = 'Confirmar presença no culto 🙌';
+    }
+  });
+
+  // painel da liderança: lista do culto de sábado
+  function renderSabList(list){
+    const box = document.getElementById('sabList');
+    if(!box) return;
+    const jantas = list.filter(r => r.janta === 'sim').length;
+    const camisas = list.filter(r => r.camiseta === 'sim');
+    document.getElementById('statSabTotal').textContent = list.length;
+    document.getElementById('statSabJanta').textContent = jantas;
+    document.getElementById('statSabCamiseta').textContent = camisas.length;
+    const porTam = ['P','M','G','GG'].map(t => t + ': ' + camisas.filter(r => r.tamanhoCamiseta === t).length).join(' · ');
+    const aReceber = list.reduce((a, r) => a + (Number(r.totalPagar) || 0), 0);
+    const recebido = list.filter(r => r.statusPagamentoSab === 'pago').reduce((a, r) => a + (Number(r.totalPagar) || 0), 0);
+    document.getElementById('sabAdminResumo').innerHTML =
+      `<b>Camisetas por tamanho</b><br>${porTam}<br><b>Janta:</b> ${jantas} · <b>Total:</b> R$${aReceber} · <b>Pago:</b> R$${recebido}`;
+    if(list.length === 0){
+      box.innerHTML = '<div class="empty-state">Nenhuma inscrição para o culto de sábado ainda.</div>';
+      return;
+    }
+    const sorted = [...list].sort((a,b) => new Date(b.criadoEm) - new Date(a.criadoEm));
+    box.innerHTML = sorted.map(r => {
+      const paga = r.statusPagamentoSab === 'pago';
+      const temCusto = Number(r.totalPagar) > 0;
+      return `
+      <div class="reg-card" data-id="${r.id}">
+        <div class="top"><div class="nm">${escapeHtml(r.nome)}</div></div>
+        <div class="status-pill ${temCusto ? 'st-pending' : 'st-ok'}">${temCusto ? 'R$' + r.totalPagar : 'Sem custo'}</div>
+        <div class="meta-grid">
+          <div class="meta-item"><span class="meta-lab">WhatsApp</span><span class="meta-val">${escapeHtml(r.telAdolescente || '-')}</span></div>
+          <div class="meta-item"><span class="meta-lab">Congrega na Casa Farol</span><span class="meta-val">${r.congregaCasaFarol === 'sim' ? 'Sim' : 'Não'}</span></div>
+          <div class="meta-item"><span class="meta-lab">Janta (R$20)</span><span class="meta-val">${r.janta === 'sim' ? 'Sim' : 'Não'}</span></div>
+          <div class="meta-item"><span class="meta-lab">Camiseta (R$30)</span><span class="meta-val">${r.camiseta === 'sim' ? 'Tam. ' + escapeHtml(r.tamanhoCamiseta) : 'Não'}</span></div>
+          <div class="meta-item meta-item-wide"><span class="meta-lab">Ticket</span><span class="meta-val">${escapeHtml(r.ticket)} · ${new Date(r.criadoEm).toLocaleDateString('pt-BR')}</span></div>
+        </div>
+        ${r.restricaoJanta ? `<div class="attn-box">ℹ ${escapeHtml(r.restricaoJanta)}</div>` : ''}
+        ${temCusto ? `
+        <div class="pay-status-box">
+          <div class="pay-status-top">
+            <span class="pay-status-label">Pagamento (R$${r.totalPagar})</span>
+            <span class="pay-status-badge pay-${paga ? 'total_pago' : 'pendente'}">${paga ? '✅ Pago' : '⏳ Pendente'}</span>
+          </div>
+          <div class="pay-status-btns">
+            <button class="pay-btn${!paga ? ' is-active' : ''}" data-paysabid="${r.id}" data-paystatus="pendente">Pendente</button>
+            <button class="pay-btn${paga ? ' is-active' : ''}" data-paysabid="${r.id}" data-paystatus="pago">Pago</button>
+          </div>
+          <div class="pay-status-note">Uso interno da liderança</div>
+        </div>` : ''}
+        <div class="card-footer-row" style="justify-content:flex-end;">
+          <button class="del" data-delsab="${r.id}">Remover</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    box.querySelectorAll('[data-paysabid]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-paysabid');
+        const novoStatus = btn.getAttribute('data-paystatus');
+        const reg = allSab.find(r => r.id === id);
+        if(!reg) return;
+        btn.disabled = true;
+        const dados = Object.assign({}, reg, {statusPagamentoSab: novoStatus});
+        delete dados.id; delete dados.criadoEm;
+        const ok = await updateSupabaseData(id, dados);
+        btn.disabled = false;
+        if(ok){ reg.statusPagamentoSab = novoStatus; renderSabList(allSab); }
+        else alert('Não foi possível salvar agora. Tenta de novo em instantes.');
+      });
+    });
+    box.querySelectorAll('[data-delsab]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if(!confirm('Remover esta inscrição do culto de sábado?')) return;
+        const id = btn.getAttribute('data-delsab');
+        await deleteFromSupabase(id);
+        allSab = allSab.filter(r => r.id !== id);
+        renderSabList(allSab);
+      });
+    });
+  }
+
+  // ---------- link só para o culto de sábado ----------
+  (function initLinkSabado(){
+    const params = new URLSearchParams(window.location.search);
+    if(params.get('sabado') !== '1' && window.location.hash !== '#sabado') return;
+    document.querySelector('.closed-screen').style.display = 'none';
+    document.getElementById('mainSiteContent').style.display = 'block';
+    document.body.classList.add('modo-voluntario');
+    document.getElementById('sabOverlay').classList.add('active');
+    window.scrollTo(0,0);
+  })();
+
   // ---------- link só para voluntários (?voluntario=1) ----------
   (function initLinkVoluntario(){
     const params = new URLSearchParams(window.location.search);
@@ -2066,6 +2416,15 @@
 
   document.getElementById('exceptLinkOutput').value = window.location.origin + window.location.pathname + '?vaga=excecao&lote=2';
   document.getElementById('volLinkOutput').value = window.location.origin + window.location.pathname + '?voluntario=1';
+  document.getElementById('sabLinkOutput').value = window.location.origin + window.location.pathname + '?sabado=1';
+  document.getElementById('sabCopiarBtn').addEventListener('click', () => {
+    const output = document.getElementById('sabLinkOutput');
+    const btn = document.getElementById('sabCopiarBtn');
+    navigator.clipboard.writeText(output.value).then(() => {
+      const t = btn.textContent; btn.textContent = 'Copiado! ✓';
+      setTimeout(() => { btn.textContent = t; }, 2000);
+    }).catch(() => { output.select(); btn.textContent = 'Selecione e copie'; });
+  });
   document.getElementById('volCopiarBtn').addEventListener('click', () => {
     const output = document.getElementById('volLinkOutput');
     const btn = document.getElementById('volCopiarBtn');
@@ -2103,16 +2462,19 @@
 
   let allRegs = [];
   let allVols = [];
+  let allSab = [];
 
   async function renderDashboard(){
     document.getElementById('regList').innerHTML = '<div class="loading-state">Carregando inscrições...</div>';
     const fromSupabase = await loadFromSupabase();
     const all = (fromSupabase !== null) ? fromSupabase : await loadRegistrations();
-    allRegs = all.filter(r => r.tipoInscricao !== 'voluntario');
+    allRegs = all.filter(r => r.tipoInscricao !== 'voluntario' && r.tipoInscricao !== 'sabado');
     allVols = all.filter(r => r.tipoInscricao === 'voluntario');
+    allSab = all.filter(r => r.tipoInscricao === 'sabado');
     updateStats(allRegs);
     renderList(allRegs);
     renderVolList(allVols);
+    renderSabList(allSab);
   }
 
   const areaLabels = {
@@ -2198,7 +2560,7 @@
         const id = btn.getAttribute('data-delvol');
         await deleteFromSupabase(id);
         allVols = allVols.filter(r => r.id !== id);
-        try{ await saveRegistrations([...allRegs, ...allVols]); }catch(e){}
+        try{ await saveRegistrations([...allRegs, ...allVols, ...allSab]); }catch(e){}
         renderVolList(allVols);
       });
     });
@@ -2348,7 +2710,7 @@
         const id = btn.getAttribute('data-del');
         await deleteFromSupabase(id);
         allRegs = allRegs.filter(r => r.id !== id);
-        try{ await saveRegistrations([...allRegs, ...allVols]); }catch(e){}
+        try{ await saveRegistrations([...allRegs, ...allVols, ...allSab]); }catch(e){}
         updateStats(allRegs);
         renderList(allRegs);
       });
@@ -2365,18 +2727,16 @@
   });
   document.getElementById('refreshBtn').addEventListener('click', renderDashboard);
 
-  document.getElementById('tabBtnAdolescentes').addEventListener('click', () => {
-    document.getElementById('tabBtnAdolescentes').classList.add('is-active');
-    document.getElementById('tabBtnVoluntarios').classList.remove('is-active');
-    document.getElementById('tabAdolescentes').style.display = 'block';
-    document.getElementById('tabVoluntarios').style.display = 'none';
-  });
-  document.getElementById('tabBtnVoluntarios').addEventListener('click', () => {
-    document.getElementById('tabBtnVoluntarios').classList.add('is-active');
-    document.getElementById('tabBtnAdolescentes').classList.remove('is-active');
-    document.getElementById('tabVoluntarios').style.display = 'block';
-    document.getElementById('tabAdolescentes').style.display = 'none';
-  });
+  function mostrarAba(qual){
+    const abas = { adolescentes:['tabBtnAdolescentes','tabAdolescentes'], voluntarios:['tabBtnVoluntarios','tabVoluntarios'], sabado:['tabBtnSabado','tabSabado'] };
+    Object.keys(abas).forEach(k => {
+      document.getElementById(abas[k][0]).classList.toggle('is-active', k === qual);
+      document.getElementById(abas[k][1]).style.display = (k === qual) ? 'block' : 'none';
+    });
+  }
+  document.getElementById('tabBtnAdolescentes').addEventListener('click', () => mostrarAba('adolescentes'));
+  document.getElementById('tabBtnVoluntarios').addEventListener('click', () => mostrarAba('voluntarios'));
+  document.getElementById('tabBtnSabado').addEventListener('click', () => mostrarAba('sabado'));
 
   function gerarPdfBlob(){
     const { jsPDF } = window.jspdf;
