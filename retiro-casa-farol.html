@@ -410,6 +410,7 @@
   }
   .stat-row{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:22px;}
   .stat-row-3{grid-template-columns:repeat(3,1fr);}
+  .toolbar select{flex:1; min-width:150px; padding:11px 14px; border-radius:11px; border:2.5px solid var(--ink); font-family:'Manrope', sans-serif; font-weight:600; font-size:0.88rem; background:#fff;}
   .stat-row-4{grid-template-columns:repeat(4,1fr);}
   .stat-row-4 .stat-card .num{font-size:1.5rem;}
   .stat-card{padding:14px 12px; text-align:center; background:#fff;}
@@ -785,8 +786,8 @@
   <div class="next-overlay" id="sabOverlay">
     <div class="next-hero" style="background:#f3efe4;">
       <h1 class="sab-retiro"><span class="l1">retiro</span><span class="l2">adolescentes</span></h1>
-      <h2>Culto de sábado à noite</h2>
-      <p>Sábado, 24/10 · 20h · Sítio Comunhão Familiar (RS-115, em frente à Heineken). O culto é <b>sem custo</b>. Se quiser, dá pra garantir a janta e a camiseta.</p>
+      <h2>Cultos de sábado e domingo</h2>
+      <p>Sábado 24/10 às 20h e domingo 25/10 às 9h · Sítio Comunhão Familiar (RS-115, em frente à Heineken). Os cultos são <b>sem custo</b>. Se quiser, dá pra garantir as refeições e a camiseta.</p>
     </div>
 
     <div class="next-body">
@@ -815,27 +816,59 @@
             <input type="text" id="sabIgreja" placeholder="Nome da sua igreja">
           </div>
 
-          <div class="pix-card hard-sm" style="background:#e6ecd0;">
-            <div class="pix-title">🎶 Culto · 20h</div>
-            <div class="pix-note" style="margin-top:0;"><b>Sem custo.</b> Sua vaga no culto já está garantida com a inscrição.</div>
-          </div>
-
           <div class="field">
-            <label>🍝 Janta · 19h · R$20</label>
-            <div class="field-hint" style="font-size:0.78rem; color:var(--muted); font-weight:600; margin-bottom:6px;">Macarronada com molho de carne ou frango</div>
-            <div class="choice-row" data-field="sabJanta">
-              <div class="choice-opt hard-sm" data-value="sim">Quero a janta</div>
-              <div class="choice-opt hard-sm" data-value="nao">Não quero</div>
+            <label>Qual culto você vai?</label>
+            <div class="choice-row" data-field="sabCulto">
+              <div class="choice-opt hard-sm" data-value="sabado">Sábado à noite</div>
+              <div class="choice-opt hard-sm" data-value="domingo">Domingo de manhã</div>
+              <div class="choice-opt hard-sm" data-value="ambos" style="grid-column:1 / -1;">Os dois</div>
             </div>
           </div>
 
-          <div class="field" id="sabJantaBox" style="display:none;">
+          <div id="sabBlocoSabado" style="display:none;">
+            <div class="pix-card hard-sm" style="background:#e6ecd0;">
+              <div class="pix-title">Culto de sábado · 24/10 · 20h</div>
+              <div class="pix-note" style="margin-top:0;"><b>Sem custo.</b> Sua vaga no culto já está garantida com a inscrição.</div>
+            </div>
+            <div class="field">
+              <label>Janta · 19h · R$20</label>
+              <div class="field-hint" style="font-size:0.78rem; color:var(--muted); font-weight:600; margin-bottom:6px;">Macarronada com molho de carne ou frango</div>
+              <div class="choice-row" data-field="sabJanta">
+                <div class="choice-opt hard-sm" data-value="sim">Quero a janta</div>
+                <div class="choice-opt hard-sm" data-value="nao">Não quero</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="sabBlocoDomingo" style="display:none;">
+            <div class="pix-card hard-sm" style="background:#e6ecd0;">
+              <div class="pix-title">Culto de domingo · 25/10 · 9h</div>
+              <div class="pix-note" style="margin-top:0;"><b>Sem custo.</b> Sua vaga no culto já está garantida com a inscrição.</div>
+            </div>
+            <div class="field">
+              <label>Café da manhã · 8h · R$10</label>
+              <div class="choice-row" data-field="sabCafe">
+                <div class="choice-opt hard-sm" data-value="sim">Quero o café</div>
+                <div class="choice-opt hard-sm" data-value="nao">Não quero</div>
+              </div>
+            </div>
+            <div class="field">
+              <label>Almoço · 13h30 · R$20</label>
+              <div class="field-hint" style="font-size:0.78rem; color:var(--muted); font-weight:600; margin-bottom:6px;">Frango assado (coxas e sobrecoxas), arroz branco, maionese de batata, salada, refrigerante e água</div>
+              <div class="choice-row" data-field="sabAlmoco">
+                <div class="choice-opt hard-sm" data-value="sim">Quero o almoço</div>
+                <div class="choice-opt hard-sm" data-value="nao">Não quero</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field" id="sabRestricaoBox" style="display:none;">
             <label>Alergia ou restrição alimentar (se tiver)</label>
             <input type="text" id="sabRestricao" placeholder="Opcional">
           </div>
 
-          <div class="field">
-            <label>👕 Camiseta · R$30</label>
+          <div class="field" id="sabBlocoCamiseta" style="display:none;">
+            <label>Camiseta · R$30</label>
             <div class="choice-row" data-field="sabCamiseta">
               <div class="choice-opt hard-sm" data-value="sim">Quero a camiseta</div>
               <div class="choice-opt hard-sm" data-value="nao">Não quero</div>
@@ -861,12 +894,12 @@
               <div class="pix-row"><span>Chave (telefone)</span><b id="sabPixChaveTxt">(48) 98836-2228</b></div>
               <div class="pix-row"><span>Instituição</span><b>CC Litorânea</b></div>
               <button type="button" class="pix-copy-btn press" id="sabPixCopyBtn">Copiar chave Pix</button>
-              <div class="pix-note">Depois de pagar, envie o comprovante pra <b>líder Franciele</b> pelo WhatsApp. A janta e a camiseta são confirmadas com o pagamento.</div>
+              <div class="pix-note">Depois de pagar, envie o comprovante pra <b>líder Franciele</b> pelo WhatsApp. As refeições e a camiseta são confirmadas com o pagamento.</div>
             </div>
           </div>
 
           <div class="form-error" id="sabFormError" style="display:none;">Preencha os campos obrigatórios antes de enviar.</div>
-          <button type="submit" class="submit-btn press" id="sabSubmitBtn" style="margin-top:10px;">Confirmar presença no culto 🙌</button>
+          <button type="submit" class="submit-btn press" id="sabSubmitBtn" style="margin-top:10px;">Confirmar presença 🙌</button>
         </form>
       </div>
     </div>
@@ -1296,8 +1329,8 @@
       </div>
 
       <div class="except-link-card hard-sm">
-        <div class="except-link-title">Link do culto de sábado (só o culto)</div>
-        <p class="except-link-sub">Para os adolescentes que vão só no culto de sábado à noite. Sem custo; janta (R$20) e camiseta (R$30) opcionais.</p>
+        <div class="except-link-title">Link dos cultos de sábado e domingo</div>
+        <p class="except-link-sub">Para os adolescentes que vão só nos cultos (sábado à noite e/ou domingo de manhã). Culto sem custo; refeições e camiseta opcionais.</p>
         <input type="text" id="sabLinkOutput" readonly>
         <div class="except-link-row">
           <button type="button" id="sabCopiarBtn">Copiar link</button>
@@ -1317,17 +1350,22 @@
         <div class="stat-card hard-sm"><div class="num" id="statVolDorme">–</div><div class="lab">Voluntários que dormem</div></div>
       </div>
 
-      <div class="stat-group-label">Culto de sábado</div>
+      <div class="stat-group-label">Cultos de sábado e domingo</div>
       <div class="stat-row stat-row-3">
         <div class="stat-card hard-sm"><div class="num" id="statSabTotal">–</div><div class="lab">Inscritos</div></div>
+        <div class="stat-card hard-sm"><div class="num" id="statSabSab">–</div><div class="lab">Sábado</div></div>
+        <div class="stat-card hard-sm"><div class="num" id="statSabDom">–</div><div class="lab">Domingo</div></div>
+      </div>
+      <div class="stat-row stat-row-3">
         <div class="stat-card hard-sm"><div class="num" id="statSabJanta">–</div><div class="lab">Janta</div></div>
-        <div class="stat-card hard-sm"><div class="num" id="statSabCamiseta">–</div><div class="lab">Camisetas</div></div>
+        <div class="stat-card hard-sm"><div class="num" id="statSabCafe">–</div><div class="lab">Café</div></div>
+        <div class="stat-card hard-sm"><div class="num" id="statSabAlmoco">–</div><div class="lab">Almoço</div></div>
       </div>
 
       <div class="admin-tabs">
         <button type="button" class="admin-tab-btn is-active" id="tabBtnAdolescentes">🧑‍🎓 Adolescentes</button>
         <button type="button" class="admin-tab-btn" id="tabBtnVoluntarios">🙋 Voluntários</button>
-        <button type="button" class="admin-tab-btn" id="tabBtnSabado">Sábado</button>
+        <button type="button" class="admin-tab-btn" id="tabBtnSabado">Cultos</button>
       </div>
 
       <div class="admin-tab-panel" id="tabAdolescentes">
@@ -1351,7 +1389,7 @@
       </div>
 
       <div class="admin-tab-panel" id="tabSabado" style="display:none;">
-        <div class="stat-group-label">Camisetas por tamanho</div>
+        <div class="stat-group-label" id="sabCamisetasLabel">Camisetas por tamanho</div>
         <div class="stat-row stat-row-4">
           <div class="stat-card hard-sm"><div class="num" id="statSabP">–</div><div class="lab">P</div></div>
           <div class="stat-card hard-sm"><div class="num" id="statSabM">–</div><div class="lab">M</div></div>
@@ -1365,7 +1403,13 @@
         </div>
         <div class="toolbar">
           <input type="text" id="searchSabBox" placeholder="Buscar por nome...">
-          <button id="exportSabPdfBtn">Exportar PDF</button>
+          <select id="sabFiltroDia">
+            <option value="todos">Sábado e domingo</option>
+            <option value="sabado">Só sábado</option>
+            <option value="domingo">Só domingo</option>
+          </select>
+          <button id="exportSabPdfBtn">PDF sábado</button>
+          <button id="exportDomPdfBtn">PDF domingo</button>
           <button id="refreshSabBtn">Atualizar</button>
         </div>
         <div class="reg-list" id="sabList">
@@ -2201,14 +2245,19 @@
     }
   });
 
-  // ---------- culto de sábado (?sabado=1) ----------
-  const SAB_PRECO_JANTA = 20, SAB_PRECO_CAMISETA = 30;
+  // ---------- cultos de sábado e domingo (?sabado=1) ----------
+  const SAB_PRECO = { janta:20, cafe:10, almoco:20, camiseta:30 };
   function sabCalculo(){
-    const janta = choiceValues.sabJanta === 'sim';
-    const camiseta = choiceValues.sabCamiseta === 'sim';
+    const culto = choiceValues.sabCulto || '';
+    const sab = culto === 'sabado' || culto === 'ambos';
+    const dom = culto === 'domingo' || culto === 'ambos';
+    const janta = sab && choiceValues.sabJanta === 'sim';
+    const cafe = dom && choiceValues.sabCafe === 'sim';
+    const almoco = dom && choiceValues.sabAlmoco === 'sim';
+    const camiseta = !!culto && choiceValues.sabCamiseta === 'sim';
     const tam = choiceValues.sabTamanho || '';
-    const total = (janta ? SAB_PRECO_JANTA : 0) + (camiseta ? SAB_PRECO_CAMISETA : 0);
-    return { janta, camiseta, tam, total };
+    const total = (janta ? SAB_PRECO.janta : 0) + (cafe ? SAB_PRECO.cafe : 0) + (almoco ? SAB_PRECO.almoco : 0) + (camiseta ? SAB_PRECO.camiseta : 0);
+    return { culto, sab, dom, janta, cafe, almoco, camiseta, tam, total };
   }
   function atualizarSabado(){
     const box = document.getElementById('sabResumo');
@@ -2216,17 +2265,32 @@
     const c = sabCalculo();
     document.getElementById('sabFormError').style.display = 'none';
     document.getElementById('sabIgrejaBox').style.display = (choiceValues.sabCongrega === 'nao') ? 'block' : 'none';
-    document.getElementById('sabJantaBox').style.display = c.janta ? 'block' : 'none';
+    document.getElementById('sabBlocoSabado').style.display = c.sab ? 'block' : 'none';
+    document.getElementById('sabBlocoDomingo').style.display = c.dom ? 'block' : 'none';
+    document.getElementById('sabBlocoCamiseta').style.display = c.culto ? 'block' : 'none';
+    document.getElementById('sabRestricaoBox').style.display = (c.janta || c.cafe || c.almoco) ? 'block' : 'none';
     document.getElementById('sabTamanhoBox').style.display = c.camiseta ? 'block' : 'none';
-    const escolheu = choiceValues.sabJanta || choiceValues.sabCamiseta;
-    box.style.display = escolheu ? 'block' : 'none';
+    box.style.display = c.culto ? 'block' : 'none';
     const linha = (t, v) => `<div class="pix-row"><span>${t}</span><b>${v}</b></div>`;
     document.getElementById('sabResumoLinhas').innerHTML =
-      linha('🎶 Culto · 20h', 'Sem custo') +
-      (c.janta ? linha('🍝 Janta · 19h', 'R$20') : '') +
-      (c.camiseta ? linha('👕 Camiseta' + (c.tam ? ' (' + c.tam + ')' : ''), 'R$30') : '') +
+      (c.sab ? linha('Culto de sábado · 20h', 'Sem custo') : '') +
+      (c.janta ? linha('Janta · 19h', 'R$20') : '') +
+      (c.dom ? linha('Culto de domingo · 9h', 'Sem custo') : '') +
+      (c.cafe ? linha('Café da manhã · 8h', 'R$10') : '') +
+      (c.almoco ? linha('Almoço · 13h30', 'R$20') : '') +
+      (c.camiseta ? linha('Camiseta' + (c.tam ? ' (' + c.tam + ')' : ''), 'R$30') : '') +
       linha('Total a pagar', c.total > 0 ? 'R$' + c.total : 'R$0 — sem custo');
     document.getElementById('sabPixBlock').style.display = c.total > 0 ? 'block' : 'none';
+  }
+  function sabItensTexto(c){
+    const t = [];
+    if(c.sab) t.push('Culto de sábado · 24/10 · 20h');
+    if(c.janta) t.push('janta às 19h (R$20)');
+    if(c.dom) t.push('Culto de domingo · 25/10 · 9h');
+    if(c.cafe) t.push('café da manhã às 8h (R$10)');
+    if(c.almoco) t.push('almoço às 13h30 (R$20)');
+    if(c.camiseta) t.push('camiseta ' + c.tam + ' (R$30)');
+    return t;
   }
 
   document.getElementById('sabPixCopyBtn').addEventListener('click', () => {
@@ -2246,12 +2310,18 @@
     e.preventDefault();
     const nome = document.getElementById('sabNome').value.trim();
     const tel = document.getElementById('sabTel').value.trim();
-    const c = sabCalculo();
-    const faltaTamanho = c.camiseta && !c.tam;
     const igreja = document.getElementById('sabIgreja').value.trim();
-    const faltaIgreja = choiceValues.sabCongrega === 'nao' && !igreja;
-    if(!nome || !tel || !choiceValues.sabCongrega || !choiceValues.sabJanta || !choiceValues.sabCamiseta || faltaTamanho || faltaIgreja){
-      sabFormError.textContent = faltaTamanho ? 'Escolha o tamanho da camiseta.' : (faltaIgreja ? 'Escreva o nome da sua igreja.' : 'Preencha os campos obrigatórios antes de enviar.');
+    const c = sabCalculo();
+    let erro = '';
+    if(!nome || !tel || !choiceValues.sabCongrega || !c.culto) erro = 'Preencha os campos obrigatórios antes de enviar.';
+    else if(choiceValues.sabCongrega === 'nao' && !igreja) erro = 'Escreva o nome da sua igreja.';
+    else if(c.sab && !choiceValues.sabJanta) erro = 'Escolha se quer a janta de sábado.';
+    else if(c.dom && !choiceValues.sabCafe) erro = 'Escolha se quer o café da manhã de domingo.';
+    else if(c.dom && !choiceValues.sabAlmoco) erro = 'Escolha se quer o almoço de domingo.';
+    else if(!choiceValues.sabCamiseta) erro = 'Escolha se quer a camiseta.';
+    else if(c.camiseta && !c.tam) erro = 'Escolha o tamanho da camiseta.';
+    if(erro){
+      sabFormError.textContent = erro;
       sabFormError.style.display = 'block';
       sabFormError.scrollIntoView({behavior:'smooth', block:'center'});
       return;
@@ -2261,14 +2331,18 @@
     sabSubmitBtn.textContent = 'Enviando...';
 
     const ticket = 'SAB-' + Math.floor(1000 + Math.random()*9000);
+    const comida = c.janta || c.cafe || c.almoco;
     const record = {
       tipoInscricao: 'sabado',
+      cultos: c.culto,
       nome: nome,
       telAdolescente: tel,
       congregaCasaFarol: choiceValues.sabCongrega,
       igrejaOutra: choiceValues.sabCongrega === 'nao' ? igreja : '',
       janta: c.janta ? 'sim' : 'nao',
-      restricaoJanta: c.janta ? document.getElementById('sabRestricao').value.trim() : '',
+      cafe: c.cafe ? 'sim' : 'nao',
+      almoco: c.almoco ? 'sim' : 'nao',
+      restricaoAlimentar: comida ? document.getElementById('sabRestricao').value.trim() : '',
       camiseta: c.camiseta ? 'sim' : 'nao',
       tamanhoCamiseta: c.camiseta ? c.tam : '',
       totalPagar: c.total,
@@ -2289,23 +2363,27 @@
       }
       if(!supabaseId && !storageOk) throw new Error('Nenhum destino de envio funcionou');
 
-      const resumoTxt = ['Culto de sábado · 24/10 · 20h'];
-      if(c.janta) resumoTxt.push('janta às 19h (R$20)');
-      if(c.camiseta) resumoTxt.push('camiseta ' + c.tam + ' (R$30)');
-      document.getElementById('sabNextResumo').textContent = resumoTxt.join(' · ') + (c.total > 0 ? ' — total R$' + c.total + '.' : ' — sem custo.');
+      document.getElementById('sabNextResumo').textContent = sabItensTexto(c).join(' · ') + (c.total > 0 ? ' — total R$' + c.total + '.' : ' — sem custo.');
       document.getElementById('sabNextTicketId').textContent = 'Nº ' + ticket;
 
-      const linhas = [
-        '*PRESENÇA CONFIRMADA!* 🎉', '',
-        '*Culto de sábado à noite*', '📅 Sábado, 24/10 · 20h',
-        '📍 Sítio Comunhão Familiar — RS-115, em frente à Heineken', ''
-      ];
-      if(c.janta) linhas.push('🍝 *Janta às 19h* — macarronada com molho de carne ou frango (R$20)');
-      if(c.camiseta) linhas.push('👕 *Camiseta tamanho ' + c.tam + '* (R$30)');
+      const linhas = ['*PRESENÇA CONFIRMADA!* 🎉', ''];
+      if(c.sab){
+        linhas.push('*Culto de sábado à noite* — 24/10 · 20h');
+        if(c.janta) linhas.push('🍝 Janta às 19h — macarronada com molho de carne ou frango (R$20)');
+        linhas.push('');
+      }
+      if(c.dom){
+        linhas.push('*Culto de domingo de manhã* — 25/10 · 9h');
+        if(c.cafe) linhas.push('☕ Café da manhã às 8h (R$10)');
+        if(c.almoco) linhas.push('🍗 Almoço às 13h30 — frango assado, arroz, maionese de batata, salada, refri e água (R$20)');
+        linhas.push('');
+      }
+      if(c.camiseta) linhas.push('👕 *Camiseta tamanho ' + c.tam + '* (R$30)', '');
+      linhas.push('📍 Sítio Comunhão Familiar — RS-115, em frente à Heineken');
       if(c.total > 0){
         linhas.push('', '💰 *Total: R$' + c.total + '*', 'Pix (telefone): (48) 98836-2228 — Franciele Bariviera (CC Litorânea)', 'Depois de pagar, envie o comprovante pra líder Franciele. 🙏🏻');
       }else{
-        linhas.push('💛 O culto é *sem custo* — é só chegar!');
+        linhas.push('', '💛 O culto é *sem custo* — é só chegar!');
       }
       linhas.push('', 'Te esperamos! Chama um amigo pra ir junto 🔥');
       const telRaw = tel.replace(/\D/g, '');
@@ -2314,7 +2392,9 @@
       document.getElementById('sabSendWhatsappBtn').onclick = () => window.open(waPhone ? ('https://wa.me/' + waPhone + '?text=' + waMsg) : ('https://wa.me/?text=' + waMsg), '_blank');
       const btnComp = document.getElementById('sabComprovanteBtn');
       if(c.total > 0){
-        const msgComp = encodeURIComponent('Oi Franciele! Segue o comprovante do Pix do culto de sábado.\nNome: ' + nome + '\n' + (c.janta ? 'Janta: R$20\n' : '') + (c.camiseta ? 'Camiseta ' + c.tam + ': R$30\n' : '') + 'Total: R$' + c.total + '\nTicket: ' + ticket);
+        const itens = [];
+        if(c.janta) itens.push('Janta: R$20'); if(c.cafe) itens.push('Café: R$10'); if(c.almoco) itens.push('Almoço: R$20'); if(c.camiseta) itens.push('Camiseta ' + c.tam + ': R$30');
+        const msgComp = encodeURIComponent('Oi Franciele! Segue o comprovante do Pix dos cultos de sábado/domingo.\nNome: ' + nome + '\n' + itens.join('\n') + '\nTotal: R$' + c.total + '\nTicket: ' + ticket);
         btnComp.style.display = 'flex';
         btnComp.onclick = () => window.open('https://wa.me/5548988362228?text=' + msgComp, '_blank');
       }else{
@@ -2323,27 +2403,39 @@
 
       sabForm.reset();
       document.querySelectorAll('[data-field^="sab"] .choice-opt').forEach(o => o.classList.remove('selected'));
-      ['sabCongrega','sabJanta','sabCamiseta','sabTamanho'].forEach(k => delete choiceValues[k]);
+      ['sabCongrega','sabCulto','sabJanta','sabCafe','sabAlmoco','sabCamiseta','sabTamanho'].forEach(k => delete choiceValues[k]);
       atualizarSabado();
       sabSubmitBtn.disabled = false;
-      sabSubmitBtn.textContent = 'Confirmar presença no culto 🙌';
+      sabSubmitBtn.textContent = 'Confirmar presença 🙌';
       document.getElementById('sabNextOverlay').classList.add('active');
       window.scrollTo(0,0);
     }catch(err){
-      console.error('Erro ao enviar inscrição do culto de sábado:', err);
+      console.error('Erro ao enviar inscrição dos cultos:', err);
       sabFormError.textContent = 'Não foi possível enviar agora. Verifique sua internet e tente de novo em alguns segundos.';
       sabFormError.style.display = 'block';
       sabSubmitBtn.disabled = false;
-      sabSubmitBtn.textContent = 'Confirmar presença no culto 🙌';
+      sabSubmitBtn.textContent = 'Confirmar presença 🙌';
     }
   });
 
-  // painel da liderança: lista do culto de sábado
+  // ---------- painel da liderança: cultos de sábado e domingo ----------
+  const sabVaiSabado = r => (r.cultos || 'sabado') !== 'domingo';   // inscrições antigas = só sábado
+  const sabVaiDomingo = r => (r.cultos || 'sabado') !== 'sabado';
+  const sabCultoTxt = r => (sabVaiSabado(r) && sabVaiDomingo(r)) ? 'Sábado e domingo' : (sabVaiDomingo(r) ? 'Domingo' : 'Sábado');
+  function sabFiltrarDia(list, dia){
+    if(dia === 'sabado') return list.filter(sabVaiSabado);
+    if(dia === 'domingo') return list.filter(sabVaiDomingo);
+    return list;
+  }
   function sabResumo(list){
     const camisas = list.filter(r => r.camiseta === 'sim');
     return {
       total: list.length,
+      vaoSab: list.filter(sabVaiSabado).length,
+      vaoDom: list.filter(sabVaiDomingo).length,
       jantas: list.filter(r => r.janta === 'sim').length,
+      cafes: list.filter(r => r.cafe === 'sim').length,
+      almocos: list.filter(r => r.almoco === 'sim').length,
       camisetas: camisas.length,
       porTam: ['P','M','G','GG'].reduce((o, t) => (o[t] = camisas.filter(r => r.tamanhoCamiseta === t).length, o), {}),
       aReceber: list.reduce((a, r) => a + (Number(r.totalPagar) || 0), 0),
@@ -2352,41 +2444,50 @@
   }
   function updateSabStats(){
     const r = sabResumo(allSab);
-    document.getElementById('statSabTotal').textContent = r.total;
-    document.getElementById('statSabJanta').textContent = r.jantas;
-    document.getElementById('statSabCamiseta').textContent = r.camisetas;
-    ['P','M','G','GG'].forEach(t => { document.getElementById('statSab' + t).textContent = r.porTam[t]; });
-    document.getElementById('statSabReceber').textContent = 'R$' + r.aReceber;
-    document.getElementById('statSabRecebido').textContent = 'R$' + r.recebido;
+    const set = (id, v) => { document.getElementById(id).textContent = v; };
+    set('statSabTotal', r.total); set('statSabSab', r.vaoSab); set('statSabDom', r.vaoDom);
+    set('statSabJanta', r.jantas); set('statSabCafe', r.cafes); set('statSabAlmoco', r.almocos);
+    ['P','M','G','GG'].forEach(t => set('statSab' + t, r.porTam[t]));
+    set('statSabReceber', 'R$' + r.aReceber); set('statSabRecebido', 'R$' + r.recebido);
+    document.getElementById('sabCamisetasLabel').textContent = 'Camisetas por tamanho (' + r.camisetas + ' no total)';
+  }
+  function sabListaFiltrada(){
+    const q = (document.getElementById('searchSabBox').value || '').toLowerCase();
+    const dia = document.getElementById('sabFiltroDia').value;
+    return sabFiltrarDia(allSab, dia).filter(r => (r.nome || '').toLowerCase().includes(q));
   }
   function atualizarSab(){
     updateSabStats();
-    const q = (document.getElementById('searchSabBox').value || '').toLowerCase();
-    renderSabList(allSab.filter(r => (r.nome || '').toLowerCase().includes(q)));
+    renderSabList(sabListaFiltrada());
   }
   function renderSabList(list){
     const box = document.getElementById('sabList');
     if(!box) return;
     if(list.length === 0){
-      box.innerHTML = '<div class="empty-state">' + (allSab.length ? 'Nenhum nome encontrado.' : 'Nenhuma inscrição para o culto de sábado ainda.') + '</div>';
+      box.innerHTML = '<div class="empty-state">' + (allSab.length ? 'Nenhum nome encontrado.' : 'Nenhuma inscrição para os cultos ainda.') + '</div>';
       return;
     }
     const sorted = [...list].sort((a,b) => new Date(b.criadoEm) - new Date(a.criadoEm));
     box.innerHTML = sorted.map(r => {
       const paga = r.statusPagamentoSab === 'pago';
       const temCusto = Number(r.totalPagar) > 0;
+      const restricao = r.restricaoAlimentar || r.restricaoJanta || '';
+      const sim = v => v === 'sim' ? 'Sim' : 'Não';
       return `
       <div class="reg-card" data-id="${r.id}">
         <div class="top"><div class="nm">${escapeHtml(r.nome)}</div></div>
         <div class="status-pill ${temCusto ? 'st-pending' : 'st-ok'}">${temCusto ? 'R$' + r.totalPagar : 'Sem custo'}</div>
         <div class="meta-grid">
           <div class="meta-item"><span class="meta-lab">WhatsApp</span><span class="meta-val">${escapeHtml(r.telAdolescente || '-')}</span></div>
+          <div class="meta-item"><span class="meta-lab">Culto</span><span class="meta-val">${sabCultoTxt(r)}</span></div>
           <div class="meta-item"><span class="meta-lab">Congrega na Casa Farol</span><span class="meta-val">${r.congregaCasaFarol === 'sim' ? 'Sim' : 'Não' + (r.igrejaOutra ? ' — ' + escapeHtml(r.igrejaOutra) : '')}</span></div>
-          <div class="meta-item"><span class="meta-lab">Janta (R$20)</span><span class="meta-val">${r.janta === 'sim' ? 'Sim' : 'Não'}</span></div>
           <div class="meta-item"><span class="meta-lab">Camiseta (R$30)</span><span class="meta-val">${r.camiseta === 'sim' ? 'Tam. ' + escapeHtml(r.tamanhoCamiseta) : 'Não'}</span></div>
+          ${sabVaiSabado(r) ? `<div class="meta-item"><span class="meta-lab">Janta sáb. (R$20)</span><span class="meta-val">${sim(r.janta)}</span></div>` : ''}
+          ${sabVaiDomingo(r) ? `<div class="meta-item"><span class="meta-lab">Café dom. (R$10)</span><span class="meta-val">${sim(r.cafe)}</span></div>
+          <div class="meta-item"><span class="meta-lab">Almoço dom. (R$20)</span><span class="meta-val">${sim(r.almoco)}</span></div>` : ''}
           <div class="meta-item meta-item-wide"><span class="meta-lab">Ticket</span><span class="meta-val">${escapeHtml(r.ticket)} · ${new Date(r.criadoEm).toLocaleDateString('pt-BR')}</span></div>
         </div>
-        ${r.restricaoJanta ? `<div class="attn-box">ℹ ${escapeHtml(r.restricaoJanta)}</div>` : ''}
+        ${restricao ? `<div class="attn-box">ℹ ${escapeHtml(restricao)}</div>` : ''}
         ${temCusto ? `
         <div class="pay-status-box">
           <div class="pay-status-top">
@@ -2422,7 +2523,7 @@
     });
     box.querySelectorAll('[data-delsab]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        if(!confirm('Remover esta inscrição do culto de sábado?')) return;
+        if(!confirm('Remover esta inscrição?')) return;
         const id = btn.getAttribute('data-delsab');
         await deleteFromSupabase(id);
         allSab = allSab.filter(r => r.id !== id);
@@ -3065,11 +3166,12 @@
     }
   });
 
-  // ---------- PDF do culto de sábado (separado) ----------
+  // ---------- PDF dos cultos (sábado e/ou domingo) ----------
   document.getElementById('searchSabBox').addEventListener('input', atualizarSab);
+  document.getElementById('sabFiltroDia').addEventListener('change', atualizarSab);
   document.getElementById('refreshSabBtn').addEventListener('click', renderDashboard);
 
-  function gerarSabPdfBlob(){
+  function gerarSabPdfBlob(lista, dia){
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({unit:'mm', format:'a4'});
     const pageW = doc.internal.pageSize.getWidth();
@@ -3077,9 +3179,12 @@
     const marginX = 14;
     let y = 18;
 
-    const simNaoPdf = v => v === 'sim' ? 'Sim' : (v === 'nao' ? 'Não' : '-');
-    const sorted = [...allSab].sort((a,b) => (a.nome || '').localeCompare(b.nome || '', 'pt-BR'));
-    const res = sabResumo(allSab);
+    const sorted = [...lista].sort((a,b) => (a.nome || '').localeCompare(b.nome || '', 'pt-BR'));
+    const res = sabResumo(sorted);
+    const titulo = dia === 'sabado' ? 'Culto de sábado à noite — Retiro Casa Farol'
+                 : dia === 'domingo' ? 'Culto de domingo de manhã — Retiro Casa Farol'
+                 : 'Cultos de sábado e domingo — Retiro Casa Farol';
+    const quando = dia === 'sabado' ? 'Sábado, 24/10 · 20h' : (dia === 'domingo' ? 'Domingo, 25/10 · 9h' : 'Sábado 24/10 · 20h  e  domingo 25/10 · 9h');
 
     function checkPageBreak(altura){
       if(y + altura > pageH - 14){ doc.addPage(); y = 18; }
@@ -3094,31 +3199,47 @@
     }
 
     doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(20,20,26);
-    doc.text('Culto de sábado à noite — Retiro Casa Farol', marginX, y);
+    doc.text(titulo, marginX, y);
     y += 6;
     doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(90,90,97);
-    doc.text('Sábado, 24/10 · 20h · Gerado em ' + new Date().toLocaleString('pt-BR') + ' · ' + sorted.length + ' inscrito(s)', marginX, y);
+    doc.text(quando + ' · Gerado em ' + new Date().toLocaleString('pt-BR') + ' · ' + sorted.length + ' inscrito(s)', marginX, y);
     y += 8;
 
-    // resumo
+    const refeicoes = [];
+    if(dia !== 'domingo') refeicoes.push('Janta (R$20): ' + res.jantas);
+    if(dia !== 'sabado') refeicoes.push('Café (R$10): ' + res.cafes, 'Almoço (R$20): ' + res.almocos);
     const linhasResumo = [
-      'Inscritos: ' + res.total + '   ·   Janta (R$20): ' + res.jantas + '   ·   Camisetas (R$30): ' + res.camisetas,
+      'Inscritos: ' + res.total + (dia === 'todos' ? '   ·   Sábado: ' + res.vaoSab + '   ·   Domingo: ' + res.vaoDom : ''),
+      refeicoes.join('   ·   ') + '   ·   Camisetas (R$30): ' + res.camisetas,
       'Camisetas por tamanho:  P: ' + res.porTam.P + '   M: ' + res.porTam.M + '   G: ' + res.porTam.G + '   GG: ' + res.porTam.GG,
-      'Total a receber: R$' + res.aReceber + '   ·   Já pago: R$' + res.recebido + '   ·   Pendente: R$' + (res.aReceber - res.recebido)
+      dia === 'todos'
+        ? 'Total a receber: R$' + res.aReceber + '   ·   Já pago: R$' + res.recebido + '   ·   Pendente: R$' + (res.aReceber - res.recebido)
+        : 'Quem vai nos dois cultos aparece nos dois relatórios. O pagamento de cada pessoa é o total da inscrição.'
     ];
     doc.setFillColor(243, 239, 228);
-    doc.roundedRect(marginX, y, pageW - marginX*2, 22, 2, 2, 'F');
+    doc.roundedRect(marginX, y, pageW - marginX*2, 28, 2, 2, 'F');
     doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); doc.setTextColor(20,20,26);
-    linhasResumo.forEach((t, i) => doc.text(t, marginX + 4, y + 7 + i*6));
-    y += 30;
+    linhasResumo.forEach((t, i) => {
+      if(i === 3 && dia !== 'todos'){ doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(90,90,97); }
+      doc.text(t, marginX + 4, y + 7 + i*6);
+    });
+    y += 36;
 
     const colW = (pageW - marginX*2 - 6) / 2;
+    const simNao = v => v === 'sim' ? 'Sim' : 'Não';
     sorted.forEach(r => {
       const temCusto = Number(r.totalPagar) > 0;
       const pagamento = !temCusto ? 'Sem custo' : (r.statusPagamentoSab === 'pago' ? 'Pago (R$' + r.totalPagar + ')' : 'Pendente (R$' + r.totalPagar + ')');
       const congrega = r.congregaCasaFarol === 'sim' ? 'Sim' : ('Não' + (r.igrejaOutra ? ' — ' + r.igrejaOutra : ''));
+      const comidas = [];
+      if(dia !== 'domingo' && sabVaiSabado(r)) comidas.push('Janta: ' + simNao(r.janta));
+      if(dia !== 'sabado' && sabVaiDomingo(r)) comidas.push('Café: ' + simNao(r.cafe), 'Almoço: ' + simNao(r.almoco));
+      const ambos = sabVaiSabado(r) && sabVaiDomingo(r);
+      const cultoTxt = dia === 'todos' ? sabCultoTxt(r)
+        : (dia === 'sabado' ? 'Sábado' : 'Domingo') + (ambos ? ' (também vai no ' + (dia === 'sabado' ? 'domingo' : 'sábado') + ')' : '');
+      const restricao = r.restricaoAlimentar || r.restricaoJanta || '';
 
-      checkPageBreak(50);
+      checkPageBreak(56);
       const cardTop = y;
       doc.setDrawColor(20,20,26); doc.setLineWidth(0.4);
 
@@ -3134,16 +3255,19 @@
       l2 = linha('CONGREGA NA CASA FAROL', congrega, marginX + 8 + colW, colW);
       y += 4 + Math.max(l1, l2) * 4 + 3;
 
-      l1 = linha('JANTA (R$20)', simNaoPdf(r.janta), marginX + 4, colW);
+      l1 = linha('CULTO', cultoTxt, marginX + 4, colW);
       l2 = linha('CAMISETA (R$30)', r.camiseta === 'sim' ? 'Tamanho ' + r.tamanhoCamiseta : 'Não', marginX + 8 + colW, colW);
       y += 4 + Math.max(l1, l2) * 4 + 3;
 
-      l1 = linha('PAGAMENTO', pagamento, marginX + 4, colW*2 + 4);
+      l1 = linha('REFEIÇÕES', comidas.join('   ·   '), marginX + 4, colW*2 + 4);
       y += 4 + l1 * 4 + 3;
 
-      if(r.restricaoJanta){
+      l1 = linha(dia === 'todos' ? 'PAGAMENTO' : 'PAGAMENTO (total da inscrição)', pagamento, marginX + 4, colW*2 + 4);
+      y += 4 + l1 * 4 + 3;
+
+      if(restricao){
         doc.setFillColor(255, 225, 201);
-        const alertaTexto = doc.splitTextToSize('Alergia/restrição alimentar: ' + r.restricaoJanta, colW*2 + 4 - 6);
+        const alertaTexto = doc.splitTextToSize('Alergia/restrição alimentar: ' + restricao, colW*2 + 4 - 6);
         const alertaAltura = alertaTexto.length * 4 + 4;
         doc.roundedRect(marginX + 4, y, colW*2 + 4, alertaAltura, 1.5, 1.5, 'F');
         doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(161, 61, 0);
@@ -3158,19 +3282,20 @@
     return doc.output('blob');
   }
 
-  document.getElementById('exportSabPdfBtn').addEventListener('click', async () => {
-    if(allSab.length === 0){ alert('Ainda não há inscrições para o culto de sábado.'); return; }
-    const btn = document.getElementById('exportSabPdfBtn');
+  async function exportarCultosPdf(dia, btn){
+    const lista = sabFiltrarDia(allSab, dia);
+    if(lista.length === 0){ alert('Ainda não há inscrições para ' + (dia === 'sabado' ? 'o culto de sábado.' : 'o culto de domingo.')); return; }
     btn.disabled = true;
     const textoOriginal = btn.textContent;
     btn.textContent = 'Gerando...';
     try{
-      const blob = gerarSabPdfBlob();
-      const nomeArquivo = 'culto-sabado-retiro-casa-farol.pdf';
+      const blob = gerarSabPdfBlob(lista, dia);
+      const nomeArquivo = dia === 'sabado' ? 'culto-sabado-retiro-casa-farol.pdf' : 'culto-domingo-retiro-casa-farol.pdf';
+      const nomeDia = dia === 'sabado' ? 'sábado à noite' : 'domingo de manhã';
       const file = new File([blob], nomeArquivo, {type: 'application/pdf'});
       if(navigator.canShare && navigator.canShare({files: [file]})){
         try{
-          await navigator.share({ files: [file], title: 'Culto de sábado — Retiro Casa Farol', text: 'Segue o relatório do culto de sábado à noite do Retiro Casa Farol.' });
+          await navigator.share({ files: [file], title: 'Culto de ' + nomeDia + ' — Retiro Casa Farol', text: 'Segue o relatório do culto de ' + nomeDia + ' do Retiro Casa Farol.' });
         }catch(shareErr){
           if(shareErr.name !== 'AbortError') console.error('Erro ao compartilhar:', shareErr);
         }
@@ -3179,17 +3304,19 @@
         const a = document.createElement('a');
         a.href = url; a.download = nomeArquivo; a.click();
         URL.revokeObjectURL(url);
-        window.open('https://wa.me/?text=' + encodeURIComponent('Segue o relatório do culto de sábado do Retiro Casa Farol em PDF — é só anexar o arquivo que acabou de baixar 📎'), '_blank');
+        window.open('https://wa.me/?text=' + encodeURIComponent('Segue o relatório do culto de ' + nomeDia + ' do Retiro Casa Farol em PDF — é só anexar o arquivo que acabou de baixar 📎'), '_blank');
         alert('Seu navegador não permite anexar automaticamente. O PDF foi baixado e o WhatsApp abriu — só anexar o arquivo baixado na conversa.');
       }
     }catch(err){
-      console.error('Erro ao gerar PDF do culto de sábado:', err);
+      console.error('Erro ao gerar PDF dos cultos:', err);
       alert('Não foi possível gerar o PDF agora. Tenta de novo em instantes.');
     }finally{
       btn.disabled = false;
       btn.textContent = textoOriginal;
     }
-  });
+  }
+  document.getElementById('exportSabPdfBtn').addEventListener('click', e => exportarCultosPdf('sabado', e.currentTarget));
+  document.getElementById('exportDomPdfBtn').addEventListener('click', e => exportarCultosPdf('domingo', e.currentTarget));
 </script>
 </body>
 </html>
