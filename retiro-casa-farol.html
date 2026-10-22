@@ -560,6 +560,12 @@
   .sab-retiro{font-size:clamp(2.6rem, 12vw, 3.9rem); margin:0 0 18px; text-align:center;}
   .sab-retiro .l1{display:block;}
   .sab-retiro .l2{display:block; color:var(--paper); -webkit-text-stroke:2.5px var(--ink); text-shadow:4px 4px 0 var(--violet); font-size:clamp(1.5rem, 7.4vw, 2.9rem); white-space:nowrap;}
+  .sab-edit label{display:block; font-family:'Space Grotesk', sans-serif; font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted); margin:12px 0 4px;}
+  .sab-edit input, .sab-edit select{width:100%; box-sizing:border-box; padding:11px 12px; border-radius:11px; border:2.5px solid var(--ink); font-family:'Manrope', sans-serif; font-weight:600; font-size:0.92rem; background:#fff;}
+  .sab-edit-total{margin-top:14px; padding:10px 12px; background:#f3efe4; border-radius:11px; font-weight:800; font-size:0.9rem;}
+  .sab-edit-btns{display:flex; gap:10px; margin-top:16px;}
+  .sab-edit-btns button{flex:1; padding:12px; border-radius:11px; border:2.5px solid var(--ink); background:#fff; font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:0.85rem; cursor:pointer; color:var(--ink);}
+  .sab-edit-btns .ed-salvar{background:var(--ink); color:#fff;}
 </style>
 </head>
 <body>
@@ -2500,7 +2506,8 @@
           </div>
           <div class="pay-status-note">Uso interno da liderança</div>
         </div>` : ''}
-        <div class="card-footer-row" style="justify-content:flex-end;">
+        <div class="card-footer-row" style="justify-content:flex-end; gap:18px;">
+          <button class="del" data-editsab="${r.id}">Editar</button>
           <button class="del" data-delsab="${r.id}">Remover</button>
         </div>
       </div>`;
@@ -2521,6 +2528,12 @@
         else alert('Não foi possível salvar agora. Tenta de novo em instantes.');
       });
     });
+    box.querySelectorAll('[data-editsab]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const reg = allSab.find(r => r.id === btn.getAttribute('data-editsab'));
+        if(reg) abrirEditorSab(reg, btn.closest('.reg-card'));
+      });
+    });
     box.querySelectorAll('[data-delsab]').forEach(btn => {
       btn.addEventListener('click', async () => {
         if(!confirm('Remover esta inscrição?')) return;
@@ -2529,6 +2542,106 @@
         allSab = allSab.filter(r => r.id !== id);
         atualizarSab();
       });
+    });
+  }
+
+  // editar uma inscrição dos cultos (liderança)
+  function abrirEditorSab(reg, card){
+    const culto0 = reg.cultos || 'sabado';
+    const sn = (v) => `<option value="sim"${v === 'sim' ? ' selected' : ''}>Sim</option><option value="nao"${v !== 'sim' ? ' selected' : ''}>Não</option>`;
+    card.innerHTML = `
+      <div class="sab-edit">
+        <div class="nm" style="margin-bottom:10px;">Editar inscrição <span style="font-weight:600; color:var(--muted); font-size:0.8rem;">· ${escapeHtml(reg.ticket || '')}</span></div>
+        <label>Nome completo</label><input type="text" id="edNome" value="${escapeHtml(reg.nome || '')}">
+        <label>WhatsApp</label><input type="tel" id="edTel" value="${escapeHtml(reg.telAdolescente || '')}">
+        <label>Congrega na Casa Farol?</label><select id="edCongrega">${sn(reg.congregaCasaFarol)}</select>
+        <div id="edIgrejaBox"><label>Qual é a igreja?</label><input type="text" id="edIgreja" value="${escapeHtml(reg.igrejaOutra || '')}"></div>
+        <label>Culto</label>
+        <select id="edCulto">
+          <option value="sabado"${culto0 === 'sabado' ? ' selected' : ''}>Sábado à noite</option>
+          <option value="domingo"${culto0 === 'domingo' ? ' selected' : ''}>Domingo de manhã</option>
+          <option value="ambos"${culto0 === 'ambos' ? ' selected' : ''}>Sábado e domingo</option>
+        </select>
+        <div id="edSabBox"><label>Janta de sábado (R$20)</label><select id="edJanta">${sn(reg.janta)}</select></div>
+        <div id="edDomBox">
+          <label>Café da manhã de domingo (R$10)</label><select id="edCafe">${sn(reg.cafe)}</select>
+          <label>Almoço de domingo (R$20)</label><select id="edAlmoco">${sn(reg.almoco)}</select>
+        </div>
+        <label>Camiseta (R$30)</label><select id="edCamiseta">${sn(reg.camiseta)}</select>
+        <div id="edTamBox"><label>Tamanho</label>
+          <select id="edTam">${['P','M','G','GG'].map(t => `<option value="${t}"${reg.tamanhoCamiseta === t ? ' selected' : ''}>${t}</option>`).join('')}</select>
+        </div>
+        <label>Alergia ou restrição alimentar</label><input type="text" id="edRestricao" value="${escapeHtml(reg.restricaoAlimentar || reg.restricaoJanta || '')}">
+        <div class="sab-edit-total" id="edTotal"></div>
+        <div id="edPagBox"><label>Pagamento</label>
+          <select id="edPag"><option value="pendente">Pendente</option><option value="pago">Pago</option></select>
+        </div>
+        <div class="sab-edit-btns">
+          <button type="button" id="edCancelar">Cancelar</button>
+          <button type="button" class="ed-salvar" id="edSalvar">Salvar alterações</button>
+        </div>
+      </div>`;
+    const q = id => card.querySelector('#' + id);
+    const estado = () => {
+      const culto = q('edCulto').value;
+      const sab = culto !== 'domingo', dom = culto !== 'sabado';
+      const janta = sab && q('edJanta').value === 'sim';
+      const cafe = dom && q('edCafe').value === 'sim';
+      const almoco = dom && q('edAlmoco').value === 'sim';
+      const camiseta = q('edCamiseta').value === 'sim';
+      const total = (janta ? SAB_PRECO.janta : 0) + (cafe ? SAB_PRECO.cafe : 0) + (almoco ? SAB_PRECO.almoco : 0) + (camiseta ? SAB_PRECO.camiseta : 0);
+      return { culto, sab, dom, janta, cafe, almoco, camiseta, total };
+    };
+    // pagamento sugerido: se o valor mudou, volta para "pendente" (falta pagar a diferença)
+    const totalAntes = Number(reg.totalPagar) || 0;
+    const pagAntes = reg.statusPagamentoSab === 'pago' ? 'pago' : 'pendente';
+    let pagEscolhido = null;
+    const atualizar = () => {
+      const e = estado();
+      q('edIgrejaBox').style.display = q('edCongrega').value === 'nao' ? 'block' : 'none';
+      q('edSabBox').style.display = e.sab ? 'block' : 'none';
+      q('edDomBox').style.display = e.dom ? 'block' : 'none';
+      q('edTamBox').style.display = e.camiseta ? 'block' : 'none';
+      q('edTotal').textContent = e.total > 0 ? 'Total da inscrição: R$' + e.total : 'Sem custo';
+      q('edPagBox').style.display = e.total > 0 ? 'block' : 'none';
+      if(pagEscolhido === null) q('edPag').value = (e.total === totalAntes) ? pagAntes : 'pendente';
+    };
+    card.querySelectorAll('select, input').forEach(el => el.addEventListener('change', atualizar));
+    q('edPag').addEventListener('change', () => { pagEscolhido = q('edPag').value; });
+    atualizar();
+
+    q('edCancelar').addEventListener('click', () => atualizarSab());
+    q('edSalvar').addEventListener('click', async () => {
+      const nome = q('edNome').value.trim();
+      const e = estado();
+      if(!nome){ alert('O nome não pode ficar vazio.'); return; }
+      if(q('edCongrega').value === 'nao' && !q('edIgreja').value.trim()){ alert('Escreva o nome da igreja.'); return; }
+      const btn = q('edSalvar'); btn.disabled = true; btn.textContent = 'Salvando...';
+      const dados = Object.assign({}, reg, {
+        nome: nome,
+        telAdolescente: q('edTel').value.trim(),
+        congregaCasaFarol: q('edCongrega').value,
+        igrejaOutra: q('edCongrega').value === 'nao' ? q('edIgreja').value.trim() : '',
+        cultos: e.culto,
+        janta: e.janta ? 'sim' : 'nao',
+        cafe: e.cafe ? 'sim' : 'nao',
+        almoco: e.almoco ? 'sim' : 'nao',
+        camiseta: e.camiseta ? 'sim' : 'nao',
+        tamanhoCamiseta: e.camiseta ? q('edTam').value : '',
+        restricaoAlimentar: (e.janta || e.cafe || e.almoco) ? q('edRestricao').value.trim() : '',
+        totalPagar: e.total,
+        statusPagamentoSab: e.total > 0 ? q('edPag').value : 'sem_custo',
+        editadoEm: new Date().toISOString()
+      });
+      delete dados.restricaoJanta; delete dados.id; delete dados.criadoEm;
+      const ok = await updateSupabaseData(reg.id, dados);
+      if(ok){
+        Object.assign(reg, dados);
+        atualizarSab();
+      }else{
+        btn.disabled = false; btn.textContent = 'Salvar alterações';
+        alert('Não foi possível salvar agora. Tenta de novo em instantes.');
+      }
     });
   }
 
