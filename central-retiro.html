@@ -313,6 +313,11 @@
   .ag-aviso-tipo{display:inline-block; font-size:0.66rem; font-weight:800; background:var(--ink); color:var(--paper); border-radius:6px; padding:2px 7px; margin-right:6px; vertical-align:middle;}
   .ag-srv{border-radius:12px; padding:10px 12px; font-size:0.8rem; font-weight:700; margin:10px 0;}
   .ag-srv.ok{background:var(--green-bg); color:var(--violet-d);} .ag-srv.err{background:var(--red-bg); color:var(--red);}
+  .cr-day-actions{gap:10px; flex-wrap:wrap; margin-top:10px;}
+  .cr-day-actions button{border:2.5px solid var(--ink); border-radius:11px; background:#fff; color:var(--ink); font-family:'Manrope',sans-serif; font-weight:800; font-size:0.78rem; padding:8px 12px; cursor:pointer; text-decoration:none; margin:0;}
+  .cr-day-actions .cr-pdf-btn{background:var(--ink); color:var(--paper);}
+  body.perfil-coordenacao .cr-day-actions.only-coordenacao{display:flex;}
+  .cr-row-pencil{background:none; border:none; font-size:1rem; padding:2px 4px; margin-left:auto; flex-shrink:0; cursor:pointer;}
 </style>
 </head>
 <body>
@@ -1989,7 +1994,7 @@
     const ativo = (document.querySelector('.day-tab-btn.is-active') || {}).dataset ? document.querySelector('.day-tab-btn.is-active').dataset.day : 'sex';
     host.innerHTML = Object.keys(CRONOGRAMA).map(key => {
       const d = CR[key];
-      const obj = `<div class="period-label" style="background:transparent; border:none; padding:10px 18px 0; font-style:italic; text-transform:none; letter-spacing:0; font-size:0.78rem;">${d.objetivo ? escapeHtml(d.objetivo) : ''}<button type="button" class="cr-edit-btn only-coordenacao" data-cr-obj="${key}" style="display:block;">✏️ Editar objetivo do dia</button></div>`;
+      const obj = `<div class="period-label" style="background:transparent; border:none; padding:10px 18px 0; font-style:italic; text-transform:none; letter-spacing:0; font-size:0.78rem;">${d.objetivo ? escapeHtml(d.objetivo) : ''}<span class="cr-day-actions only-coordenacao"><button type="button" class="cr-edit-btn" data-cr-obj="${key}">✏️ Editar objetivo do dia</button><button type="button" class="cr-pdf-btn" data-cr-pdf="${key}">📄 Baixar PDF deste dia</button></span></div>`;
       const body = d.periods.map(p => (p.label ? `<div class="period-label">${p.label}</div>` : '') +
         p.items.map(it => {
           const id = cronoDomId(it._key);
@@ -1999,6 +2004,7 @@
             <div class="sched-desc">
               <div class="sched-row-top"><b>${escapeHtml(it.titulo)}</b><span class="status-chip ${status === 'andamento' ? 'andamento' : (status === 'concluida' ? 'concluido' : 'pendente')}">${STATUS_LABELS[status]}</span></div>
             </div>
+            <button type="button" class="cr-row-pencil only-coordenacao" data-cr-quick="${escapeHtml(it._key)}" aria-label="Editar atividade">✏️</button>
           </div>
           <div class="sched-detail" id="${id}" style="display:${cronoAbertos.has(id) ? 'block' : 'none'};">${renderActivityDetails(it)}</div>`;
         }).join('')
@@ -2021,6 +2027,15 @@
     host.querySelectorAll('[data-cr-edit]').forEach(btn => btn.addEventListener('click', () => {
       const f = achar(btn.dataset.crEdit); if(f) abrirEditorCrono({ container: document.getElementById(cronoDomId(f.it._key)), dayKey: f.dayKey, it: f.it });
     }));
+    host.querySelectorAll('[data-cr-quick]').forEach(btn => btn.addEventListener('click', ev => {
+      ev.stopPropagation();
+      const f = achar(btn.dataset.crQuick); if(!f) return;
+      const id = cronoDomId(f.it._key);
+      cronoAbertos.add(id);
+      abrirEditorCrono({ container: document.getElementById(id), dayKey: f.dayKey, it: f.it });
+      document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'center' });
+    }));
+    host.querySelectorAll('[data-cr-pdf]').forEach(btn => btn.addEventListener('click', () => baixarPdfDia(btn.dataset.crPdf, btn)));
     host.querySelectorAll('[data-cr-add]').forEach(btn => btn.addEventListener('click', () => {
       abrirEditorCrono({ container: document.getElementById('crNovo-' + btn.dataset.crAdd), dayKey: btn.dataset.crAdd, it: null });
     }));
@@ -4393,6 +4408,112 @@
       urgente: !!urgente, enviarEm: enviarEm || new Date().toISOString(), status: 'pendente',
       criadoPor: papelAtual(), criadoEm: new Date().toISOString()
     });
+  }
+
+  // ---------- PDF da programação por dia (só coordenação) ----------
+  function carregarJsPdf(){
+    return new Promise((resolve, reject) => {
+      if(window.jspdf && window.jspdf.jsPDF) return resolve();
+      const sc = document.createElement('script');
+      sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      sc.onload = () => resolve();
+      sc.onerror = () => reject(new Error('Não foi possível carregar o gerador de PDF'));
+      document.head.appendChild(sc);
+    });
+  }
+  const PDF_DIA_ARQUIVO = { sex:'sexta-23-10', sab:'sabado-24-10', dom:'domingo-25-10' };
+
+  function gerarPdfDiaBlob(dayKey){
+    const { jsPDF } = window.jspdf;
+    const d = cronogramaEfetivo()[dayKey];
+    const doc = new jsPDF({ unit:'mm', format:'a4' });
+    const pageW = doc.internal.pageSize.getWidth(), pageH = doc.internal.pageSize.getHeight();
+    const mx = 14, timeW = 30, textX = mx + timeW + 4, textW = pageW - mx - textX;
+    let y = 18;
+
+    const novaPaginaSe = h => { if(y + h > pageH - 16){ doc.addPage(); y = 16; } };
+    const txt = (t, w) => doc.splitTextToSize(String(t || ''), w);
+
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(95,110,60);
+    doc.text('CENTRAL DO RETIRO · CENTRALIDADE 2026', mx, y); y += 7;
+    doc.setFontSize(18); doc.setTextColor(42,38,26);
+    doc.text('Cronograma — ' + d.label, mx, y); y += 6;
+    if(d.theme){ doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(107,98,80); doc.text(d.theme, mx, y); y += 6; }
+    if(d.objetivo){
+      doc.setFont('helvetica','italic'); doc.setFontSize(9.5); doc.setTextColor(107,98,80);
+      const l = txt('Objetivo do dia: ' + d.objetivo, pageW - mx*2);
+      doc.text(l, mx, y); y += l.length * 4.4 + 2;
+    }
+    doc.setDrawColor(42,38,26); doc.setLineWidth(0.5); doc.line(mx, y, pageW - mx, y); y += 6;
+
+    d.periods.forEach(pr => {
+      if(pr.label){
+        novaPaginaSe(14);
+        doc.setFillColor(243,233,210); doc.roundedRect(mx, y - 4.5, pageW - mx*2, 7, 1.5, 1.5, 'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(9.5); doc.setTextColor(63,74,44);
+        doc.text(String(pr.label).toUpperCase(), mx + 3, y); y += 8;
+      }
+      pr.items.forEach(it => {
+        const linhas = [];
+        const desc = Array.isArray(it.desc) ? it.desc.filter(Boolean) : (it.desc ? [it.desc] : []);
+        desc.forEach(x => txt('• ' + x, textW).forEach(l => linhas.push({ t:l, st:'n' })));
+        if(it.local) txt('Local: ' + it.local, textW).forEach(l => linhas.push({ t:l, st:'g' }));
+        if(it.resp) txt('Responsável: ' + it.resp, textW).forEach(l => linhas.push({ t:l, st:'n' }));
+        if(it.equipe) txt('Equipe: ' + it.equipe, textW).forEach(l => linhas.push({ t:l, st:'n' }));
+        if(it.orient) txt('Orientações: ' + it.orient, textW).forEach(l => linhas.push({ t:l, st:'n' }));
+        if(it.obs) txt('ATENÇÃO: ' + it.obs, textW).forEach(l => linhas.push({ t:l, st:'a' }));
+        const tituloL = txt(it.titulo, textW);
+        const altura = tituloL.length * 5 + linhas.length * 4.2 + 5;
+        novaPaginaSe(Math.min(altura, 60));
+
+        doc.setFont('helvetica','bold'); doc.setFontSize(9.5); doc.setTextColor(63,74,44);
+        doc.text(it.time || '', mx, y);
+        doc.setFontSize(11); doc.setTextColor(42,38,26);
+        doc.text(tituloL, textX, y); y += tituloL.length * 5;
+        doc.setFontSize(9);
+        linhas.forEach(l => {
+          novaPaginaSe(5);
+          if(l.st === 'a'){ doc.setFont('helvetica','bold'); doc.setTextColor(161,61,0); }
+          else if(l.st === 'g'){ doc.setFont('helvetica','normal'); doc.setTextColor(107,98,80); }
+          else { doc.setFont('helvetica','normal'); doc.setTextColor(42,38,26); }
+          doc.text(l.t, textX, y); y += 4.2;
+        });
+        y += 2;
+        doc.setDrawColor(225,215,190); doc.setLineWidth(0.2); doc.line(mx, y, pageW - mx, y); y += 4.5;
+      });
+    });
+
+    const total = doc.getNumberOfPages();
+    for(let i = 1; i <= total; i++){
+      doc.setPage(i); doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(150,140,120);
+      doc.text('Gerado em ' + new Date().toLocaleString('pt-BR') + '  ·  Página ' + i + ' de ' + total, mx, pageH - 8);
+    }
+    return doc.output('blob');
+  }
+
+  async function baixarPdfDia(dayKey, btn){
+    if(papelAtual() !== 'coordenacao') return;
+    const original = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Gerando...';
+    try{
+      await carregarJsPdf();
+      const blob = gerarPdfDiaBlob(dayKey);
+      const nome = 'cronograma-' + (PDF_DIA_ARQUIVO[dayKey] || dayKey) + '.pdf';
+      const file = new File([blob], nome, { type:'application/pdf' });
+      if(navigator.canShare && navigator.canShare({ files:[file] })){
+        try{ await navigator.share({ files:[file], title:'Cronograma — ' + CRONOGRAMA[dayKey].label, text:'Programação do retiro — ' + CRONOGRAMA[dayKey].label }); }
+        catch(e){ if(e.name !== 'AbortError') console.error(e); }
+      }else{
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = nome; a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      }
+    }catch(err){
+      console.error(err);
+      alert('Não foi possível gerar o PDF agora. Verifique a internet e tente de novo.');
+    }finally{
+      btn.disabled = false; btn.textContent = original;
+    }
   }
 
   // pergunta "avisar a equipe?" depois de uma alteração feita pela coordenação
