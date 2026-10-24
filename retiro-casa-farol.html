@@ -566,9 +566,46 @@
   .sab-edit-btns{display:flex; gap:10px; margin-top:16px;}
   .sab-edit-btns button{flex:1; padding:12px; border-radius:11px; border:2.5px solid var(--ink); background:#fff; font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:0.85rem; cursor:pointer; color:var(--ink);}
   .sab-edit-btns .ed-salvar{background:var(--ink); color:#fff;}
+  /* lista clicável dos cultos */
+  .stat-click{cursor:pointer;}
+  .stat-click:active{transform:translate(2px,2px);}
+  .lista-overlay{position:fixed; inset:0; background:rgba(20,20,26,0.55); z-index:9999; display:none; align-items:flex-end; justify-content:center;}
+  .lista-overlay.active{display:flex;}
+  .lista-box{background:#fffcf4; width:100%; max-width:560px; max-height:92vh; border:2.5px solid var(--ink); border-bottom:none; border-radius:20px 20px 0 0; display:flex; flex-direction:column;}
+  .lista-head{display:flex; justify-content:space-between; gap:12px; align-items:flex-start; padding:16px 18px 12px; border-bottom:2px solid var(--ink);}
+  .lista-titulo{font-family:'Archivo Black',sans-serif; font-size:1.05rem; text-transform:uppercase; line-height:1.15;}
+  .lista-sub{font-size:0.78rem; font-weight:700; color:var(--muted); margin-top:4px;}
+  .lista-fechar{background:var(--ink); color:#fff; border:none; border-radius:999px; padding:9px 16px; font-weight:800; font-size:0.8rem; cursor:pointer; flex-shrink:0;}
+  .lista-corpo{overflow-y:auto; padding:6px 18px 10px; flex:1;}
+  .lista-item{padding:11px 0; border-bottom:1px dashed #d9cfb5;}
+  .lista-item:last-child{border-bottom:none;}
+  .lista-nome{font-weight:800; font-size:0.98rem;}
+  .lista-meta{font-size:0.78rem; font-weight:600; color:var(--muted); margin-top:2px;}
+  .lista-meta a{color:var(--ink); text-decoration:underline;}
+  .lista-restricao{margin-top:6px; background:#ffe1c9; color:#a13d00; border-radius:8px; padding:5px 9px; font-size:0.76rem; font-weight:800;}
+  .lista-chip{display:inline-block; margin-left:6px; padding:1px 8px; border-radius:999px; font-size:0.68rem; font-weight:800;}
+  .lista-chip.pago{background:#dcf7e3; color:#0b6b33;} .lista-chip.pendente{background:#fff0d6; color:#8a5600;} .lista-chip.livre{background:#eee; color:#666;}
+  .lista-rodape{padding:12px 18px 18px; border-top:2px solid var(--ink);}
+  .lista-pdf{width:100%; background:var(--violet); color:#fff; border:2.5px solid var(--ink); border-radius:14px; padding:14px; font-family:'Archivo Black',sans-serif; font-size:0.9rem; cursor:pointer; box-shadow:3px 3px 0 var(--ink);}
 </style>
 </head>
 <body>
+<div class="lista-overlay" id="listaSabOverlay">
+  <div class="lista-box">
+    <div class="lista-head">
+      <div>
+        <div class="lista-titulo" id="listaSabTitulo"></div>
+        <div class="lista-sub" id="listaSabSub"></div>
+      </div>
+      <button type="button" id="listaSabFechar" class="lista-fechar">Fechar</button>
+    </div>
+    <div class="lista-corpo" id="listaSabCorpo"></div>
+    <div class="lista-rodape">
+      <button type="button" id="listaSabPdf" class="lista-pdf">Gerar PDF desta lista</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
   if('scrollRestoration' in history){ history.scrollRestoration = 'manual'; }
@@ -2644,6 +2681,114 @@
       }
     });
   }
+
+  // ---------- toque nos números: ver quem é (e gerar PDF da lista) ----------
+  const LISTAS_SAB = {
+    inscritos: { titulo:'Todos os inscritos', arq:'inscritos', f: r => true },
+    sabado:    { titulo:'Quem vai ao culto de sábado', arq:'culto-sabado', f: sabVaiSabado },
+    domingo:   { titulo:'Quem vai ao culto de domingo', arq:'culto-domingo', f: sabVaiDomingo },
+    janta:     { titulo:'Quem vai jantar (sábado, 19h)', arq:'janta', f: r => r.janta === 'sim', comida:true },
+    cafe:      { titulo:'Quem vai tomar café (domingo, 8h)', arq:'cafe-da-manha', f: r => r.cafe === 'sim', comida:true },
+    almoco:    { titulo:'Quem vai almoçar (domingo, 13h30)', arq:'almoco', f: r => r.almoco === 'sim', comida:true },
+    camP:      { titulo:'Camisetas tamanho P', arq:'camisetas-P', f: r => r.camiseta === 'sim' && r.tamanhoCamiseta === 'P' },
+    camM:      { titulo:'Camisetas tamanho M', arq:'camisetas-M', f: r => r.camiseta === 'sim' && r.tamanhoCamiseta === 'M' },
+    camG:      { titulo:'Camisetas tamanho G', arq:'camisetas-G', f: r => r.camiseta === 'sim' && r.tamanhoCamiseta === 'G' },
+    camGG:     { titulo:'Camisetas tamanho GG', arq:'camisetas-GG', f: r => r.camiseta === 'sim' && r.tamanhoCamiseta === 'GG' }
+  };
+  let listaSabAtual = null;
+  const sabPagTxt = r => Number(r.totalPagar) > 0 ? (r.statusPagamentoSab === 'pago' ? 'Pago' : 'Pendente') : 'Sem custo';
+  function sabListaDe(chave){
+    const cfg = LISTAS_SAB[chave];
+    return [...allSab].filter(cfg.f).sort((a,b) => (a.nome || '').localeCompare(b.nome || '', 'pt-BR'));
+  }
+  function abrirListaSab(chave){
+    const cfg = LISTAS_SAB[chave];
+    const lista = sabListaDe(chave);
+    listaSabAtual = chave;
+    const pagos = lista.filter(r => Number(r.totalPagar) > 0 && r.statusPagamentoSab === 'pago').length;
+    const pend = lista.filter(r => Number(r.totalPagar) > 0 && r.statusPagamentoSab !== 'pago').length;
+    document.getElementById('listaSabTitulo').textContent = cfg.titulo;
+    document.getElementById('listaSabSub').textContent = lista.length + (lista.length === 1 ? ' pessoa' : ' pessoas') + (lista.length ? ' · ' + pagos + ' pago(s) · ' + pend + ' pendente(s)' : '');
+    document.getElementById('listaSabCorpo').innerHTML = lista.length === 0
+      ? '<div class="empty-state" style="padding:30px 0;">Ninguém ainda.</div>'
+      : lista.map((r, i) => {
+          const pag = sabPagTxt(r);
+          const rest = r.restricaoAlimentar || r.restricaoJanta || '';
+          const tel = String(r.telAdolescente || '').replace(/\D/g, '');
+          return `<div class="lista-item">
+            <div class="lista-nome">${i + 1}. ${escapeHtml(r.nome)}<span class="lista-chip ${pag === 'Pago' ? 'pago' : (pag === 'Pendente' ? 'pendente' : 'livre')}">${pag}</span></div>
+            <div class="lista-meta">${sabCultoTxt(r)}${r.camiseta === 'sim' ? ' · camiseta ' + escapeHtml(r.tamanhoCamiseta) : ''} · ${tel ? '<a href="https://wa.me/55' + tel.replace(/^55/, '') + '" target="_blank" rel="noopener">' + escapeHtml(r.telAdolescente) + '</a>' : '-'}</div>
+            ${cfg.comida && rest ? `<div class="lista-restricao">Alergia/restrição: ${escapeHtml(rest)}</div>` : ''}
+          </div>`;
+        }).join('');
+    document.getElementById('listaSabOverlay').classList.add('active');
+    document.getElementById('listaSabCorpo').scrollTop = 0;
+  }
+  document.getElementById('listaSabFechar').addEventListener('click', () => document.getElementById('listaSabOverlay').classList.remove('active'));
+  document.getElementById('listaSabOverlay').addEventListener('click', e => { if(e.target.id === 'listaSabOverlay') e.currentTarget.classList.remove('active'); });
+  [['statSabTotal','inscritos'],['statSabSab','sabado'],['statSabDom','domingo'],['statSabJanta','janta'],['statSabCafe','cafe'],['statSabAlmoco','almoco'],
+   ['statSabP','camP'],['statSabM','camM'],['statSabG','camG'],['statSabGG','camGG']].forEach(([id, chave]) => {
+    const card = document.getElementById(id).closest('.stat-card');
+    card.classList.add('stat-click');
+    card.addEventListener('click', () => abrirListaSab(chave));
+  });
+
+  document.getElementById('listaSabPdf').addEventListener('click', async () => {
+    if(!listaSabAtual) return;
+    const cfg = LISTAS_SAB[listaSabAtual];
+    const lista = sabListaDe(listaSabAtual);
+    if(lista.length === 0){ alert('Essa lista está vazia.'); return; }
+    const btn = document.getElementById('listaSabPdf');
+    const original = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Gerando...';
+    try{
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({unit:'mm', format:'a4'});
+      const pageW = doc.internal.pageSize.getWidth(), pageH = doc.internal.pageSize.getHeight();
+      const mx = 14; let y = 18;
+      const quebra = h => { if(y + h > pageH - 14){ doc.addPage(); y = 18; } };
+      doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(20,20,26);
+      doc.text(cfg.titulo + ' — Retiro Casa Farol', mx, y); y += 6;
+      const pagos = lista.filter(r => Number(r.totalPagar) > 0 && r.statusPagamentoSab === 'pago').length;
+      const pend = lista.filter(r => Number(r.totalPagar) > 0 && r.statusPagamentoSab !== 'pago').length;
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(90,90,97);
+      doc.text(lista.length + ' pessoa(s) · ' + pagos + ' pago(s) · ' + pend + ' pendente(s) · Gerado em ' + new Date().toLocaleString('pt-BR'), mx, y); y += 8;
+      doc.setDrawColor(20,20,26); doc.setLineWidth(0.5); doc.line(mx, y, pageW - mx, y); y += 6;
+      lista.forEach((r, i) => {
+        const rest = r.restricaoAlimentar || r.restricaoJanta || '';
+        const restLinhas = (cfg.comida && rest) ? doc.splitTextToSize('Alergia/restrição: ' + rest, pageW - mx*2 - 12) : [];
+        quebra(14 + restLinhas.length * 4.2);
+        doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(20,20,26);
+        doc.text((i + 1) + '.', mx, y);
+        doc.text(r.nome || '-', mx + 10, y);
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(90,90,97);
+        const det = [sabCultoTxt(r), r.camiseta === 'sim' ? 'camiseta ' + r.tamanhoCamiseta : null, r.telAdolescente, sabPagTxt(r)].filter(Boolean).join('  ·  ');
+        doc.text(det, mx + 10, y + 4.6);
+        y += 9;
+        if(restLinhas.length){
+          doc.setFont('helvetica','bold'); doc.setTextColor(161,61,0);
+          doc.text(restLinhas, mx + 10, y); y += restLinhas.length * 4.2 + 1;
+        }
+        doc.setDrawColor(225,215,190); doc.setLineWidth(0.2); doc.line(mx, y - 1.5, pageW - mx, y - 1.5); y += 3;
+      });
+      const blob = doc.output('blob');
+      const nomeArquivo = 'lista-' + cfg.arq + '-retiro-casa-farol.pdf';
+      const file = new File([blob], nomeArquivo, {type:'application/pdf'});
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        try{ await navigator.share({ files:[file], title: cfg.titulo, text: cfg.titulo + ' — Retiro Casa Farol' }); }
+        catch(e){ if(e.name !== 'AbortError') console.error(e); }
+      }else{
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = nomeArquivo; a.click();
+        URL.revokeObjectURL(url);
+      }
+    }catch(err){
+      console.error('Erro ao gerar PDF da lista:', err);
+      alert('Não foi possível gerar o PDF agora. Tenta de novo em instantes.');
+    }finally{
+      btn.disabled = false; btn.textContent = original;
+    }
+  });
 
   // ---------- link só para o culto de sábado ----------
   (function initLinkSabado(){
