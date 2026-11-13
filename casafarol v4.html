@@ -726,8 +726,6 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .nt-choice-main .nt-choice-ico svg{stroke:var(--gold-lt);}
 .nt-choice-main .nt-choice-s{color:rgba(245,241,232,.6);}
 .nt-choice-main .nt-choice-arrow{color:var(--gold-lt);}
-.nt-import-link{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:12px 0 0;padding:12px;font-size:13px;font-weight:650;color:var(--gold);}
-.nt-import-link svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 .nt-sec-head{display:flex;align-items:baseline;justify-content:space-between;margin:20px 4px 10px;}
 .nt-sec-title{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin:0;}
 .nt-count{font-size:11px;color:var(--ink4);font-weight:600;}
@@ -759,19 +757,9 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .nte-btn:active{background:var(--gold-bg);}
 .nte-btn svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
 .nte-del{color:#B4483C;}
-.nte-share-lbl{display:none;font-size:12px;font-weight:700;letter-spacing:.02em;}
-.notas-editor.mode-phone .nte-share{background:var(--night);color:var(--gold-lt);padding:0 14px;}
-.notas-editor.mode-phone .nte-share-lbl{display:inline;}
 .nte-meta{flex-shrink:0;padding:2px 20px 0;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);}
-.nte-hint{flex-shrink:0;display:none;margin:8px 20px 0;padding:10px 12px;border-radius:12px;background:var(--gold-bg);border:1px solid var(--gold-border);font-size:12px;line-height:1.5;color:var(--ink2);}
-.notas-editor.mode-phone .nte-hint,.notas-editor.mode-import .nte-hint{display:block;}
-.notas-editor.kb-open .nte-hint{display:none;}
 .nte-title{flex-shrink:0;width:100%;border:0;outline:0;background:transparent;border-radius:0;-webkit-appearance:none;appearance:none;font-family:var(--serif);font-size:26px;line-height:1.2;font-weight:500;color:var(--ink);padding:10px 20px 6px;caret-color:var(--gold);}
 .nte-title::placeholder,.nte-text::placeholder{color:var(--ink4);}
-.nte-tools{display:none;flex-shrink:0;padding:4px 20px 2px;}
-.notas-editor.mode-import .nte-tools{display:flex;}
-.nte-paste{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px;border-radius:99px;background:var(--night);color:var(--gold-lt);font-size:12px;font-weight:700;letter-spacing:.04em;}
-.nte-paste svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 .nte-text{flex:1 1 auto;min-height:0;width:100%;display:block;border:0;outline:0;background:transparent;resize:none;border-radius:0;-webkit-appearance:none;appearance:none;font-family:var(--sans);font-size:17px;line-height:1.65;color:var(--ink);padding:6px 20px calc(28px + var(--safe-b));overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;caret-color:var(--gold);-webkit-user-select:text;user-select:text;}
 .notas-editor.kb-open .nte-text{padding-bottom:28px;}
 .nte-text:focus,.nte-text:focus-visible,.nte-title:focus,.nte-title:focus-visible{outline:none!important;box-shadow:none;}
@@ -795,6 +783,39 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .nt-steps{margin:0 0 6px;padding-left:20px;font-size:13px;line-height:1.7;color:var(--ink2);}
 .nt-toast{position:fixed;left:50%;top:calc(var(--safe-t) + 64px);transform:translate(-50%,-14px);z-index:600;max-width:calc(100% - 32px);padding:11px 18px;border-radius:99px;background:var(--night);color:#F5F1E8;font-size:13px;font-weight:600;border:1px solid rgba(212,183,127,.25);box-shadow:var(--sh-2);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;}
 .nt-toast.show{opacity:1;transform:translate(-50%,0);}
+
+/* ── Adicionar link da nota (botão da tela) ── */
+.nt-addlink{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin:12px 0 0;padding:14px;border-radius:var(--r);background:var(--surface);border:1px dashed var(--gold);font-size:13px;font-weight:700;color:var(--gold);}
+.nt-addlink:active{background:var(--gold-bg);}
+.nt-addlink svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+/* ── Cartão de nota externa (link) ── */
+.nt-item.is-link{flex-direction:column;}
+a.nt-item-main{display:block;text-decoration:none;color:inherit;-webkit-tap-highlight-color:transparent;padding:14px 16px 4px;}
+.nt-item.is-link .nt-item-meta{margin-top:8px;}
+.nt-badge.is-link{background:#EAF2F7;color:#3B6A86;border-color:#D3E3EE;}
+.nt-item-host{font-size:12.5px;color:var(--ink3);margin-top:3px;word-break:break-all;display:flex;align-items:center;gap:6px;}
+.nt-item-host svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;}
+.nt-item-host.bad{color:#B4483C;}
+.nt-item-foot{display:flex;align-items:center;gap:6px;padding:10px 10px 12px 16px;}
+.nt-openbtn{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 16px;border-radius:12px;background:var(--night);color:var(--gold-lt);font-size:12px;font-weight:700;letter-spacing:.04em;text-decoration:none;}
+.nt-openbtn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.nt-item-foot .nt-act{margin-left:auto;}
+.nt-item-foot .nt-act+.nt-act{margin-left:0;}
+/* ── Tela de adicionar/editar link ── */
+.nte-formbody{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:6px 20px calc(28px + var(--safe-b));}
+.notas-editor.kb-open .nte-formbody{padding-bottom:20px;}
+.nt-form-h{font-family:var(--serif);font-size:28px;line-height:1.15;font-weight:500;color:var(--ink);margin:6px 0 20px;}
+.nt-flabel{display:block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin:0 0 8px;}
+.nt-finput{display:block;width:100%;margin:0 0 18px;padding:15px 16px;border-radius:14px;border:1px solid var(--border2);background:var(--surface);font-family:var(--sans);font-size:16px;line-height:1.3;color:var(--ink);-webkit-appearance:none;appearance:none;caret-color:var(--gold);}
+.nt-finput:focus,.nt-finput:focus-visible{outline:none!important;border-color:var(--gold);box-shadow:0 0 0 3px rgba(169,130,67,.14);}
+.nt-finput::placeholder{color:var(--ink4);}
+.nt-ferror{margin:-6px 0 14px;padding:11px 14px;border-radius:12px;background:#FBECE9;border:1px solid #F0CBC5;color:#9B3A2F;font-size:13px;line-height:1.45;font-weight:600;}
+.nt-fnote{margin:18px 2px 0;padding:13px 14px;border-radius:14px;background:var(--gold-bg);border:1px solid var(--gold-border);font-size:12px;line-height:1.6;color:var(--ink2);}
+.nt-steps li+li{margin-top:2px;}
+a.nt-sbtn{text-decoration:none;}
+
+/* O atributo hidden precisa vencer o display dos botões (ex.: app Notas só no iPhone) */
+.nt-sbtn[hidden],.nt-sheet [hidden]{display:none!important;}
 
 /* ══ MENSAGENS PAGE ══ */
 .msg-hero{padding:56px 20px 28px;background:linear-gradient(160deg,#1C1A17 0%,#111110 100%);}
@@ -2250,18 +2271,18 @@ button:focus-visible,[onclick]:focus-visible,.fi:focus-visible{outline:2px solid
         </button>
         <button class="nt-choice" type="button" onclick="notasOpenPhoneSheet()">
           <span class="nt-choice-ico"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><line x1="11" y1="18" x2="13" y2="18"/></svg></span>
-          <span><span class="nt-choice-t" style="display:block">Usar Notas do celular</span><span class="nt-choice-s" style="display:block">Envie para o app Notas e guarde uma cópia aqui.</span></span>
+          <span><span class="nt-choice-t" style="display:block">Escrever no Notas do celular</span><span class="nt-choice-s" style="display:block">Escreva no aplicativo de sua preferência e salve o link da anotação aqui.</span></span>
           <span class="nt-choice-arrow">›</span>
         </button>
       </div>
-      <button class="nt-import-link" type="button" onclick="notasOpenImport()">
-        <svg viewBox="0 0 24 24"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 21h14"/></svg>
-        Importar anotação para o Casa Farol
+      <button class="nt-addlink" type="button" onclick="notasLinkOpen()">
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg>
+        Adicionar link da nota
       </button>
       <div class="nt-sec-head"><h2 class="nt-sec-title">Minhas anotações</h2><span class="nt-count" id="notas-count"></span></div>
       <div id="notas-list"></div>
       <div id="notas-empty" class="notas-empty" style="display:none">
-        Você ainda não tem nenhuma anotação.<br>Toque em "Escrever no Casa Farol" para registrar a pregação de hoje.
+        Você ainda não tem nenhuma anotação.<br>Toque em "Escrever no Casa Farol" para registrar a pregação de hoje, ou em "Adicionar link da nota" para guardar o link de uma anotação feita em outro app.
       </div>
     </div>
   </div>
@@ -2271,34 +2292,61 @@ button:focus-visible,[onclick]:focus-visible,.fi:focus-visible{outline:2px solid
     <div class="nte-top">
       <button class="nte-back" type="button" onclick="notasCloseEditor()" aria-label="Voltar para Notas"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Notas</span></button>
       <div class="nte-status" id="notas-save-status" aria-live="polite"></div>
-      <button class="nte-btn nte-share" type="button" onclick="notasShareCurrent()" aria-label="Compartilhar anotação"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><polyline points="7 8 12 3 17 8"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span class="nte-share-lbl">Abrir no Notas</span></button>
+      <button class="nte-btn nte-share" type="button" onclick="notasShareCurrent()" aria-label="Compartilhar anotação"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><polyline points="7 8 12 3 17 8"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button>
       <button class="nte-btn nte-del" type="button" onclick="notasDeleteCurrent()" aria-label="Excluir anotação"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
     </div>
     <div class="nte-meta" id="notas-editor-date">Nova anotação</div>
-    <div class="nte-hint" id="notas-editor-hint"></div>
     <input id="notas-editor-title" class="nte-title" type="text" placeholder="Título" maxlength="120" autocomplete="off" autocapitalize="sentences" enterkeyhint="next"
       oninput="notasScheduleAutosave()" onblur="notasCommit()"
       onkeydown="if(event.key==='Enter'){event.preventDefault();var t=bibEl('notas-editor-text');if(t)t.focus();}">
-    <div class="nte-tools"><button class="nte-paste" type="button" onclick="notasPasteFromClipboard()"><svg viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/></svg>Colar texto copiado</button></div>
     <textarea id="notas-editor-text" class="nte-text" placeholder="Comece a escrever a anotação da pregação, os versículos citados e o que Deus falar com você..." autocapitalize="sentences" spellcheck="true"
       oninput="notasOnInput()" onkeyup="notasEnsureCaret()" onclick="notasEnsureCaret()" onblur="notasCommit()"></textarea>
   </div>
 
-  <!-- Folha: Usar Notas do celular -->
+  <!-- ADICIONAR / EDITAR LINK DE NOTA EXTERNA (só guarda o link; nunca lê o conteúdo) -->
+  <div class="notas-editor" id="notas-link-screen" role="dialog" aria-modal="true" aria-label="Link da nota">
+    <div class="nte-top">
+      <button class="nte-back" type="button" onclick="notasLinkClose()" aria-label="Voltar para Notas"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Notas</span></button>
+    </div>
+    <div class="nte-formbody">
+      <div class="nte-meta" style="padding:0">Link externo</div>
+      <h2 class="nt-form-h" id="notas-link-heading">Adicionar link da nota</h2>
+      <label class="nt-flabel" for="notas-link-title">Nome ou título da anotação</label>
+      <input id="notas-link-title" class="nt-finput" type="text" maxlength="120" placeholder="Ex.: Pregação de domingo" autocomplete="off" autocapitalize="sentences" enterkeyhint="next"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();bibEl('notas-link-url').focus();}">
+      <label class="nt-flabel" for="notas-link-url">Cole aqui o link compartilhável da sua nota</label>
+      <input id="notas-link-url" class="nt-finput" type="url" inputmode="url" placeholder="https://" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();notasLinkSave();}">
+      <div class="nt-ferror" id="notas-link-error" role="alert" style="display:none"></div>
+      <button class="nt-sbtn nt-sbtn-main" id="notas-link-save" type="button" onclick="notasLinkSave()" style="margin-top:0">Salvar link</button>
+      <p class="nt-fnote"><b>Aviso sobre links:</b> alguns aplicativos não geram links compartilháveis ou exigem autorização para abrir. Se o link não for público ou não tiver a permissão adequada, o Casa Farol não pode garantir que outras pessoas ou outros dispositivos consigam abrir a anotação. O Casa Farol guarda apenas o link: não acessa nem copia o conteúdo da nota.</p>
+    </div>
+  </div>
+
+  <!-- Folha: Escrever no Notas do celular -->
   <div class="nt-sheet" id="notas-phone-sheet" aria-hidden="true">
     <div class="nt-sheet-bg" onclick="notasCloseSheets()"></div>
-    <div class="nt-sheet-panel" role="dialog" aria-modal="true" aria-label="Usar Notas do celular">
+    <div class="nt-sheet-panel" role="dialog" aria-modal="true" aria-label="Escrever no Notas do celular">
       <div class="nt-sheet-grab"></div>
-      <h3 class="nt-sheet-title">Usar Notas do celular</h3>
-      <p class="nt-sheet-p">O Casa Farol abre a folha de compartilhamento do seu celular, e você escolhe o app Notas. A anotação continua guardada aqui, como cópia.</p>
-      <button class="nt-sbtn nt-sbtn-main" type="button" onclick="notasPhoneWrite()"><svg viewBox="0 0 24 24" style="stroke:var(--gold-lt)"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Escrever e enviar ao Notas</button>
-      <button class="nt-sbtn" type="button" onclick="notasOpenImport()"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 21h14"/></svg>Importar anotação para o Casa Farol</button>
-      <p class="nt-sheet-note">Para enviar uma anotação que já está na lista, toque no ícone de compartilhar nela. O navegador não permite criar nem ler notas do app Notas automaticamente — por isso, para trazer um texto de volta, copie no Notas e importe aqui.</p>
+      <h3 class="nt-sheet-title">Escrever no Notas do celular</h3>
+      <p class="nt-sheet-p">Escreva no aplicativo de notas que você preferir. Aqui no Casa Farol fica guardado apenas o link da anotação — o texto continua no seu app.</p>
+      <a class="nt-sbtn nt-sbtn-main" id="notas-open-apple" href="mobilenotes://" hidden><svg viewBox="0 0 24 24" style="stroke:var(--gold-lt)"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Abrir Notas (iPhone)</a>
+      <a class="nt-sbtn" id="notas-open-keep" href="https://keep.google.com/" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/></svg>Abrir Google Keep</a>
+      <button class="nt-sbtn" id="notas-open-share" type="button" onclick="notasChooseApp()" hidden><svg viewBox="0 0 24 24"><path d="M12 3v12"/><polyline points="7 8 12 3 17 8"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>Escolher outro aplicativo</button>
+      <p class="nt-sheet-note" style="margin-bottom:6px">Se o aplicativo não abrir sozinho, abra-o pela tela inicial do celular. O navegador não consegue abrir qualquer aplicativo diretamente.</p>
+      <ol class="nt-steps">
+        <li>Escreva e salve a anotação no app.</li>
+        <li>No app, gere um link compartilhável (Compartilhar → Copiar link).</li>
+        <li>Volte ao Casa Farol e toque em “Adicionar link da nota”.</li>
+        <li>Cole o link e salve.</li>
+      </ol>
+      <button class="nt-sbtn" type="button" onclick="notasLinkOpen()" style="margin-top:12px"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg>Já tenho o link: adicionar</button>
+      <p class="nt-sheet-note">Nem todo app gera link compartilhável, e alguns exigem autorização. Se o link não for público, outras pessoas ou dispositivos podem não conseguir abrir a anotação. O Casa Farol não acessa nem copia o conteúdo do link.</p>
       <button class="nt-sclose" type="button" onclick="notasCloseSheets()">Fechar</button>
     </div>
   </div>
 
-  <!-- Folha: alternativas quando o compartilhamento nativo não está disponível -->
+  <!-- Folha: alternativas quando o compartilhamento nativo não está disponível (anotações do Casa Farol) -->
   <div class="nt-sheet" id="notas-share-sheet" aria-hidden="true">
     <div class="nt-sheet-bg" onclick="notasCloseSheets()"></div>
     <div class="nt-sheet-panel" role="dialog" aria-modal="true" aria-label="Compartilhar anotação">
@@ -2308,7 +2356,6 @@ button:focus-visible,[onclick]:focus-visible,.fi:focus-visible{outline:2px solid
       <button class="nt-sbtn nt-sbtn-main" type="button" onclick="notasShareFallbackCopy()"><svg viewBox="0 0 24 24" style="stroke:var(--gold-lt)"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar anotação</button>
       <button class="nt-sbtn" type="button" onclick="notasShareFallbackWhats()"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.6-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg>Enviar por WhatsApp</button>
       <button class="nt-sbtn" type="button" onclick="notasShareFallbackMail()"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/></svg>Enviar por e-mail</button>
-      <p class="nt-sheet-note">Para levar ao app Notas: copie a anotação, abra o Notas, crie uma nota nova, toque e segure no texto e escolha "Colar".</p>
       <button class="nt-sclose" type="button" onclick="notasCloseSheets()">Fechar</button>
     </div>
   </div>
@@ -3010,6 +3057,7 @@ function homeEditName(){
   name=name.trim();
   localStorage.setItem('cf_user_name',name);
   homeInit();
+notasMigrate();
 }
 function homeContinueReading(){ nav('biblia'); }
 function homeVerseFavKey(v){ return 'verseday::'+v.ref; }
@@ -3159,7 +3207,6 @@ function switchToTab(panel){
 initSplash();
 buildNextStrip();
 homeInit();
-notasMigrate();
 var obs=new IntersectionObserver(function(entries){
   entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('in');});
 },{threshold:.08});
@@ -4227,9 +4274,11 @@ nav=function(id){
 // ══ NOTAS v2 ═══════════════════════════════════════════════════
 // Editor com <textarea> nativo (sem contenteditable). Armazenamento em
 // localStorage 'cf_notas': {id,title,text,html,date,createdAt,updatedAt,
-// source:'app'|'import',importedAt?,legacyHtml?,verse?,v:2}.
-// Notas antigas são migradas sem apagar nada (campo html preservado).
-var NOTAS_EDITING_ID=null, NOTAS_MODE='app', NOTAS_SAVE_TIMER=null, NOTAS_OPEN=false;
+// source:'app'|'link'|'import'(legado),link?,addedAt?,importedAt?,legacyHtml?,verse?,v:2}.
+// Notas externas por LINK: {source:'link', link, title, addedAt…} — guardam só o endereço,
+// nunca o conteúdo. Notas antigas são migradas sem apagar nada (campo html preservado).
+var NOTAS_EDITING_ID=null, NOTAS_SAVE_TIMER=null, NOTAS_OPEN=false;
+var NOTAS_LINK_OPEN=false, NOTAS_LINK_EDIT_ID=null, NOTAS_VV_EL=null;
 var NOTAS_VV_RAF=null, NOTAS_VV_LAST={h:-1,top:-1,kb:null}, NOTAS_SCROLL_Y=0, NOTAS_TOAST_T=null;
 var NOTAS_MIRROR=null, NOTAS_SHARE_PAYLOAD={title:'',text:''};
 var NOTAS_MONTHS=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
@@ -4258,6 +4307,10 @@ function notasFormatDate(iso){
   if(d.toDateString()===now.toDateString()) return 'Hoje · '+hm;
   if(d.toDateString()===y.toDateString()) return 'Ontem · '+hm;
   return pad2(d.getDate())+' '+NOTAS_MONTHS[d.getMonth()].substring(0,3)+' · '+hm;
+}
+function notasFormatShort(iso){
+  var d=new Date(iso); if(isNaN(d.getTime())) return '';
+  return pad2(d.getDate())+' '+NOTAS_MONTHS[d.getMonth()].substring(0,3)+' · '+pad2(d.getHours())+'h'+pad2(d.getMinutes());
 }
 function notasFormatFull(iso){
   var d=new Date(iso); if(isNaN(d.getTime())) return '';
@@ -4311,12 +4364,33 @@ function notasMigrate(){
   if(changed) notasSaveAll(list);
 }
 
+// ── Links externos ──
+// Aceita só http(s). Se vier texto com um link no meio, extrai o primeiro link. Nunca acessa o endereço.
+function notasNormalizeUrl(s){
+  s=(s||'').trim(); if(!s) return '';
+  if(/\s/.test(s)){ var m=s.match(/https?:\/\/[^\s]+/i); if(!m) return ''; s=m[0]; }
+  if(!/^[a-z][a-z0-9+.-]*:/i.test(s)){
+    if(/^[^\/\s]+\.[a-z]{2,}([\/?#].*)?$/i.test(s)) s='https://'+s; else return '';
+  }
+  try{
+    var u=new URL(s);
+    if(u.protocol!=='https:'&&u.protocol!=='http:') return '';
+    if(!u.hostname||u.hostname.indexOf('.')<0) return '';
+    return u.href;
+  }catch(e){ return ''; }
+}
+function notasUrlKey(u){ var n=notasNormalizeUrl(u); return n?n.replace(/\/$/,'').toLowerCase():''; }
+function notasUrlHost(u){ try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e){ return ''; } }
+
 // ── Lista ──
 function notasMakeBtn(cls,label,svg,fn){
   var b=document.createElement('button'); b.type='button'; b.className=cls; b.setAttribute('aria-label',label); b.innerHTML=svg; b.onclick=fn; return b;
 }
 var NOTAS_SVG_SHARE='<svg viewBox="0 0 24 24"><path d="M12 3v12"/><polyline points="7 8 12 3 17 8"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>';
 var NOTAS_SVG_TRASH='<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+var NOTAS_SVG_EXT='<svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+var NOTAS_SVG_EDIT='<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>';
+var NOTAS_SVG_LINK='<svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg>';
 function notasRender(){
   var list=notasLoad(), wrap=bibEl('notas-list'), empty=bibEl('notas-empty'), cnt=bibEl('notas-count');
   if(!wrap) return;
@@ -4326,21 +4400,44 @@ function notasRender(){
   if(empty) empty.style.display='none';
   function ts(n){ var t=new Date(n.updatedAt||n.date).getTime(); return isNaN(t)?0:t; }
   list.slice().sort(function(a,b){ return ts(b)-ts(a); }).forEach(function(n){
-    var item=document.createElement('div'); item.className='nt-item';
-    var main=document.createElement('button'); main.type='button'; main.className='nt-item-main';
+    if(!n||typeof n!=='object') return;
+    var item=document.createElement('div'), isLink=(n.source==='link');
+    item.className='nt-item'+(isLink?' is-link':'');
     var t=document.createElement('div'); t.className='nt-item-title'+(n.title?'':' is-empty'); t.textContent=n.title||'Sem título';
-    var p=document.createElement('div'); p.className='nt-item-prev'; p.textContent=(n.text||'').replace(/\s+/g,' ').trim().slice(0,160);
     var m=document.createElement('div'); m.className='nt-item-meta';
-    var d=document.createElement('span'); d.textContent=notasFormatDate(n.updatedAt||n.date);
-    var bdg=document.createElement('span'); var imp=n.source==='import';
+    var d=document.createElement('span'), bdg=document.createElement('span');
+    if(isLink){
+      var safe=notasNormalizeUrl(n.link);
+      d.textContent='Adicionada em '+notasFormatShort(n.addedAt||n.createdAt||n.date);
+      bdg.className='nt-badge is-link'; bdg.textContent='Link externo';
+      m.appendChild(d); m.appendChild(bdg);
+      var host=document.createElement('div'); host.className='nt-item-host'+(safe?'':' bad');
+      host.innerHTML=NOTAS_SVG_LINK; host.appendChild(document.createTextNode(safe?notasUrlHost(safe):'Link inválido — toque em editar para corrigir'));
+      var main;
+      if(safe){ main=document.createElement('a'); main.href=safe; main.target='_blank'; main.rel='noopener noreferrer'; }   // abre no navegador/app correspondente
+      else { main=document.createElement('div'); }
+      main.className='nt-item-main'; main.appendChild(t); main.appendChild(host); main.appendChild(m);
+      var foot=document.createElement('div'); foot.className='nt-item-foot';
+      if(safe){
+        var open=document.createElement('a'); open.className='nt-openbtn'; open.href=safe; open.target='_blank'; open.rel='noopener noreferrer';
+        open.setAttribute('aria-label','Abrir a anotação original'); open.innerHTML=NOTAS_SVG_EXT; open.appendChild(document.createTextNode('Abrir anotação')); foot.appendChild(open);
+      }
+      foot.appendChild(notasMakeBtn('nt-act','Editar título ou substituir o link',NOTAS_SVG_EDIT,(function(id){ return function(){ notasLinkOpen(id); }; })(n.id)));
+      foot.appendChild(notasMakeBtn('nt-act danger','Excluir anotação',NOTAS_SVG_TRASH,(function(id){ return function(){ notasDeleteNote(id); }; })(n.id)));
+      item.appendChild(main); item.appendChild(foot); wrap.appendChild(item); return;
+    }
+    var main2=document.createElement('button'); main2.type='button'; main2.className='nt-item-main';
+    var p=document.createElement('div'); p.className='nt-item-prev'; p.textContent=(n.text||'').replace(/\s+/g,' ').trim().slice(0,160);
+    var imp=(n.source==='import');
+    d.textContent=notasFormatDate(n.updatedAt||n.date);
     bdg.className='nt-badge'+(imp?' is-import':''); bdg.textContent=imp?'Importada de outro app':'Criada no Casa Farol';
     m.appendChild(d); m.appendChild(bdg);
-    main.appendChild(t); if(p.textContent) main.appendChild(p); main.appendChild(m);
-    main.onclick=(function(id){ return function(){ notasOpenEdit(id); }; })(n.id);
+    main2.appendChild(t); if(p.textContent) main2.appendChild(p); main2.appendChild(m);
+    main2.onclick=(function(id){ return function(){ notasOpenEdit(id); }; })(n.id);
     var act=document.createElement('div'); act.className='nt-item-actions';
     act.appendChild(notasMakeBtn('nt-act','Compartilhar anotação',NOTAS_SVG_SHARE,(function(id){ return function(){ notasShareNote(id); }; })(n.id)));
     act.appendChild(notasMakeBtn('nt-act danger','Excluir anotação',NOTAS_SVG_TRASH,(function(id){ return function(){ notasDeleteNote(id); }; })(n.id)));
-    item.appendChild(main); item.appendChild(act); wrap.appendChild(item);
+    item.appendChild(main2); item.appendChild(act); wrap.appendChild(item);
   });
 }
 
@@ -4349,43 +4446,37 @@ function notasOpenEditor(opts){
   var scr=bibEl('notas-editor-screen'), ti=bibEl('notas-editor-title'), tx=bibEl('notas-editor-text');
   if(!scr||!ti||!tx) return;
   notasCloseSheets();
+  if(NOTAS_LINK_OPEN) notasLinkClose();
   if(NOTAS_OPEN) notasCommit();
   var n=null;
-  if(opts.id){ n=notasLoad().filter(function(x){ return x.id===opts.id; })[0]||null; if(!n) return; }
+  if(opts&&opts.id){
+    n=notasLoad().filter(function(x){ return x.id===opts.id; })[0]||null; if(!n) return;
+    if(n.source==='link'){ notasLinkOpen(n.id); return; }
+  }
   NOTAS_EDITING_ID=n?n.id:null;
-  var mode=n?'app':(opts.mode||'app');
   ti.value=n?(n.title||''):''; tx.value=n?(n.text||''):'';
-  var dt=bibEl('notas-editor-date');
-  if(dt) dt.textContent=n?((n.source==='import'&&n.importedAt?'Importada em ':'Atualizada em ')+notasFormatFull(n.source==='import'&&n.importedAt?n.importedAt:(n.updatedAt||n.date))):'Nova anotação · '+notasFormatFull(new Date().toISOString());
-  var hint=bibEl('notas-editor-hint');
-  if(hint) hint.textContent=mode==='phone'
-    ?'Escreva e toque em “Abrir no Notas” para enviar ao app Notas do celular. A cópia fica salva aqui automaticamente.'
-    :(mode==='import'?'Cole o texto copiado do outro app, dê um título e pronto: salvamos automaticamente no Casa Farol.':'');
-  NOTAS_MODE=mode;
-  scr.classList.toggle('mode-phone',mode==='phone');
-  scr.classList.toggle('mode-import',mode==='import');
+  var dt=bibEl('notas-editor-date'), imp=(n&&n.source==='import'&&n.importedAt);
+  if(dt) dt.textContent=n?((imp?'Importada em ':'Atualizada em ')+notasFormatFull(imp?n.importedAt:(n.updatedAt||n.date))):'Nova anotação · '+notasFormatFull(new Date().toISOString());
   notasSetStatus(n?'Salvo':'');
   try{ var fs=parseInt(localStorage.getItem('cf_notas_fontsize')||'17',10); tx.style.fontSize=(fs>=16&&fs<=24?fs:17)+'px'; }catch(e){}
   notasLockBody();
   NOTAS_OPEN=true;
   NOTAS_VV_LAST={h:-1,top:-1,kb:null};
   scr.classList.add('open');
-  notasVvBind();
+  notasVvBind(scr);
   notasVvSync();
   tx.scrollTop=0;
   // Foco dentro do gesto do usuário (exigência do iOS). Nota existente: não abre o teclado sozinho.
-  if(!n){ (mode==='import'?tx:ti).focus(); }
+  if(!n) ti.focus();
 }
 function notasOpenNew(){ notasOpenEditor({mode:'app'}); }
 function notasOpenEdit(id){ notasOpenEditor({id:id}); }
-function notasPhoneWrite(){ notasOpenEditor({mode:'phone'}); }
-function notasOpenImport(){ notasOpenEditor({mode:'import'}); }
 function notasCloseEditor(){
   if(!NOTAS_OPEN) return;
   var ok=notasCommit();
   try{ if(document.activeElement&&document.activeElement.blur) document.activeElement.blur(); }catch(e){}
   var scr=bibEl('notas-editor-screen');
-  if(scr){ scr.classList.remove('open','kb-open','mode-phone','mode-import'); }
+  if(scr){ scr.classList.remove('open','kb-open'); }
   NOTAS_OPEN=false; NOTAS_EDITING_ID=null;
   notasVvUnbind(); notasUnlockBody();
   notasRender();
@@ -4412,9 +4503,7 @@ function notasCommit(){
   if(NOTAS_EDITING_ID){ n=list.filter(function(x){ return x.id===NOTAS_EDITING_ID; })[0]||null; }
   if(!n){
     if(!title&&!text){ notasSetStatus(''); return true; }       // nada a criar
-    var imp=(NOTAS_MODE==='import');
-    n={id:notasGenId(),title:title,text:text,html:notasTextToHtml(text),date:now,createdAt:now,updatedAt:now,source:imp?'import':'app',v:2};
-    if(imp) n.importedAt=now;
+    n={id:notasGenId(),title:title,text:text,html:notasTextToHtml(text),date:now,createdAt:now,updatedAt:now,source:'app',v:2};
     list.push(n); NOTAS_EDITING_ID=n.id;
   } else {
     if(n.title===title&&n.text===text){ notasSetStatus('Salvo'); return true; }   // sem mudança: não mexe na data
@@ -4444,30 +4533,38 @@ function notasUnlockBody(){
   b.style.position=''; b.style.top=''; b.style.left=''; b.style.right=''; b.style.width='';
   window.scrollTo(0,NOTAS_SCROLL_Y);
 }
-function notasVvBind(){
+function notasVvBind(el){
+  notasVvUnbind();
+  NOTAS_VV_EL=el;
   var vv=window.visualViewport;
   if(vv){ vv.addEventListener('resize',notasVvSync); vv.addEventListener('scroll',notasVvSync); }
   window.addEventListener('resize',notasVvSync);
   window.addEventListener('orientationchange',notasVvSync);
-  var scr=bibEl('notas-editor-screen'); if(scr) scr.addEventListener('focusin',notasOnFocusIn);
+  el.addEventListener('focusin',notasOnFocusIn);
 }
 function notasVvUnbind(){
-  var vv=window.visualViewport;
+  var vv=window.visualViewport, el=NOTAS_VV_EL;
   if(vv){ vv.removeEventListener('resize',notasVvSync); vv.removeEventListener('scroll',notasVvSync); }
   window.removeEventListener('resize',notasVvSync);
   window.removeEventListener('orientationchange',notasVvSync);
-  var scr=bibEl('notas-editor-screen'); if(scr){ scr.removeEventListener('focusin',notasOnFocusIn); scr.style.removeProperty('--nt-h'); scr.style.removeProperty('--nt-top'); }
+  if(el){ el.removeEventListener('focusin',notasOnFocusIn); el.style.removeProperty('--nt-h'); el.style.removeProperty('--nt-top'); }
+  NOTAS_VV_EL=null;
   if(NOTAS_VV_RAF){ cancelAnimationFrame(NOTAS_VV_RAF); NOTAS_VV_RAF=null; }
 }
-function notasOnFocusIn(){
+function notasOnFocusIn(e){
   // O teclado do iOS anima: reajusta ao longo da animação (rAF, sem laço contínuo).
-  [60,250,500].forEach(function(ms){ setTimeout(function(){ if(NOTAS_OPEN){ notasVvSync(); notasEnsureCaret(); } },ms); });
+  var t=e&&e.target;
+  [60,250,500].forEach(function(ms){ setTimeout(function(){
+    if(!NOTAS_VV_EL) return;
+    notasVvSync(); notasEnsureCaret();
+    if(NOTAS_LINK_OPEN&&t&&t.scrollIntoView){ try{ t.scrollIntoView({block:'nearest'}); }catch(e2){} }
+  },ms); });
 }
 function notasVvSync(){
   if(NOTAS_VV_RAF) return;                       // várias chamadas no mesmo quadro → uma só
   NOTAS_VV_RAF=requestAnimationFrame(function(){
     NOTAS_VV_RAF=null;
-    var scr=bibEl('notas-editor-screen'); if(!scr||!NOTAS_OPEN) return;
+    var scr=NOTAS_VV_EL; if(!scr||!(NOTAS_OPEN||NOTAS_LINK_OPEN)) return;
     var vv=window.visualViewport;
     var h=Math.round(vv?vv.height:window.innerHeight), top=Math.round(vv?vv.offsetTop:0);
     var kb=vv?((window.innerHeight-vv.height-vv.offsetTop)>80):false;
@@ -4536,7 +4633,7 @@ function notasDoShare(title,text){
   } else notasOpenSheet('notas-share-sheet');
 }
 function notasShareNote(id){
-  var n=notasLoad().filter(function(x){ return x.id===id; })[0]; if(!n) return;
+  var n=notasLoad().filter(function(x){ return x.id===id; })[0]; if(!n||n.source==='link') return;
   notasDoShare(n.title,notasShareText(n));
 }
 function notasShareCurrent(){
@@ -4554,18 +4651,62 @@ function notasShareFallbackWhats(){ window.open('https://wa.me/?text='+encodeURI
 function notasShareFallbackMail(){ window.location.href='mailto:?subject='+encodeURIComponent(NOTAS_SHARE_PAYLOAD.title)+'&body='+encodeURIComponent(NOTAS_SHARE_PAYLOAD.text); notasCloseSheets(); }
 
 // ── Importar (colar texto de outro app) ──
-function notasPasteFromClipboard(){
-  var tx=bibEl('notas-editor-text'); if(!tx) return;
-  function manual(){ tx.focus(); notasToast('Toque e segure no campo e escolha “Colar”'); }
-  if(!(navigator.clipboard&&navigator.clipboard.readText)){ manual(); return; }
-  navigator.clipboard.readText().then(function(txt){
-    if(!txt){ notasToast('A área de transferência está vazia'); return; }
-    var s=tx.selectionStart, e=tx.selectionEnd;
-    if(typeof s!=='number'){ s=e=tx.value.length; }
-    tx.setRangeText(txt,s,e,'end'); tx.focus();
-    notasScheduleAutosave(); notasEnsureCaretSoon();
-    notasToast('Texto colado');
-  },manual);
+
+// ── Adicionar / editar link de nota externa ──
+function notasLinkError(msg,fieldId){
+  var el=bibEl('notas-link-error'); if(!el) return;
+  el.textContent=msg||''; el.style.display=msg?'block':'none';
+  if(msg&&fieldId){ var f=bibEl(fieldId); if(f) f.focus(); }
+}
+function notasLinkOpen(id){
+  var scr=bibEl('notas-link-screen'), ti=bibEl('notas-link-title'), ur=bibEl('notas-link-url');
+  if(!scr||!ti||!ur) return;
+  notasCloseSheets();
+  if(NOTAS_OPEN) notasCloseEditor();
+  if(NOTAS_LINK_OPEN) return;
+  var n=null;
+  if(id){ n=notasLoad().filter(function(x){ return x.id===id&&x.source==='link'; })[0]||null; if(!n) return; }
+  NOTAS_LINK_EDIT_ID=n?n.id:null;
+  ti.value=n?(n.title||''):''; ur.value=n?(n.link||''):'';
+  notasLinkError('');
+  var h=bibEl('notas-link-heading'), b=bibEl('notas-link-save');
+  if(h) h.textContent=n?'Editar link da nota':'Adicionar link da nota';
+  if(b) b.textContent=n?'Salvar alterações':'Salvar link';
+  notasLockBody();
+  NOTAS_LINK_OPEN=true;
+  NOTAS_VV_LAST={h:-1,top:-1,kb:null};
+  scr.classList.add('open');
+  notasVvBind(scr);
+  notasVvSync();
+  var body=scr.querySelector('.nte-formbody'); if(body) body.scrollTop=0;
+  ti.focus();
+}
+function notasLinkClose(){
+  if(!NOTAS_LINK_OPEN) return;
+  try{ if(document.activeElement&&document.activeElement.blur) document.activeElement.blur(); }catch(e){}
+  var scr=bibEl('notas-link-screen'); if(scr) scr.classList.remove('open','kb-open');
+  NOTAS_LINK_OPEN=false; NOTAS_LINK_EDIT_ID=null;
+  notasVvUnbind(); notasUnlockBody();
+  notasRender();
+}
+function notasLinkSave(){
+  var title=bibEl('notas-link-title').value.trim(), raw=bibEl('notas-link-url').value;
+  if(!title){ notasLinkError('Dê um nome à anotação.','notas-link-title'); return; }
+  var url=notasNormalizeUrl(raw);
+  if(!url){ notasLinkError('Cole um link válido, começando com https://','notas-link-url'); return; }
+  var list=notasLoad(), editing=NOTAS_LINK_EDIT_ID, key=notasUrlKey(url);
+  var dup=list.filter(function(x){ return x&&x.source==='link'&&x.id!==editing&&notasUrlKey(x.link)===key; })[0];
+  if(dup){ notasLinkError('Este link já está salvo como “'+(dup.title||'Sem título')+'”. Edite-o em vez de duplicar.','notas-link-url'); return; }
+  var now=new Date().toISOString();
+  if(editing){
+    var n=list.filter(function(x){ return x.id===editing; })[0];
+    if(!n){ notasLinkError('Não encontramos esta anotação. Feche e tente novamente.'); return; }
+    n.title=title; n.link=url; n.updatedAt=now;
+  } else {
+    list.push({id:notasGenId(),title:title,text:'',html:'',link:url,source:'link',date:now,createdAt:now,addedAt:now,updatedAt:now,v:2});
+  }
+  if(!notasSaveAll(list)){ notasLinkError('Não foi possível salvar. O armazenamento do navegador pode estar cheio.'); return; }
+  notasLinkClose(); notasToast(editing?'Alterações salvas':'Link salvo');
 }
 
 // ── Excluir ──
@@ -4590,7 +4731,22 @@ function notasDeleteCurrent(){
 
 // ── Folhas de ação ──
 function notasOpenSheet(id){ notasCloseSheets(); var s=bibEl(id); if(s){ s.classList.add('open'); s.setAttribute('aria-hidden','false'); } }
-function notasOpenPhoneSheet(){ notasOpenSheet('notas-phone-sheet'); }
+function notasIsIOS(){
+  var ua=navigator.userAgent||'';
+  return /iPad|iPhone|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+}
+function notasOpenPhoneSheet(){
+  var a=bibEl('notas-open-apple'), sh=bibEl('notas-open-share');
+  if(a) a.hidden=!notasIsIOS();                  // esquema mobilenotes:// só existe no iPhone/iPad
+  if(sh) sh.hidden=!navigator.share;             // folha de compartilhamento só onde o navegador oferece
+  notasOpenSheet('notas-phone-sheet');
+}
+// "Escolher outro aplicativo": abre a folha nativa para o usuário escolher o app. Não é possível
+// abrir qualquer app diretamente a partir do navegador; o texto inicial é só um ponto de partida.
+function notasChooseApp(){
+  if(!navigator.share){ notasToast('Abra seu app de notas pela tela inicial'); return; }
+  navigator.share({title:'Anotação',text:'Anotação — Casa Farol\n'}).catch(function(e){ if(e&&e.name==='AbortError') return; notasToast('Não foi possível abrir o compartilhamento'); });
+}
 function notasCloseSheets(){
   ['notas-phone-sheet','notas-share-sheet'].forEach(function(id){ var s=bibEl(id); if(s){ s.classList.remove('open'); s.setAttribute('aria-hidden','true'); } });
 }
@@ -4604,6 +4760,7 @@ function notasCloseSheets(){
   document.addEventListener('keydown',function(e){
     if(e.key!=='Escape') return;
     var open=document.querySelector('.nt-sheet.open'); if(open){ notasCloseSheets(); return; }
+    if(NOTAS_LINK_OPEN){ notasLinkClose(); return; }
     if(NOTAS_OPEN) notasCloseEditor();
   });
 })();
