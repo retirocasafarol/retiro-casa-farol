@@ -1287,8 +1287,32 @@ a.nt-sbtn{text-decoration:none;}
 .cf-loc-a{font-size:12px;color:var(--ink3);margin-top:2px;line-height:1.4}
 .cf-loc-btn{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;padding:9px 14px;border-radius:999px;border:1px solid var(--gold-border);background:var(--gold-bg);color:var(--gold);font:700 10.5px var(--sans);letter-spacing:.08em;text-transform:uppercase;text-decoration:none;-webkit-tap-highlight-color:transparent}
 .cf-loc-btn:active{transform:scale(.97)}
-.culto-lc-row{flex-wrap:wrap}
-.culto-lc-row>.cf-loc{flex:0 0 100%}
+button.cf-loc-btn{cursor:pointer;font-family:var(--sans)}
+.cw-list{display:flex;flex-direction:column;gap:12px}
+.cw-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:16px 18px;box-shadow:0 6px 18px rgba(17,17,16,.05)}
+.cw-top{display:flex;align-items:center;gap:14px}
+.cw-badge{width:54px;height:58px;flex-shrink:0;border-radius:15px;background:var(--gold-bg);border:1px solid var(--gold-border);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.cw-badge small{font:700 8.5px var(--sans);letter-spacing:.16em;color:var(--gold);margin-bottom:5px}
+.cw-badge b{font:600 19px var(--serif);color:var(--ink);letter-spacing:.02em}
+.cw-body{flex:1;min-width:0}
+.cw-name{font:500 19px/1.2 var(--serif);color:var(--ink)}
+.cw-day{font-size:12.5px;color:var(--ink3);margin-top:4px}
+.cw-time{flex-shrink:0;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;background:var(--gold-bg);border:1px solid var(--gold-border);color:var(--gold);font:700 13px var(--sans)}
+.cw-time svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cw-card .cf-loc{margin-top:16px}
+.cf-ls-ov{position:fixed;inset:0;z-index:600;background:rgba(12,12,11,.5);display:flex;align-items:flex-end;justify-content:center;animation:cfLsIn .18s ease}
+@keyframes cfLsIn{from{opacity:0}to{opacity:1}}
+.cf-ls-sheet{width:100%;max-width:520px;background:var(--surface,#fff);border-radius:24px 24px 0 0;padding:22px 20px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -12px 40px rgba(0,0,0,.2)}
+.cf-ls-h{font:700 10px var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.cf-ls-t{font:500 21px/1.25 var(--serif);color:var(--ink);margin-top:6px}
+.cf-ls-s{font-size:12.5px;color:var(--ink3);margin-top:4px;line-height:1.4}
+.cf-ls-opts{display:flex;flex-direction:column;gap:10px;margin:18px 0 12px}
+.cf-ls-opt{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:16px;border:1px solid var(--border);background:var(--bg,#f6f4f0);color:var(--ink);text-decoration:none;font:600 15.5px var(--sans);-webkit-tap-highlight-color:transparent}
+.cf-ls-opt:active{transform:scale(.985)}
+.cf-ls-ic{width:34px;height:34px;border-radius:50%;background:var(--gold-bg);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center}
+.cf-ls-ic svg{width:16px;height:16px;stroke:var(--gold);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.cf-ls-opt[data-k=waze] .cf-ls-ic{background:#e6f6fd;border-color:#bfe6f7}.cf-ls-opt[data-k=waze] .cf-ls-ic svg{stroke:#1b95c9}
+.cf-ls-cancel{width:100%;padding:14px;border-radius:16px;border:0;background:transparent;color:var(--ink3);font:600 14.5px var(--sans);cursor:pointer}
 .prox-card>.cf-loc{margin:0;padding:14px 20px 18px;border-top:1px solid var(--border)}
 
 /* ══ CULTO LIST (ministerios style) ══ */
@@ -1957,6 +1981,23 @@ a.cfa-btn.cfa-wa{display:inline-block;width:auto;text-decoration:none;text-align
 .cfa-li>.cf-loc{flex:0 0 100%;margin-top:2px}
 .cfa-locsum{font-style:italic}
 
+/* ── painel administrativo: abas em grade, botão de ação e cartões ── */
+.cfa-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;overflow:visible;padding:4px 16px 14px}
+.cfa-tabs button{flex:none;width:100%;min-height:48px;padding:12px 8px;border-radius:16px;text-align:center;font:600 14.5px/1.15 var(--sans);overflow-wrap:anywhere;-webkit-tap-highlight-color:transparent}
+.cfa-tabs button.on{background:var(--night);color:var(--gold-lt,#D4B77F);border-color:var(--night)}
+.cfa-tabs button:last-child:nth-child(odd){grid-column:1/-1}
+.cfa-btn.cfa-add{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin:0 0 16px;padding:16px;font-size:16px}
+.cfa-btn.cfa-add svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round}
+.cfa-alist{display:flex;flex-direction:column;gap:12px}
+.cfa-acard{background:#fff;border:1px solid var(--border);border-radius:18px;padding:16px 18px;box-shadow:0 1px 0 rgba(17,17,16,.02)}
+.cfa-acard .t{font:600 17px/1.25 var(--sans);color:var(--ink);margin-bottom:8px}
+.cfa-acard .m{display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.4;color:var(--ink3);margin-top:5px;word-break:break-word}
+.cfa-acard .m.mute{font-style:italic;opacity:.8}
+.cfa-acard .m .ic{flex:0 0 16px;margin-top:2px}
+.cfa-acard .m .ic svg{width:16px;height:16px;stroke:var(--gold);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.cfa-acard .cfa-actions{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);gap:8px}
+.cfa-acard .cfa-actions .cfa-btn{flex:1 1 0;min-width:0;width:auto;padding:11px 8px;text-align:center}
+
 </style>
 </head>
 <body>
@@ -2450,8 +2491,7 @@ a.cfa-btn.cfa-wa{display:inline-block;width:auto;text-decoration:none;text-align
     <!-- CULTOS PANEL -->
     <div id="cultos-panel-cultos" style="padding:16px">
       <!-- Próximo culto -->
-      <div style="font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);margin-bottom:10px">Próximo Culto</div>
-      <div class="prox-card" id="prox-card" style="margin-bottom:20px"></div>
+      <div class="prox-card" id="prox-card" style="margin-bottom:24px"></div>
       <!-- Lista semanal -->
       <div style="font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);margin-bottom:10px">Programação Semanal</div>
       <div class="culto-lc-list" id="culto-weekly">
@@ -3524,34 +3564,72 @@ function cfLocAddr(l){
   return [a,b].filter(Boolean).join(' – ');
 }
 function cfIsApple(){return /iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);}
-function cfLocMapHref(l){
-  if(cfHttps(l.mapUrl))return l.mapUrl;
+function cfLocQuery(l){
   if(!(l.street||(l.place&&l.city)))return '';
   var cep=l.cep&&l.cep.length===8?l.cep.slice(0,5)+'-'+l.cep.slice(5):'';
-  var q=[l.place,[l.street,l.number].filter(Boolean).join(' '),l.district,[l.city,l.state].filter(Boolean).join(' - '),cep].filter(Boolean).join(', ');
-  return cfIsApple()?'https://maps.apple.com/?q='+encodeURIComponent(q):'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
+  return [l.place,[l.street,l.number].filter(Boolean).join(' '),l.district,[l.city,l.state].filter(Boolean).join(' - '),cep].filter(Boolean).join(', ');
 }
+// opções de aplicativo de mapas: link cadastrado (se houver) + busca pelo endereço
+function cfLocOptions(l){
+  var o=[],q=cfLocQuery(l),has={};
+  if(cfHttps(l.mapUrl)){
+    var u=l.mapUrl.toLowerCase(), k=/apple\.com/.test(u)?'apple':(/waze\.com/.test(u)?'waze':'google');
+    o.push({k:k,label:k==='apple'?'Apple Maps':(k==='waze'?'Waze':'Google Maps'),href:l.mapUrl}); has[k]=1;
+  }
+  if(q){
+    var e=encodeURIComponent(q);
+    if(cfIsApple()&&!has.apple)o.push({k:'apple',label:'Apple Maps',href:'https://maps.apple.com/?q='+e});
+    if(!has.google)o.push({k:'google',label:'Google Maps',href:'https://www.google.com/maps/search/?api=1&query='+e});
+    if(!has.waze)o.push({k:'waze',label:'Waze',href:'https://waze.com/ul?q='+e+'&navigate=yes'});
+  }
+  return o;
+}
+function cfLocClose(){var o=document.getElementById('cf-ls-ov'); if(o)o.remove();}
+function cfLocChoose(btn){
+  var l; try{l=JSON.parse(btn.getAttribute('data-loc'));}catch(e){return;}
+  var opts=cfLocOptions(l); if(!opts.length)return;
+  function go(h){var a=document.createElement('a'); a.href=h; a.target='_blank'; a.rel='noopener noreferrer'; document.body.appendChild(a); a.click(); a.remove();}
+  if(opts.length===1)return go(opts[0].href);
+  cfLocClose();
+  var ov=document.createElement('div'); ov.id='cf-ls-ov'; ov.className='cf-ls-ov'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
+  var title=l.place||[l.street,l.number].filter(Boolean).join(', ')||'Localização', sub=cfLocAddr(l);
+  ov.innerHTML='<div class="cf-ls-sheet"><div class="cf-ls-h">Abrir no aplicativo</div><div class="cf-ls-t">'+cfEsc(title)+'</div>'+(sub&&l.place?'<div class="cf-ls-s">'+cfEsc(sub)+'</div>':'')+
+    '<div class="cf-ls-opts">'+opts.map(function(x){return '<a class="cf-ls-opt" data-k="'+x.k+'" href="'+cfEsc(x.href)+'" target="_blank" rel="noopener noreferrer"><span class="cf-ls-ic">'+CF_PIN+'</span><span>'+cfEsc(x.label)+'</span></a>';}).join('')+'</div><button type="button" class="cf-ls-cancel">Cancelar</button></div>';
+  ov.addEventListener('click',function(e){ if(e.target===ov||e.target.closest('.cf-ls-cancel')||e.target.closest('.cf-ls-opt'))setTimeout(cfLocClose,50); });
+  document.body.appendChild(ov);
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')cfLocClose();});
 var CF_PIN='<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
 var CF_VIDEO='<svg viewBox="0 0 24 24"><rect x="3" y="6" width="12" height="12" rx="2.5"/><path d="M15 10.5l6-3.5v10l-6-3.5"/></svg>';
 function cfLocHTML(l,cls){
   if(!l)return '';
-  var online=l.mode==='online', name=cfEsc(l.place||''), addr=online?'':cfEsc(cfLocAddr(l)), href='', label='';
-  if(online){ if(cfHttps(l.onlineUrl)){href=l.onlineUrl;label='Acessar online';} if(!name)name='Online'; else name='Online · '+name; addr=''; }
-  else{ href=cfLocMapHref(l); label='Ver localização'; if(!name&&addr){name=addr;addr='';} if(!name)return ''; }
-  return '<div class="cf-loc'+(cls?' '+cls:'')+'"><div class="cf-loc-ic">'+(online?CF_VIDEO:CF_PIN)+'</div><div class="cf-loc-tx"><div class="cf-loc-n">'+name+'</div>'+(addr?'<div class="cf-loc-a">'+addr+'</div>':'')+'</div>'+(href?'<a class="cf-loc-btn" href="'+cfEsc(href)+'" target="_blank" rel="noopener noreferrer">'+label+'</a>':'')+'</div>';
+  var online=l.mode==='online', name='', addr='', btn='';
+  if(online){
+    name=cfEsc(l.place?'Online · '+l.place:'Online');
+    if(cfHttps(l.onlineUrl))btn='<a class="cf-loc-btn" href="'+cfEsc(l.onlineUrl)+'" target="_blank" rel="noopener noreferrer">Acessar online</a>';
+  }else{
+    var street=[l.street,l.number].filter(Boolean).join(', '), rest=[l.district,[l.city,l.state].filter(Boolean).join('/')].filter(Boolean).join(' – ');
+    if(l.place){name=cfEsc(l.place); addr=cfEsc(cfLocAddr(l));}
+    else{name=cfEsc(street||rest); addr=street?cfEsc(rest):'';}
+    if(!name)return '';
+    if(cfLocOptions(l).length)btn='<button type="button" class="cf-loc-btn" data-loc="'+cfEsc(JSON.stringify(l))+'" onclick="cfLocChoose(this)">Ver localização</button>';
+  }
+  return '<div class="cf-loc'+(cls?' '+cls:'')+'"><div class="cf-loc-ic">'+(online?CF_VIDEO:CF_PIN)+'</div><div class="cf-loc-tx"><div class="cf-loc-n">'+name+'</div>'+(addr?'<div class="cf-loc-a">'+addr+'</div>':'')+'</div>'+btn+'</div>';
 }
 var CULTOS_PADRAO=JSON.parse(JSON.stringify({sem:CULTOS_SEMANAIS,esp:CULTOS_ESPECIAIS}));
 function cfTimeLabel(t){var m=/^(\d{2}):(\d{2})$/.exec(t||'');return m?m[1]+'h'+m[2]:(t||'');}
 var CF_WD=['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
-function cfRenderWeekly(sem,esp,custom){
-  var box=document.getElementById('culto-weekly'); if(!box||!custom)return;
+function cfRenderWeekly(sem,esp){
+  var box=document.getElementById('culto-weekly'); if(!box)return;
   var today=new Date(); today.setHours(0,0,0,0);
   var tk=today.getFullYear()+'-'+pad2(today.getMonth()+1)+'-'+pad2(today.getDate()), rows=[];
-  var CLOCK='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
-  function row(n,d,t,l){return '<div class="culto-lc-row"><div class="culto-lc-icon">'+CLOCK+'</div><div class="culto-lc-body"><div class="culto-lc-name">'+cfEsc(n)+'</div><div class="culto-lc-day">'+cfEsc(d)+'</div></div><div class="culto-lc-time">'+cfEsc(t)+'</div>'+cfLocHTML(l)+'</div>';}
-  sem.forEach(function(c){rows.push(row(c.name,(c.dayOfWeek===0?'Todo ':'Toda ')+CF_WD[c.dayOfWeek],c.time,c.loc));});
-  Object.keys(esp).sort().forEach(function(k){if(k>=tk){var p=k.split('-');rows.push(row(esp[k].name,'Especial · '+p[2]+'/'+p[1]+'/'+p[0],esp[k].time,esp[k].loc));}});
-  box.innerHTML=rows.join('')||'<div class="culto-lc-row"><div class="culto-lc-body"><div class="culto-lc-day">Nenhum culto cadastrado.</div></div></div>';
+  var CLOCK='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>';
+  var AB=['DOM','SEG','TER','QUA','QUI','SEX','SÁB'], MS=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+  function card(top,big,n,d,t,l){return '<div class="cw-card"><div class="cw-top"><div class="cw-badge"><small>'+top+'</small><b>'+big+'</b></div><div class="cw-body"><div class="cw-name">'+cfEsc(n)+'</div><div class="cw-day">'+cfEsc(d)+'</div></div><div class="cw-time">'+CLOCK+cfEsc(t)+'</div></div>'+cfLocHTML(l)+'</div>';}
+  sem.forEach(function(c){rows.push(card(c.dayOfWeek===0?'TODO':'TODA',AB[c.dayOfWeek],c.name,(c.dayOfWeek===0?'Todo ':'Toda ')+CF_WD[c.dayOfWeek],c.time,c.loc));});
+  Object.keys(esp).sort().forEach(function(k){if(k>=tk){var p=k.split('-');rows.push(card(MS[+p[1]-1],p[2],esp[k].name,'Especial · '+p[2]+'/'+p[1]+'/'+p[0],esp[k].time,esp[k].loc));}});
+  box.className='cw-list';
+  box.innerHTML=rows.join('')||'<div class="cw-card"><div class="cw-day">Nenhum culto cadastrado.</div></div>';
 }
 // chamado por account.js com os cultos cadastrados pela administração (lista vazia = programação padrão do app, sem localização)
 function cfaApplyServices(list){
@@ -3560,12 +3638,10 @@ function cfaApplyServices(list){
     list.forEach(function(s){var t=cfTimeLabel(s.time); if(s.kind==='especial')esp[s.date]={name:s.title,time:t,loc:s.loc||null,sort:s.time}; else sem.push({dayOfWeek:s.weekday,name:s.title,time:t,loc:s.loc||null,sort:s.time});});
     sem.sort(function(a,b){return a.dayOfWeek-b.dayOfWeek||(a.sort<b.sort?-1:1);});
   }else{ sem=JSON.parse(JSON.stringify(CULTOS_PADRAO.sem)); esp=JSON.parse(JSON.stringify(CULTOS_PADRAO.esp)); }
-  CULTOS_SEMANAIS=sem; CULTOS_ESPECIAIS=esp; buildCultoList(); buildNextStrip();
-  if(custom)cfRenderWeekly(sem,esp,true); else if(window.__cfWeeklyHTML){var b=document.getElementById('culto-weekly'); if(b)b.innerHTML=window.__cfWeeklyHTML;}
+  CULTOS_SEMANAIS=sem; CULTOS_ESPECIAIS=esp; buildCultoList(); buildNextStrip(); cfRenderWeekly(sem,esp);
 }
 
-window.__cfWeeklyHTML=(document.getElementById('culto-weekly')||{}).innerHTML;
-buildCultoList();
+buildCultoList(); cfRenderWeekly(CULTOS_SEMANAIS,CULTOS_ESPECIAIS);
 
 function scrollToAgenda(){
   var el=document.getElementById('agenda-section');
@@ -6919,11 +6995,28 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     var go = btn('Salvar', '', function () { clear(box); busy(go, true); var b = {}; forms.forEach(function (f) { b[f.key] = f.get(); }); api('POST', url, b).then(function () { sh.close(); toast('Salvo.'); reload(); renderAvisos(); }).catch(function (e) { if (!applyFieldErrors(forms, e.fields)) box.appendChild(alertBox(e.message)); busy(go, false); }); });
     sh = sheet(title, el('div', { class: 'cfa-light' }, forms.map(function (f) { return f.row; }), box, go));
   }
+  /* ── painel: botão de ação e cartões ── */
+  var IC = {
+    clock: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>',
+    pin: '<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+    users: '<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.4 2.7-5.6 6-5.6s6 2.2 6 5.6"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.6M18 14.6c1.8.7 3 2.4 3 5.4"/></svg>',
+    text: '<svg viewBox="0 0 24 24"><path d="M4 6h16M4 11h16M4 16h10"/></svg>'
+  };
+  function addBtn(label, fn) {
+    var b = el('button', { type: 'button', class: 'cfa-btn cfa-add', onclick: fn }); b.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>'; b.appendChild(el('span', { text: label })); return b;
+  }
+  function admCard(title, lines, actions) {
+    var c = el('div', { class: 'cfa-acard' }); c.appendChild(el('div', { class: 't', text: title }));
+    lines.forEach(function (l) { if (!l || !l[1]) return; var r = el('div', { class: 'm' + (l[2] ? ' mute' : '') }), i = el('span', { class: 'ic' }); i.innerHTML = IC[l[0]]; r.appendChild(i); r.appendChild(el('span', { text: l[1] })); c.appendChild(r); });
+    if (actions && actions.length) { var a = el('div', { class: 'cfa-actions' }); actions.forEach(function (x) { a.appendChild(x); }); c.appendChild(a); }
+    return c;
+  }
+  function admList(body, empty) { var b = el('div', { class: 'cfa-alist' }); body.appendChild(b); if (empty) b.appendChild(el('div', { class: 'cfa-empty', text: empty })); return b; }
   function admCursos(body) {
     return api('GET', '/api/courses').then(function (r) {
-      clear(body); add(body, btn('Novo curso', 'sm', function () { newItemSheet('Novo curso', [{ key: 'title', label: 'Título' }, { key: 'description', label: 'Descrição', type: 'textarea' }, { key: 'startsAt', label: 'Início', type: 'date' }, { key: 'capacity', label: 'Vagas (opcional)', inputmode: 'numeric' }], '/api/admin/courses'); }));
-      var b = el('div', { class: 'cfa-box', style: 'margin-top:12px' }); body.appendChild(b); if (!r.courses.length) b.appendChild(el('div', { class: 'cfa-empty', text: 'Nenhum curso ativo.' }));
-      r.courses.forEach(function (c) { b.appendChild(el('div', { class: 'cfa-li' }, el('div', { class: 'b' }, el('div', { class: 't', text: c.title }), el('div', { class: 's', text: c.taken + ' inscritos' + (c.capacity ? ' de ' + c.capacity : '') })), btn('Inscritos', 'sm line', function () { enrollSheet(c); }))); });
+      clear(body); add(body, addBtn('Novo curso', function () { newItemSheet('Novo curso', [{ key: 'title', label: 'Título' }, { key: 'description', label: 'Descrição', type: 'textarea' }, { key: 'startsAt', label: 'Início', type: 'date' }, { key: 'capacity', label: 'Vagas (opcional)', inputmode: 'numeric' }], '/api/admin/courses'); }));
+      var b = admList(body, r.courses.length ? '' : 'Nenhum curso ativo.');
+      r.courses.forEach(function (c) { b.appendChild(admCard(c.title, [['clock', c.starts_at ? 'Início: ' + dt(c.starts_at) : ''], ['users', c.taken + ' inscritos' + (c.capacity ? ' de ' + c.capacity + ' vagas' : '')]], [btn('Inscritos', 'sm line', function () { enrollSheet(c); })])); });
     });
   }
   function enrollSheet(c) {
@@ -6984,11 +7077,11 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
   }
   function admEventos(body) {
     return api('GET', '/api/events').then(function (r) {
-      clear(body); add(body, btn('Novo evento', 'sm', function () { eventSheet(null); }));
-      var b = el('div', { class: 'cfa-box', style: 'margin-top:12px' }); body.appendChild(b); if (!r.events.length) b.appendChild(el('div', { class: 'cfa-empty', text: 'Nenhum evento ativo.' }));
+      clear(body); add(body, addBtn('Novo evento', function () { eventSheet(null); }));
+      var b = admList(body, r.events.length ? '' : 'Nenhum evento ativo.');
       r.events.forEach(function (v) {
-        b.appendChild(el('div', { class: 'cfa-li', style: 'align-items:flex-start' }, el('div', { class: 'b' }, el('div', { class: 't', text: v.title }), el('div', { class: 's', text: dt(v.starts_at) + ' · ' + v.taken + ' inscritos' }), el('div', { class: 's cfa-locsum', text: locSummary(v.loc) }),
-          el('div', { class: 'cfa-actions' }, btn('Editar', 'sm line', function () { eventSheet(v); }), btn('Presenças', 'sm line', function () { regSheet(v); }), btn('Desativar', 'sm line', function () { api('POST', '/api/admin/events/' + v.id + '/deactivate').then(function () { reload(); renderEvents(); }).catch(function (e) { toast(e.message); }); })))));
+        b.appendChild(admCard(v.title, [['clock', dt(v.starts_at)], ['pin', locSummary(v.loc), !v.loc], ['users', v.taken + ' inscritos']],
+          [btn('Editar', 'sm line', function () { eventSheet(v); }), btn('Presenças', 'sm line', function () { regSheet(v); }), btn('Desativar', 'sm line', function () { api('POST', '/api/admin/events/' + v.id + '/deactivate').then(function () { reload(); renderEvents(); }).catch(function (e) { toast(e.message); }); })]));
       });
     });
   }
@@ -7010,16 +7103,16 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
   }
   function admCultos(body) {
     return api('GET', '/api/services').then(function (r) {
-      clear(body); add(body, btn('Novo culto', 'sm', function () { serviceSheet(null); }));
-      var b = el('div', { class: 'cfa-box', style: 'margin-top:12px' }); body.appendChild(b);
+      clear(body); add(body, addBtn('Novo culto', function () { serviceSheet(null); }));
       if (!r.services.length) {
-        add(b, [el('div', { class: 'cfa-empty', text: 'Nenhum culto cadastrado aqui. Os membros veem a programação padrão do app (Domingo 19h00 e Quarta 19h30), sem localização.' }),
-          btn('Usar os cultos atuais e editar', 'sm line', function () { api('POST', '/api/admin/services-defaults').then(function () { reload(); loadServices(); }).catch(function (e) { toast(e.message); }); })]);
+        add(body, el('div', { class: 'cfa-acard' }, el('div', { class: 'cfa-empty', style: 'padding:6px 0 12px', text: 'Nenhum culto cadastrado aqui. Os membros veem a programação padrão do app (Domingo 19h00 e Quarta 19h30), sem localização.' }),
+          el('div', { class: 'cfa-actions' }, btn('Usar os cultos atuais e editar', 'sm line', function () { api('POST', '/api/admin/services-defaults').then(function () { reload(); loadServices(); }).catch(function (e) { toast(e.message); }); }))));
       }
       r.services.sort(function (a, c2) { return (a.kind === 'especial') - (c2.kind === 'especial') || ((a.weekday || 0) - (c2.weekday || 0)) || (a.date < c2.date ? -1 : 1) || (a.time < c2.time ? -1 : 1); });
+      var b = admList(body, '');
       r.services.forEach(function (c) {
-        b.appendChild(el('div', { class: 'cfa-li', style: 'align-items:flex-start' }, el('div', { class: 'b' }, el('div', { class: 't', text: c.title }), el('div', { class: 's', text: svWhen(c) }), el('div', { class: 's cfa-locsum', text: locSummary(c.loc) }),
-          el('div', { class: 'cfa-actions' }, btn('Editar', 'sm line', function () { serviceSheet(c); }), btn('Desativar', 'sm line', function () { api('POST', '/api/admin/services/' + c.id + '/deactivate').then(function () { reload(); loadServices(); }).catch(function (e) { toast(e.message); }); })))));
+        b.appendChild(admCard(c.title, [['clock', svWhen(c)], ['pin', locSummary(c.loc), !c.loc]],
+          [btn('Editar', 'sm line', function () { serviceSheet(c); }), btn('Desativar', 'sm line', function () { api('POST', '/api/admin/services/' + c.id + '/deactivate').then(function () { reload(); loadServices(); }).catch(function (e) { toast(e.message); }); })]));
       });
     });
   }
@@ -7043,9 +7136,9 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
   }
   function admAvisos(body) {
     return api('GET', '/api/announcements').then(function (r) {
-      clear(body); add(body, btn('Novo aviso', 'sm', function () { newItemSheet('Novo aviso', [{ key: 'title', label: 'Título' }, { key: 'body', label: 'Texto', type: 'textarea', maxlength: 2000 }], '/api/admin/announcements'); }));
-      var b = el('div', { class: 'cfa-box', style: 'margin-top:12px' }); body.appendChild(b); if (!r.announcements.length) b.appendChild(el('div', { class: 'cfa-empty', text: 'Nenhum aviso ativo.' }));
-      r.announcements.forEach(function (a) { b.appendChild(el('div', { class: 'cfa-li' }, el('div', { class: 'b' }, el('div', { class: 't', text: a.title }), el('div', { class: 's', text: a.body })), el('div', { class: 'cfa-actions' }, btn('Editar', 'sm line', function () { editAvisoSheet(a); }), btn('Desativar', 'sm line', function () { api('POST', '/api/admin/announcements/' + a.id + '/deactivate').then(function () { reload(); renderAvisos(); }); })))); });
+      clear(body); add(body, addBtn('Novo aviso', function () { newItemSheet('Novo aviso', [{ key: 'title', label: 'Título' }, { key: 'body', label: 'Texto', type: 'textarea', maxlength: 2000 }], '/api/admin/announcements'); }));
+      var b = admList(body, r.announcements.length ? '' : 'Nenhum aviso ativo.');
+      r.announcements.forEach(function (a) { b.appendChild(admCard(a.title, [['text', a.body]], [btn('Editar', 'sm line', function () { editAvisoSheet(a); }), btn('Desativar', 'sm line', function () { api('POST', '/api/admin/announcements/' + a.id + '/deactivate').then(function () { reload(); renderAvisos(); }); })])); });
     });
   }
   function editAvisoSheet(a) {
