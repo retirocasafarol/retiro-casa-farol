@@ -1707,7 +1707,11 @@ button:focus-visible,[onclick]:focus-visible,.fi:focus-visible{outline:2px solid
 .home-moment-lbl{font-size:11.5px;font-weight:600;}
 @media (max-width:350px){.hm-brand-name{font-size:12px;letter-spacing:.08em;}.home-greet-text{font-size:32px;}.verse-day-btn{font-size:12px;padding:0 8px;}}
 
-/* ════════════ NAVEGAÇÃO INFERIOR ════════════ */
+/* versículo aberto a partir da tela inicial */
+.bib-verse.bib-focus .bib-vmark{background:rgba(212,173,114,.32);border-radius:4px;box-decoration-break:clone;-webkit-box-decoration-break:clone;padding:1px 2px;}
+.hm-avisos-edit{font-size:12px;font-weight:600;color:var(--gold);background:none;border:0;padding:2px 0;cursor:pointer;}
+html.cfa-has-backend .home-greet-edit:not(.cfa-chipbtn){display:none;}
+/* ════════════ NAVEGAÇÃO INFERIOR ════════════
 .cf-bottom-nav{position:fixed;z-index:180;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,480px);display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:8px 6px calc(8px + var(--safe-b));background:rgba(12,12,11,.97);border-top:1px solid rgba(212,183,127,.16);backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%);}
 .cf-nav-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;padding:7px 1px 4px;color:rgba(255,255,255,.44);font-family:var(--sans);font-size:9.5px;font-weight:600;letter-spacing:0;white-space:nowrap;transition:color .16s;}
 .cf-nav-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .16s;}
@@ -1982,16 +1986,9 @@ html.cfa-lock,html.cfa-lock body{overflow:hidden}
     </section>
 
     <!-- Avisos -->
-    <section class="avisos-section" id="avisos-section">
-      <div class="avisos-title">Avisos</div>
-      <div class="aviso-card">
-        <div class="aviso-icon">📌</div>
-        <div class="aviso-body">
-          <div class="aviso-label">Aviso</div>
-          <div class="aviso-text">Bem-vindo ao App Casa Farol!</div>
-          <div class="aviso-desc">Configure avisos e informações importantes aqui.</div>
-        </div>
-      </div>
+    <section class="avisos-section" id="avisos-section" style="display:none">
+      <div class="hm-sec-head"><h2 class="avisos-title">Avisos</h2><button class="hm-avisos-edit" id="cfa-avisos-edit" type="button" style="display:none" onclick="CFA.editAvisos()">Editar avisos</button></div>
+      <div id="cfa-avisos-list"></div>
     </section>
 
     <!-- Explorar: acesso a todas as áreas -->
@@ -3281,7 +3278,25 @@ function verseDayShare(){
   else if(navigator.clipboard){ navigator.clipboard.writeText(msg); alert('Versículo copiado!'); }
   else{ alert(msg); }
 }
-function verseDayOpen(){ nav('biblia'); }
+function verseDayOpen(){
+  var v=homeVerseOfDay();
+  BIB._pendingRef=v.ref;          // a Bíblia abre neste capítulo/versículo assim que os livros carregarem
+  nav('biblia');
+}
+function bibNorm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');}
+async function bibOpenRef(ref){
+  var m=String(ref||'').match(/^(.+?)\s+(\d+):(\d+)/);
+  if(!m||!BIB.books||!BIB.books.length)return;
+  var q=bibNorm(m[1]);
+  var book=BIB.books.find(function(b){return bibNorm(b.name)===q;})
+    ||BIB.books.find(function(b){var n=bibNorm(b.name);return n.indexOf(q)===0||q.indexOf(n)===0;});
+  if(!book)return;                 // livro não encontrado: fica na tela inicial da Bíblia
+  await bibSelectBook(book.id);
+  var idx=BIB.currentChapters.findIndex(function(c){return String(c.number)===m[2];});
+  if(idx<0){bibShowChapters();return;}
+  BIB._focusVerse=parseInt(m[3],10);
+  await bibSelectChapterAt(idx,parseInt(m[3],10));
+}
 function verseDayMenu(e){
   if(e){e.stopPropagation();}
   var m=document.getElementById('verse-day-menu'); if(!m)return;
@@ -3491,7 +3506,7 @@ function bibClearKey(){
   BIB.apiKey=''; BIB.bibleId=''; bibSave();
   bibCloseSettings(); bibShowScreen('setup');
 }
-function bibShowSetup(){ bibShowScreen('setup'); }
+function bibShowSetup(){ BIB._pendingRef=null; bibShowScreen('setup'); }
 
 function bibShowScreen(name){
   var screens=['setup','loading','error','home','chapters','verses','reader','favorites'];
@@ -3577,6 +3592,7 @@ function bibShowHome(){
   } else if(cw){cw.style.display='none';}
   bibRenderFavs();
   bibShowTestament('OT',bibEl('tab-ot'));
+  if(BIB._pendingRef){var pr=BIB._pendingRef; BIB._pendingRef=null; bibOpenRef(pr);}
   var si=bibEl('bib-search-input');
   if(si){si.oninput=function(){bibHandleSearch(this.value.trim());};}
 }
@@ -3914,6 +3930,7 @@ function bibRenderReader(chapData,idx,scrollToVerse){
     wrap.onclick=(function(vv,rr,ww){return function(){bibToggleVerseSelect(ww,vv,rr);};})(v,ref,wrap);
     content.appendChild(wrap);
   });
+  if(BIB._focusVerse){var fv=content.querySelectorAll('.bib-verse')[BIB._focusVerse-1]; if(fv)fv.classList.add('bib-focus'); BIB._focusVerse=0;}
   // Scroll to target verse if specified
   if(BIB._scrollToVerse&&BIB._scrollToVerse>1){
     setTimeout(function(){
@@ -5466,7 +5483,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
   R('GET', '/api/announcements', async function () {
     await needApproved();
     var q = await db.collection('announcements').where('active', '==', true).get();
-    var rows = q.docs.map(function (d) { var v = d.data(); return { id: d.id, title: v.title, body: v.body, created_at: v.createdAt }; });
+    var rows = q.docs.map(function (d) { var v = d.data(); return { id: d.id, title: v.title, body: v.body, created_at: v.createdAt, updated_at: v.updatedAt || '' }; });
     rows.sort(function (a, b) { return a.created_at < b.created_at ? 1 : -1; }); return { announcements: rows };
   });
 
@@ -5704,6 +5721,10 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
   R('POST', '/api/admin/announcements', async function (m, b) {
     var x = await needPerm('communication'); need2(b, ['title', 'body']); var batch = db.batch();
     batch.set(db.collection('announcements').doc(), { title: sp(b.title).slice(0, 120), body: String(b.body).trim().slice(0, 2000), active: true, createdAt: now(), createdBy: x.uid }); addAudit(batch, x, 'announcement_created', {}); await batch.commit(); return { ok: true };
+  });
+  R('PATCH', '/api/admin/announcements/([^/]+)', async function (m, b) {
+    var x = await needPerm('communication'); need2(b, ['title', 'body']); var batch = db.batch();
+    batch.update(ref('announcements/' + m[1]), { title: sp(b.title).slice(0, 120), body: String(b.body).trim().slice(0, 2000), updatedAt: now(), updatedBy: x.uid }); addAudit(batch, x, 'announcement_edited', { id: m[1] }); await batch.commit(); return { ok: true };
   });
   R('POST', '/api/admin/announcements/([^/]+)/deactivate', async function (m) { await needPerm('communication'); await ref('announcements/' + m[1]).update({ active: false }); return { ok: true }; });
   R('GET', '/api/admin/audit', async function (m, b, qs) {
@@ -6282,8 +6303,23 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
   function renderBlocks() {
     var chip = $('cfa-home-chip');
     if (chip) { chip.style.display = S.backend ? '' : 'none'; chip.textContent = S.me ? (S.me.member.name.split(' ')[0]) : 'Entrar'; }
-    renderPerfilCard(); renderCourses(); renderEvents(); renderContrib();
+    document.documentElement.classList.toggle('cfa-has-backend', !!S.backend);
+    renderPerfilCard(); renderCourses(); renderEvents(); renderContrib(); renderAvisos();
   }
+  // Avisos da tela inicial: vêm dos avisos publicados pela administração (permissão "Comunicação")
+  function canEditAvisos() { var a = S.me && S.me.admin; return !!a && approved() && (a.principal || a.permissions.indexOf('communication') >= 0); }
+  function renderAvisos() {
+    var sec = $('avisos-section'), list = $('cfa-avisos-list'), ed = $('cfa-avisos-edit'); if (!sec || !list) return;
+    clear(list); if (ed) ed.style.display = canEditAvisos() ? '' : 'none';
+    if (!S.backend || !approved()) { sec.style.display = 'none'; return; }
+    api('GET', '/api/announcements').then(function (r) {
+      var rows = (r.announcements || []).slice(0, 3); clear(list);
+      rows.forEach(function (a) { list.appendChild(el('div', { class: 'aviso-card', style: 'margin-bottom:10px' }, el('div', { class: 'aviso-icon', text: '📌' }), el('div', { class: 'aviso-body' }, el('div', { class: 'aviso-label', text: 'Aviso' }), el('div', { class: 'aviso-text', text: a.title }), a.body ? el('div', { class: 'aviso-desc', style: 'white-space:pre-line', text: a.body }) : null))); });
+      if (!rows.length && canEditAvisos()) list.appendChild(el('div', { class: 'aviso-desc', style: 'padding:4px', text: 'Nenhum aviso publicado. Toque em “Editar avisos” para criar o primeiro.' }));
+      sec.style.display = rows.length || canEditAvisos() ? '' : 'none';
+    }).catch(function () { sec.style.display = 'none'; });
+  }
+  function editAvisos() { ADM.tab = 'avisos'; if (window.nav) window.nav('admin'); renderAdmin(); }
   function noBackend() { return el('div', { class: 'cfa-cta' }, 'O cadastro de membros fica disponível quando o app é acessado pelo endereço oficial do Casa Farol.'); }
   function renderPerfilCard() {
     var m = $('cfa-perfil-card'); if (!m) return; clear(m);
@@ -6660,7 +6696,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
 
   function newItemSheet(title, fields, url, extra) {
     var forms = fields.map(F), box = el('div'), sh;
-    var go = btn('Salvar', '', function () { clear(box); busy(go, true); var b = {}; forms.forEach(function (f) { b[f.key] = f.get(); }); api('POST', url, b).then(function () { sh.close(); toast('Salvo.'); reload(); }).catch(function (e) { if (!applyFieldErrors(forms, e.fields)) box.appendChild(alertBox(e.message)); busy(go, false); }); });
+    var go = btn('Salvar', '', function () { clear(box); busy(go, true); var b = {}; forms.forEach(function (f) { b[f.key] = f.get(); }); api('POST', url, b).then(function () { sh.close(); toast('Salvo.'); reload(); renderAvisos(); }).catch(function (e) { if (!applyFieldErrors(forms, e.fields)) box.appendChild(alertBox(e.message)); busy(go, false); }); });
     sh = sheet(title, el('div', { class: 'cfa-light' }, forms.map(function (f) { return f.row; }), box, go));
   }
   function admCursos(body) {
@@ -6703,8 +6739,16 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     return api('GET', '/api/announcements').then(function (r) {
       clear(body); add(body, btn('Novo aviso', 'sm', function () { newItemSheet('Novo aviso', [{ key: 'title', label: 'Título' }, { key: 'body', label: 'Texto', type: 'textarea', maxlength: 2000 }], '/api/admin/announcements'); }));
       var b = el('div', { class: 'cfa-box', style: 'margin-top:12px' }); body.appendChild(b); if (!r.announcements.length) b.appendChild(el('div', { class: 'cfa-empty', text: 'Nenhum aviso ativo.' }));
-      r.announcements.forEach(function (a) { b.appendChild(el('div', { class: 'cfa-li' }, el('div', { class: 'b' }, el('div', { class: 't', text: a.title }), el('div', { class: 's', text: a.body })), btn('Desativar', 'sm line', function () { api('POST', '/api/admin/announcements/' + a.id + '/deactivate').then(reload); }))); });
+      r.announcements.forEach(function (a) { b.appendChild(el('div', { class: 'cfa-li' }, el('div', { class: 'b' }, el('div', { class: 't', text: a.title }), el('div', { class: 's', text: a.body })), el('div', { class: 'cfa-actions' }, btn('Editar', 'sm line', function () { editAvisoSheet(a); }), btn('Desativar', 'sm line', function () { api('POST', '/api/admin/announcements/' + a.id + '/deactivate').then(function () { reload(); renderAvisos(); }); })))); });
     });
+  }
+  function editAvisoSheet(a) {
+    var forms = [F({ key: 'title', label: 'Título', value: a.title }), F({ key: 'body', label: 'Texto', type: 'textarea', maxlength: 2000, value: a.body })], box = el('div'), sh;
+    var go = btn('Salvar alterações', '', function () {
+      clear(box); busy(go, true); var b = {}; forms.forEach(function (f) { b[f.key] = f.get(); });
+      api('PATCH', '/api/admin/announcements/' + a.id, b).then(function () { sh.close(); toast('Aviso atualizado.'); reload(); renderAvisos(); }).catch(function (e) { if (!applyFieldErrors(forms, e.fields)) box.appendChild(alertBox(e.message)); busy(go, false); });
+    });
+    sh = sheet('Editar aviso', el('div', { class: 'cfa-light' }, forms.map(function (f) { return f.row; }), box, go));
   }
   function admAudit(body) {
     return api('GET', '/api/admin/audit?limit=100').then(function (r) {
@@ -6748,7 +6792,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     if (id === 'perfil') setTimeout(renderPerfilCard, 40);
   };
 
-  window.CFA = { state: S, openGate: openGate, refresh: refresh, logout: logout, renderBlocks: renderBlocks, homeChip: function () { if (!S.me) { openGate('login'); } else if (approved()) window.nav('conta'); else openGate('status'); } };
+  window.CFA = { editAvisos: editAvisos, state: S, openGate: openGate, refresh: refresh, logout: logout, renderBlocks: renderBlocks, homeChip: function () { if (!S.me) { openGate('login'); } else if (approved()) window.nav('conta'); else openGate('status'); } };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 
