@@ -535,11 +535,30 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   pointer-events:none;z-index:61;
 }
 .bib-hl-picker.show{transform:translateY(0);opacity:1;pointer-events:all;}
+.bib-vmark.bib-hl-red{background-color:rgba(244,160,154,.55);}
+.bib-vmark.bib-hl-purple{background-color:rgba(201,179,242,.6);}
+.bib-vmark.bib-hl-teal{background-color:rgba(143,224,210,.55);}
+.bib-vmark.bib-hl-lime{background-color:rgba(212,236,138,.6);}
+.bib-vmark.bib-hl-sand{background-color:rgba(227,205,164,.65);}
+.bib-vmark.bib-hl-gray{background-color:rgba(207,207,203,.6);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-red{background-color:rgba(244,160,154,.28);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-purple{background-color:rgba(201,179,242,.3);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-teal{background-color:rgba(143,224,210,.26);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-lime{background-color:rgba(212,236,138,.26);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-sand{background-color:rgba(227,205,164,.28);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-gray{background-color:rgba(207,207,203,.24);}
+
 .bib-hl-swatches{display:flex;align-items:center;gap:10px;flex:1;justify-content:center;}
 .bib-hl-dot{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,.2);transition:transform .12s;flex-shrink:0;}
 .bib-hl-dot:active{transform:scale(.82);}
 .bib-hl-remove,.bib-hl-close{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#EDE8DF;cursor:pointer;flex-shrink:0;}
 .bib-hl-remove svg,.bib-hl-close svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.4;}
+.bib-hl-picker{flex-wrap:wrap;border-radius:20px;padding:14px 16px 16px;row-gap:12px}
+.bib-hl-title{flex:1;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-lt)}
+.bib-hl-swatches{flex:0 0 100%;order:3;justify-content:initial;display:grid;grid-template-columns:repeat(6,1fr);gap:12px 8px;justify-items:center}
+.bib-hl-dot{width:34px;height:34px}
+.bib-hl-remove{order:1}.bib-hl-title{order:0}.bib-hl-close{order:2}
+.bib-hl-remove{width:auto;padding:0 12px;border-radius:14px;height:28px;margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.04em;gap:6px}
 
 /* Version picker */
 .bib-version-list{padding:0 16px 30px;display:flex;flex-direction:column;gap:6px;}
@@ -2919,8 +2938,9 @@ a.cfa-btn.cfa-wa{display:inline-block;width:auto;text-decoration:none;text-align
 
   <!-- HIGHLIGHT COLOR PICKER -->
   <div class="bib-hl-picker" id="bib-hl-picker">
+    <div class="bib-hl-title">Cor da marcação</div>
     <div class="bib-hl-remove" onclick="bibRemoveHighlight()" title="Remover marcação">
-      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Remover
     </div>
     <div class="bib-hl-swatches" id="bib-hl-swatches"></div>
     <div class="bib-hl-close" onclick="bibCloseHighlightPicker()" title="Fechar">
@@ -3517,7 +3537,13 @@ var HL_COLORS=[
   {key:'blue', hex:'#8FD3F4'},
   {key:'cream', hex:'#F7EFC0'},
   {key:'orange', hex:'#F5C083'},
-  {key:'pink', hex:'#F3A8DC'}
+  {key:'pink', hex:'#F3A8DC'},
+  {key:'red', hex:'#F4A09A'},
+  {key:'purple', hex:'#C9B3F2'},
+  {key:'teal', hex:'#8FE0D2'},
+  {key:'lime', hex:'#D4EC8A'},
+  {key:'sand', hex:'#E3CDA4'},
+  {key:'gray', hex:'#CFCFCB'}
 ];
 var BIB_BASE = 'https://api.scripture.api.bible/v1';
 function bibEl(id){ return document.getElementById(id); }
