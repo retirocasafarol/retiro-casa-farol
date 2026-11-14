@@ -3389,9 +3389,10 @@ var HL_COLORS=[
 var BIB_BASE = 'https://api.scripture.api.bible/v1';
 function bibEl(id){ return document.getElementById(id); }
 
+var BIB_DEFAULT_KEY = 'g63G4vCNb9HNomOybQ75H'; // chave gratuita da API.Bible embutida (visível no código da página)
 function bibInit(){
   try{
-    BIB.apiKey = localStorage.getItem('bib_apikey')||'';
+    BIB.apiKey = localStorage.getItem('bib_apikey')||BIB_DEFAULT_KEY;
     BIB.bibleId = localStorage.getItem('bib_bibleId')||'';
     BIB.bibleName = localStorage.getItem('bib_bibleName')||'';
     BIB.fontSize = parseInt(localStorage.getItem('bib_fontSize')||'17');
