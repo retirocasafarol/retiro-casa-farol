@@ -373,6 +373,11 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
 .bib-back svg{width:18px;height:18px;stroke:var(--gold);fill:none;stroke-width:2;}
 .bib-topbar-title{font-family:var(--sans);font-size:18px;font-weight:500;color:var(--ink);}
 .bib-topbar-actions{display:flex;gap:6px;}
+.bib-aa-pill{display:flex;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:20px;overflow:hidden;flex-shrink:0}
+.bib-aa-pill button{display:flex;align-items:center;gap:1px;height:36px;min-width:44px;justify-content:center;padding:0 8px;background:none;border:0;color:var(--ink);cursor:pointer;font-family:inherit}
+.bib-aa-pill button+button{border-left:1px solid var(--border)}
+.bib-aa-pill button b{font-size:15px;color:var(--gold)}
+.bib-aa-pill button:disabled{opacity:.35}
 .bib-icon-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--bg);border-radius:50%;border:1px solid var(--border);cursor:pointer;}
 .bib-icon-btn svg{width:16px;height:16px;stroke:var(--ink2);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
 
@@ -1272,6 +1277,20 @@ a.nt-sbtn{text-decoration:none;}
 }
 .min-detail-vol-btn:active{opacity:.8;}
 
+
+/* ══ LOCALIZAÇÃO (cultos e eventos) ══ */
+.cf-loc{display:flex;align-items:center;gap:12px;padding:14px 0 0;margin-top:14px;border-top:1px solid var(--border);text-align:left}
+.cf-loc-ic{width:34px;height:34px;flex-shrink:0;border-radius:50%;background:var(--gold-bg);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center}
+.cf-loc-ic svg{width:16px;height:16px;stroke:var(--gold);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.cf-loc-tx{flex:1;min-width:0}
+.cf-loc-n{font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.3}
+.cf-loc-a{font-size:12px;color:var(--ink3);margin-top:2px;line-height:1.4}
+.cf-loc-btn{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;padding:9px 14px;border-radius:999px;border:1px solid var(--gold-border);background:var(--gold-bg);color:var(--gold);font:700 10.5px var(--sans);letter-spacing:.08em;text-transform:uppercase;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.cf-loc-btn:active{transform:scale(.97)}
+.culto-lc-row{flex-wrap:wrap}
+.culto-lc-row>.cf-loc{flex:0 0 100%}
+.prox-card>.cf-loc{margin:0;padding:14px 20px 18px;border-top:1px solid var(--border)}
+
 /* ══ CULTO LIST (ministerios style) ══ */
 .culto-lc-list{display:flex;flex-direction:column;gap:8px;}
 .culto-lc-row{
@@ -1934,6 +1953,10 @@ html.cfa-lock,html.cfa-lock body{overflow:hidden}
 .cfa-sum .r span:last-child{text-align:right;word-break:break-word}
 a.cfa-btn.cfa-wa{display:inline-block;width:auto;text-decoration:none;text-align:center;margin-top:0}
 
+.cfa-li{flex-wrap:wrap}
+.cfa-li>.cf-loc{flex:0 0 100%;margin-top:2px}
+.cfa-locsum{font-style:italic}
+
 </style>
 </head>
 <body>
@@ -2431,7 +2454,7 @@ a.cfa-btn.cfa-wa{display:inline-block;width:auto;text-decoration:none;text-align
       <div class="prox-card" id="prox-card" style="margin-bottom:20px"></div>
       <!-- Lista semanal -->
       <div style="font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink4);margin-bottom:10px">Programação Semanal</div>
-      <div class="culto-lc-list">
+      <div class="culto-lc-list" id="culto-weekly">
         <div class="culto-lc-row">
           <div class="culto-lc-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
           <div class="culto-lc-body">
@@ -2848,9 +2871,10 @@ a.cfa-btn.cfa-wa{display:inline-block;width:auto;text-decoration:none;text-align
         <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
       <div class="bib-reader-ref" id="bib-reader-ref"></div>
-      <button class="bib-icon-btn" onclick="bibChangeFontSize()">
-        <svg viewBox="0 0 24 24"><text x="4" y="17" font-size="11" fill="currentColor" stroke="none">A</text><text x="12" y="20" font-size="15" fill="currentColor" stroke="none">A</text></svg>
-      </button>
+      <div class="bib-aa-pill">
+        <button type="button" id="bib-aa-minus" aria-label="Diminuir letra" onclick="bibChangeFontSize(-1)"><span style="font-size:12px">A</span><b>−</b></button>
+        <button type="button" id="bib-aa-plus" aria-label="Aumentar letra" onclick="bibChangeFontSize(1)"><span style="font-size:17px">A</span><b>+</b></button>
+      </div>
     </div>
 
     <!-- Prev / Next nav -->
@@ -3455,12 +3479,12 @@ function buildCultoList() {
     var d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
     var key = d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate());
     if (CULTOS_ESPECIAIS[key]) {
-      found = {date:d, name:CULTOS_ESPECIAIS[key].name, time:CULTOS_ESPECIAIS[key].time};
+      found = {date:d, name:CULTOS_ESPECIAIS[key].name, time:CULTOS_ESPECIAIS[key].time, loc:CULTOS_ESPECIAIS[key].loc};
       break;
     }
     for (var j = 0; j < CULTOS_SEMANAIS.length; j++) {
       if (CULTOS_SEMANAIS[j].dayOfWeek === d.getDay()) {
-        found = {date:d, name:CULTOS_SEMANAIS[j].name, time:CULTOS_SEMANAIS[j].time};
+        found = {date:d, name:CULTOS_SEMANAIS[j].name, time:CULTOS_SEMANAIS[j].time, loc:CULTOS_SEMANAIS[j].loc};
         break;
       }
     }
@@ -3485,11 +3509,62 @@ function buildCultoList() {
       '<div class="prox-cal"><div class="prox-cal-day">' + dayName + '</div><div class="prox-cal-num">' + dayNum + '</div></div>' +
     '</div>' +
     '<div class="prox-bottom">' +
-      '<div class="prox-name">' + found.name + '</div>' +
-      '<div class="prox-time-pill"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + found.time + '</div>' +
-    '</div>';
+      '<div class="prox-name">' + cfEsc(found.name) + '</div>' +
+      '<div class="prox-time-pill"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + cfEsc(found.time) + '</div>' +
+    '</div>' + cfLocHTML(found.loc);
 }
 
+
+// ── LOCALIZAÇÃO ───────────────────────────────────
+function cfEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function cfHttps(u){return /^https:\/\/[^\s]+$/i.test(String(u||''));}
+function cfLocAddr(l){
+  var a=[l.street,l.number].filter(Boolean).join(', ');
+  var b=[l.district,[l.city,l.state].filter(Boolean).join('/')].filter(Boolean).join(' – ');
+  return [a,b].filter(Boolean).join(' – ');
+}
+function cfIsApple(){return /iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);}
+function cfLocMapHref(l){
+  if(cfHttps(l.mapUrl))return l.mapUrl;
+  if(!(l.street||(l.place&&l.city)))return '';
+  var cep=l.cep&&l.cep.length===8?l.cep.slice(0,5)+'-'+l.cep.slice(5):'';
+  var q=[l.place,[l.street,l.number].filter(Boolean).join(' '),l.district,[l.city,l.state].filter(Boolean).join(' - '),cep].filter(Boolean).join(', ');
+  return cfIsApple()?'https://maps.apple.com/?q='+encodeURIComponent(q):'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
+}
+var CF_PIN='<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
+var CF_VIDEO='<svg viewBox="0 0 24 24"><rect x="3" y="6" width="12" height="12" rx="2.5"/><path d="M15 10.5l6-3.5v10l-6-3.5"/></svg>';
+function cfLocHTML(l,cls){
+  if(!l)return '';
+  var online=l.mode==='online', name=cfEsc(l.place||''), addr=online?'':cfEsc(cfLocAddr(l)), href='', label='';
+  if(online){ if(cfHttps(l.onlineUrl)){href=l.onlineUrl;label='Acessar online';} if(!name)name='Online'; else name='Online · '+name; addr=''; }
+  else{ href=cfLocMapHref(l); label='Ver localização'; if(!name&&addr){name=addr;addr='';} if(!name)return ''; }
+  return '<div class="cf-loc'+(cls?' '+cls:'')+'"><div class="cf-loc-ic">'+(online?CF_VIDEO:CF_PIN)+'</div><div class="cf-loc-tx"><div class="cf-loc-n">'+name+'</div>'+(addr?'<div class="cf-loc-a">'+addr+'</div>':'')+'</div>'+(href?'<a class="cf-loc-btn" href="'+cfEsc(href)+'" target="_blank" rel="noopener noreferrer">'+label+'</a>':'')+'</div>';
+}
+var CULTOS_PADRAO=JSON.parse(JSON.stringify({sem:CULTOS_SEMANAIS,esp:CULTOS_ESPECIAIS}));
+function cfTimeLabel(t){var m=/^(\d{2}):(\d{2})$/.exec(t||'');return m?m[1]+'h'+m[2]:(t||'');}
+var CF_WD=['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+function cfRenderWeekly(sem,esp,custom){
+  var box=document.getElementById('culto-weekly'); if(!box||!custom)return;
+  var today=new Date(); today.setHours(0,0,0,0);
+  var tk=today.getFullYear()+'-'+pad2(today.getMonth()+1)+'-'+pad2(today.getDate()), rows=[];
+  var CLOCK='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+  function row(n,d,t,l){return '<div class="culto-lc-row"><div class="culto-lc-icon">'+CLOCK+'</div><div class="culto-lc-body"><div class="culto-lc-name">'+cfEsc(n)+'</div><div class="culto-lc-day">'+cfEsc(d)+'</div></div><div class="culto-lc-time">'+cfEsc(t)+'</div>'+cfLocHTML(l)+'</div>';}
+  sem.forEach(function(c){rows.push(row(c.name,(c.dayOfWeek===0?'Todo ':'Toda ')+CF_WD[c.dayOfWeek],c.time,c.loc));});
+  Object.keys(esp).sort().forEach(function(k){if(k>=tk){var p=k.split('-');rows.push(row(esp[k].name,'Especial · '+p[2]+'/'+p[1]+'/'+p[0],esp[k].time,esp[k].loc));}});
+  box.innerHTML=rows.join('')||'<div class="culto-lc-row"><div class="culto-lc-body"><div class="culto-lc-day">Nenhum culto cadastrado.</div></div></div>';
+}
+// chamado por account.js com os cultos cadastrados pela administração (lista vazia = programação padrão do app, sem localização)
+function cfaApplyServices(list){
+  var custom=!!(list&&list.length), sem=[],esp={};
+  if(custom){
+    list.forEach(function(s){var t=cfTimeLabel(s.time); if(s.kind==='especial')esp[s.date]={name:s.title,time:t,loc:s.loc||null,sort:s.time}; else sem.push({dayOfWeek:s.weekday,name:s.title,time:t,loc:s.loc||null,sort:s.time});});
+    sem.sort(function(a,b){return a.dayOfWeek-b.dayOfWeek||(a.sort<b.sort?-1:1);});
+  }else{ sem=JSON.parse(JSON.stringify(CULTOS_PADRAO.sem)); esp=JSON.parse(JSON.stringify(CULTOS_PADRAO.esp)); }
+  CULTOS_SEMANAIS=sem; CULTOS_ESPECIAIS=esp; buildCultoList(); buildNextStrip();
+  if(custom)cfRenderWeekly(sem,esp,true); else if(window.__cfWeeklyHTML){var b=document.getElementById('culto-weekly'); if(b)b.innerHTML=window.__cfWeeklyHTML;}
+}
+
+window.__cfWeeklyHTML=(document.getElementById('culto-weekly')||{}).innerHTML;
 buildCultoList();
 
 function scrollToAgenda(){
@@ -4012,6 +4087,7 @@ function bibRenderReader(chapData,idx,scrollToVerse){
     var textEl=document.createElement('div');
     textEl.className='bib-vtext';
     textEl.style.fontSize=BIB.fontSize+'px';
+    bibAaState();
     var markEl=document.createElement('span');
     var markCls='bib-vmark';
     if(BIB.highlights[v.id]){markCls+=' bib-hl-'+BIB.highlights[v.id];}
@@ -4258,11 +4334,15 @@ function bibContinue(){
 function bibPrevChapter(){if(BIB.currentChapterIdx>0)bibSelectChapterAt(BIB.currentChapterIdx-1,1);}
 function bibNextChapter(){if(BIB.currentChapterIdx<BIB.currentChapters.length-1)bibSelectChapterAt(BIB.currentChapterIdx+1,1);}
 
-function bibChangeFontSize(){
-  var sizes=[14,17,20,24];
-  var idx=sizes.indexOf(BIB.fontSize);
-  BIB.fontSize=sizes[(idx+1)%sizes.length]; bibSave();
-  document.querySelectorAll('.bib-vtext').forEach(function(el){el.style.fontSize=BIB.fontSize+'px';});
+var BIB_SIZES=[13,15,17,19,21,24,28];
+function bibAaState(){
+  var mi=bibEl('bib-aa-minus'), pl=bibEl('bib-aa-plus');
+  if(mi)mi.disabled=BIB.fontSize<=BIB_SIZES[0]; if(pl)pl.disabled=BIB.fontSize>=BIB_SIZES[BIB_SIZES.length-1];
+}
+function bibChangeFontSize(dir){
+  dir=dir||1; var cur=BIB_SIZES.reduce(function(b,x,i){return Math.abs(x-BIB.fontSize)<Math.abs(BIB_SIZES[b]-BIB.fontSize)?i:b;},0);
+  var n=Math.max(0,Math.min(BIB_SIZES.length-1,cur+dir)); BIB.fontSize=BIB_SIZES[n]; bibSave();
+  document.querySelectorAll('.bib-vtext').forEach(function(el){el.style.fontSize=BIB.fontSize+'px';}); bibAaState();
 }
 function bibSetFont(size){
   BIB.fontSize=size; bibSave();
@@ -5556,7 +5636,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     var rows = await Promise.all(q.docs.map(async function (d) {
       var v = d.data(), mine = await snap('events/' + d.id + '/registrations/' + x.uid), taken = 0;
       if (adm) { var rg = await db.collection('events/' + d.id + '/registrations').get(); rg.docs.forEach(function (e) { if (e.data().status === 'inscrito') taken++; }); }
-      return { id: d.id, title: v.title, description: v.description || '', starts_at: v.startsAt || null, location: v.location || '', capacity: adm ? (v.capacity || 0) : 0, taken: taken, my_status: mine ? mine.status : null, my_attended: mine ? !!mine.attended : false, my_completed: mine ? !!mine.completed : false };
+      return { id: d.id, title: v.title, description: v.description || '', starts_at: v.startsAt || null, location: v.location || '', loc: locOut(v), capacity: adm ? (v.capacity || 0) : 0, taken: taken, my_status: mine ? mine.status : null, my_attended: mine ? !!mine.attended : false, my_completed: mine ? !!mine.completed : false };
     }));
     rows.sort(isoSort); return { events: rows };
   });
@@ -5799,10 +5879,56 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     var upd = { status: b.status, certificateUrl: url }; if (b.status === 'concluido') upd.completedAt = e.completedAt || now();
     var batch = db.batch(); batch.update(ref(path), upd); addAudit(batch, x, 'enrollment_updated', { course: m[1], member: m[2], status: b.status }); await batch.commit(); return { ok: true };
   });
+  function digits(v) { return String(v || '').replace(/\D/g, ''); }
+  function buildLoc(b) {
+    var f = {}, cep = digits(b.lcep), st = sp(b.lstate).toUpperCase(), map = sp(b.lmap), url = sp(b.lurl), mode = b.lmode === 'online' ? 'online' : 'presencial';
+    if (cep && cep.length !== 8) f.lcep = 'O CEP tem 8 números.';
+    if (st && !/^[A-Z]{2}$/.test(st)) f.lstate = 'Use a sigla do estado (ex.: SP).';
+    if (map && !/^https:\/\/[^\s]+$/i.test(map)) f.lmap = 'Cole um link começando com https://';
+    if (url && !/^https:\/\/[^\s]+$/i.test(url)) f.lurl = 'Cole um link começando com https://';
+    if (Object.keys(f).length) throw E(400, 'validation', 'Revise os campos destacados.', f);
+    var o = { mode: mode, place: sp(b.lplace).slice(0, 120), cep: cep, street: sp(b.lstreet).slice(0, 120), number: sp(b.lnumber).slice(0, 20), district: sp(b.ldistrict).slice(0, 80), city: sp(b.lcity).slice(0, 80), state: st, mapUrl: map.slice(0, 500), onlineUrl: url.slice(0, 500) };
+    if (mode === 'online') { o.cep = ''; o.street = ''; o.number = ''; o.district = ''; o.city = ''; o.state = ''; o.mapUrl = ''; }
+    else o.onlineUrl = '';
+    var any = o.place || o.cep || o.street || o.number || o.district || o.city || o.state || o.mapUrl || o.onlineUrl;
+    if (!any && mode === 'presencial') return null;
+    return o;
+  }
+  function locOut(v) { if (v.loc) return v.loc; if (v.location) return { mode: 'presencial', place: v.location, legacy: true }; return null; }
+  function evFields(b) { var loc = buildLoc(b); return { title: sp(b.title).slice(0, 120), description: sp(b.description).slice(0, 1000), startsAt: sp(b.startsAt), location: loc ? loc.place : '', loc: loc, capacity: cap(b) }; }
   R('POST', '/api/admin/events', async function (m, b) {
-    var x = await needPerm('events'); need2(b, ['title']); var n = cap(b), batch = db.batch(), r = db.collection('events').doc();
-    batch.set(r, { title: sp(b.title).slice(0, 120), description: sp(b.description).slice(0, 1000), startsAt: sp(b.startsAt), location: sp(b.location).slice(0, 120), capacity: n, active: true, createdAt: now(), createdBy: x.uid }); addAudit(batch, x, 'event_created', { id: r.id }); await batch.commit(); return { ok: true };
+    var x = await needPerm('events'); need2(b, ['title']); var d = evFields(b), batch = db.batch(), r = db.collection('events').doc();
+    d.active = true; d.createdAt = now(); d.createdBy = x.uid; batch.set(r, d); addAudit(batch, x, 'event_created', { id: r.id }); await batch.commit(); return { ok: true };
   });
+  R('PATCH', '/api/admin/events/([^/]+)', async function (m, b) {
+    var x = await needPerm('events'); need2(b, ['title']); var d = evFields(b), batch = db.batch(); d.updatedAt = now(); d.updatedBy = x.uid;
+    batch.update(ref('events/' + m[1]), d); addAudit(batch, x, 'event_edited', { id: m[1] }); await batch.commit(); return { ok: true };
+  });
+  R('POST', '/api/admin/events/([^/]+)/deactivate', async function (m) { var x = await needPerm('events'), batch = db.batch(); batch.update(ref('events/' + m[1]), { active: false }); addAudit(batch, x, 'event_deactivated', { id: m[1] }); await batch.commit(); return { ok: true }; });
+  /* cultos (programação semanal / especiais) */
+  function svFields(b) {
+    need2(b, ['title']); var f = {}, kind = b.kind === 'especial' ? 'especial' : 'semanal', time = sp(b.time), wd = null, date = '';
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) f.time = 'Informe o horário.';
+    if (kind === 'semanal') { wd = Number(b.weekday); if (!(wd >= 0 && wd <= 6) || Math.floor(wd) !== wd || sp(b.weekday) === '') f.weekday = 'Escolha o dia da semana.'; }
+    else { date = sp(b.date); if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) f.date = 'Informe a data.'; }
+    if (Object.keys(f).length) throw E(400, 'validation', 'Revise os campos destacados.', f);
+    return { title: sp(b.title).slice(0, 120), kind: kind, weekday: kind === 'semanal' ? wd : null, date: date, time: time, loc: buildLoc(b) };
+  }
+  function svOut(d) { var v = d.data(); return { id: d.id, title: v.title, kind: v.kind, weekday: v.weekday == null ? null : v.weekday, date: v.date || '', time: v.time, loc: v.loc || null }; }
+  R('GET', '/api/services', async function () { await needApproved(); var q = await db.collection('services').where('active', '==', true).get(); return { services: q.docs.map(svOut) }; });
+  R('POST', '/api/admin/services', async function (m, b) {
+    var x = await needPerm('events'), d = svFields(b), batch = db.batch(), r = db.collection('services').doc(); d.active = true; d.createdAt = now(); d.createdBy = x.uid;
+    batch.set(r, d); addAudit(batch, x, 'service_created', { id: r.id }); await batch.commit(); return { ok: true };
+  });
+  R('POST', '/api/admin/services-defaults', async function () {
+    var x = await needPerm('events'), q = await db.collection('services').where('active', '==', true).get(); if (!q.empty) throw E(409, 'conflict', 'Já existem cultos cadastrados.');
+    var batch = db.batch(); [['Culto de Domingo', 0, '19:00'], ['Culto de Quarta', 3, '19:30']].forEach(function (t) { batch.set(db.collection('services').doc(), { title: t[0], kind: 'semanal', weekday: t[1], date: '', time: t[2], loc: null, active: true, createdAt: now(), createdBy: x.uid }); });
+    addAudit(batch, x, 'service_defaults_imported', null); await batch.commit(); return { ok: true };
+  });
+  R('PATCH', '/api/admin/services/([^/]+)', async function (m, b) {
+    var x = await needPerm('events'), d = svFields(b), batch = db.batch(); d.updatedAt = now(); d.updatedBy = x.uid; batch.update(ref('services/' + m[1]), d); addAudit(batch, x, 'service_edited', { id: m[1] }); await batch.commit(); return { ok: true };
+  });
+  R('POST', '/api/admin/services/([^/]+)/deactivate', async function (m) { var x = await needPerm('events'), batch = db.batch(); batch.update(ref('services/' + m[1]), { active: false }); addAudit(batch, x, 'service_deactivated', { id: m[1] }); await batch.commit(); return { ok: true }; });
   R('GET', '/api/admin/events/([^/]+)/registrations', async function (m) {
     await needPerm('events'); var q = await db.collection('events/' + m[1] + '/registrations').get();
     return { registrations: q.docs.map(function (d) { var v = d.data(); return { member_id: d.id, name: v.name, status: v.status, attended: !!v.attended, completed: !!v.completed }; }) };
@@ -6396,7 +6522,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
   }
   function renderBlocks() {
     document.documentElement.classList.toggle('cfa-has-backend', !!S.backend);
-    renderPerfilCard(); renderCourses(); renderEvents(); renderContrib(); renderAvisos();
+    renderPerfilCard(); renderCourses(); renderEvents(); renderContrib(); renderAvisos(); loadServices();
   }
   // Avisos da tela inicial: vêm dos avisos publicados pela administração (permissão "Comunicação")
   function canEditAvisos() { var a = S.me && S.me.admin; return !!a && approved() && (a.principal || a.permissions.indexOf('communication') >= 0); }
@@ -6451,7 +6577,9 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
       var mine = v.my_status === 'inscrito';
       var right = mine ? btn('Cancelar', 'sm line', function () { api('POST', '/api/events/' + v.id + '/cancel').then(function () { toast('Inscrição cancelada.'); renderEvents(); }).catch(function (er) { toast(er.message); }); })
         : btn('Inscrever-me', 'sm', function (e) { var b = e.currentTarget; busy(b, true); api('POST', '/api/events/' + v.id + '/register').then(function () { toast('Inscrição realizada!'); renderEvents(); }).catch(function (er) { toast(er.message); busy(b, false); }); });
-      return el('div', { class: 'cfa-li' }, el('div', { class: 'b' }, el('div', { class: 't', text: v.title }), el('div', { class: 's', text: [dt(v.starts_at), v.location, v.capacity ? v.taken + '/' + v.capacity + ' vagas' : '', v.my_attended ? 'Presença registrada' : ''].filter(Boolean).join(' · ') })), right);
+      var li = el('div', { class: 'cfa-li' }, el('div', { class: 'b' }, el('div', { class: 't', text: v.title }), el('div', { class: 's', text: [dt(v.starts_at), v.capacity ? v.taken + '/' + v.capacity + ' vagas' : '', v.my_attended ? 'Presença registrada' : ''].filter(Boolean).join(' · ') })), right);
+      var lh = window.cfLocHTML ? cfLocHTML(v.loc) : ''; if (lh) { var tmp = document.createElement('div'); tmp.innerHTML = lh; li.appendChild(tmp.firstChild); }
+      return li;
     }, 'Nenhum evento com inscrição aberta no momento.');
   }
   function renderContrib() {
@@ -6580,7 +6708,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     if (a.principal) t.push(['admins', 'Administradores']);
     if (has('finance')) t.push(['fin', 'Finanças']);
     if (has('courses')) t.push(['cursos', 'Cursos']);
-    if (has('events')) t.push(['eventos', 'Eventos']);
+    if (has('events')) t.push(['cultos', 'Cultos'], ['eventos', 'Eventos']);
     if (has('communication')) t.push(['avisos', 'Avisos']);
     if (a.principal) t.push(['audit', 'Auditoria']);
     return t;
@@ -6593,7 +6721,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     var bar = el('div', { class: 'cfa-tabs' }), body = el('div', { class: 'cfa-sec cfa-light', id: 'cfa-adm-panel' });
     tabs.forEach(function (t) { bar.appendChild(el('button', { type: 'button', class: t[0] === ADM.tab ? 'on' : '', text: t[1], onclick: function () { ADM.tab = t[0]; renderAdmin(); } })); });
     add(root, [bar, body]); loading(body);
-    ({ painel: admPainel, membros: admMembros, solic: admSolic, admins: admAdmins, fin: admFin, cursos: admCursos, eventos: admEventos, avisos: admAvisos, audit: admAudit })[ADM.tab](body).catch(function (e) { clear(body); body.appendChild(alertBox(e.message)); });
+    ({ painel: admPainel, membros: admMembros, solic: admSolic, admins: admAdmins, fin: admFin, cursos: admCursos, cultos: admCultos, eventos: admEventos, avisos: admAvisos, audit: admAudit })[ADM.tab](body).catch(function (e) { clear(body); body.appendChild(alertBox(e.message)); });
   }
   function loading(n) { clear(n); n.appendChild(el('div', { class: 'cfa-empty', text: 'Carregando…' })); }
   function reload() { renderAdmin(); }
@@ -6811,12 +6939,95 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
       });
     }).catch(function (e) { clear(box); box.appendChild(alertBox(e.message)); });
   }
+  /* ── localização (cultos e eventos) ── */
+  function locForm(loc) {
+    loc = loc || {}; var ufs = [['', '—']].concat((S.cfg.ufs || []).map(function (u) { return [u, u]; }));
+    var f = {
+      lmode: F({ key: 'lmode', label: 'Modalidade', type: 'select', options: [['presencial', 'Presencial'], ['online', 'Online']], value: loc.mode === 'online' ? 'online' : 'presencial' }),
+      lplace: F({ key: 'lplace', label: 'Nome do local (opcional)', value: loc.place || '', placeholder: 'Ex.: Templo Casa Farol', autocap: 'words', maxlength: 120 }),
+      lcep: F({ key: 'lcep', label: 'CEP (opcional)', mask: 'cep', inputmode: 'numeric', value: loc.cep ? MASK.cep(loc.cep) : '', hint: 'Preenche o endereço automaticamente.' }),
+      lstreet: F({ key: 'lstreet', label: 'Endereço completo', value: loc.street || '', placeholder: 'Rua, avenida…', autocap: 'words', maxlength: 120 }),
+      lnumber: F({ key: 'lnumber', label: 'Número', value: loc.number || '', maxlength: 20 }),
+      ldistrict: F({ key: 'ldistrict', label: 'Bairro', value: loc.district || '', autocap: 'words', maxlength: 80 }),
+      lcity: F({ key: 'lcity', label: 'Cidade', value: loc.city || '', autocap: 'words', maxlength: 80 }),
+      lstate: F({ key: 'lstate', label: 'Estado', type: 'select', options: ufs, value: loc.state || '' }),
+      lmap: F({ key: 'lmap', label: 'Link do Google Maps ou Apple Maps (opcional)', type: 'url', inputmode: 'url', value: loc.mapUrl || '', placeholder: 'https://', maxlength: 500, hint: 'Se preencher, o app abre exatamente este link. Sem link, usa o endereço acima.' }),
+      lurl: F({ key: 'lurl', label: 'Link de acesso online', type: 'url', inputmode: 'url', value: loc.onlineUrl || '', placeholder: 'https://', maxlength: 500, hint: 'Zoom, Meet, YouTube… (opcional)' })
+    };
+    var order = ['lmode', 'lplace', 'lcep', 'lstreet', 'lnumber', 'ldistrict', 'lcity', 'lstate', 'lmap', 'lurl'], phys = ['lcep', 'lstreet', 'lnumber', 'ldistrict', 'lcity', 'lstate', 'lmap'];
+    function sync() { var on = f.lmode.get() === 'online'; phys.forEach(function (k) { f[k].row.style.display = on ? 'none' : ''; }); f.lurl.row.style.display = on ? '' : 'none'; }
+    f.lmode.input.addEventListener('change', sync); sync();
+    f.lcep.input.addEventListener('input', function () {
+      var c = dg(f.lcep.get()); if (c.length !== 8) return;
+      fetch('https://viacep.com.br/ws/' + c + '/json/').then(function (r) { return r.json(); }).then(function (j) {
+        if (j && !j.erro) { if (!f.lstreet.get()) f.lstreet.set(j.logradouro || ''); if (!f.ldistrict.get()) f.ldistrict.set(j.bairro || ''); if (!f.lcity.get()) f.lcity.set(j.localidade || ''); if (j.uf) f.lstate.set(j.uf); }
+      }).catch(function () { /* preenchimento manual */ });
+    });
+    return { rows: [el('div', { class: 'cfa-lbl', text: 'Localização' })].concat(order.map(function (k) { return f[k].row; })), forms: order.map(function (k) { return f[k]; }) };
+  }
+  function locSummary(l) {
+    if (!l) return 'Sem localização';
+    if (l.mode === 'online') return 'Online' + (l.place ? ' · ' + l.place : '');
+    return [l.place, [l.street, l.number].filter(Boolean).join(', '), l.city].filter(Boolean).join(' · ') || 'Sem localização';
+  }
+  function saveSheet(title, forms, rows, send, done) {
+    var box = el('div'), sh, go = btn('Salvar', '', function () {
+      clear(box); busy(go, true); var b = {}; forms.forEach(function (f) { b[f.key] = f.get(); });
+      send(b).then(function () { sh.close(); toast('Salvo.'); done(); }).catch(function (e) { if (!applyFieldErrors(forms, e.fields)) box.appendChild(alertBox(e.message)); busy(go, false); });
+    });
+    sh = sheet(title, el('div', { class: 'cfa-light' }, rows, box, go));
+  }
+  function eventSheet(v) {
+    var forms = [F({ key: 'title', label: 'Título', value: v ? v.title : '' }), F({ key: 'description', label: 'Descrição', type: 'textarea', value: v ? v.description : '' }), F({ key: 'startsAt', label: 'Data e hora', type: 'datetime-local', value: v ? (v.starts_at || '') : '' }), F({ key: 'capacity', label: 'Vagas (opcional)', inputmode: 'numeric', value: v && v.capacity ? v.capacity : '' })];
+    var lf = locForm(v ? v.loc : null), all = forms.concat(lf.forms);
+    saveSheet(v ? 'Editar evento' : 'Novo evento', all, forms.map(function (f) { return f.row; }).concat(lf.rows), function (b) { return v ? api('PATCH', '/api/admin/events/' + v.id, b) : api('POST', '/api/admin/events', b); }, function () { reload(); renderEvents(); });
+  }
   function admEventos(body) {
     return api('GET', '/api/events').then(function (r) {
-      clear(body); add(body, btn('Novo evento', 'sm', function () { newItemSheet('Novo evento', [{ key: 'title', label: 'Título' }, { key: 'description', label: 'Descrição', type: 'textarea' }, { key: 'startsAt', label: 'Data e hora', type: 'datetime-local' }, { key: 'location', label: 'Local' }, { key: 'capacity', label: 'Vagas (opcional)', inputmode: 'numeric' }], '/api/admin/events'); }));
+      clear(body); add(body, btn('Novo evento', 'sm', function () { eventSheet(null); }));
       var b = el('div', { class: 'cfa-box', style: 'margin-top:12px' }); body.appendChild(b); if (!r.events.length) b.appendChild(el('div', { class: 'cfa-empty', text: 'Nenhum evento ativo.' }));
-      r.events.forEach(function (v) { b.appendChild(el('div', { class: 'cfa-li' }, el('div', { class: 'b' }, el('div', { class: 't', text: v.title }), el('div', { class: 's', text: dt(v.starts_at) + ' · ' + v.taken + ' inscritos' })), btn('Presenças', 'sm line', function () { regSheet(v); }))); });
+      r.events.forEach(function (v) {
+        b.appendChild(el('div', { class: 'cfa-li', style: 'align-items:flex-start' }, el('div', { class: 'b' }, el('div', { class: 't', text: v.title }), el('div', { class: 's', text: dt(v.starts_at) + ' · ' + v.taken + ' inscritos' }), el('div', { class: 's cfa-locsum', text: locSummary(v.loc) }),
+          el('div', { class: 'cfa-actions' }, btn('Editar', 'sm line', function () { eventSheet(v); }), btn('Presenças', 'sm line', function () { regSheet(v); }), btn('Desativar', 'sm line', function () { api('POST', '/api/admin/events/' + v.id + '/deactivate').then(function () { reload(); renderEvents(); }).catch(function (e) { toast(e.message); }); })))));
+      });
     });
+  }
+  /* ── cultos (programação) ── */
+  var WD = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+  function svWhen(c) { var t = String(c.time || '').replace(':', 'h'); return (c.kind === 'especial' ? 'Especial · ' + dt(c.date, false) : (c.weekday === 0 ? 'Todo ' : 'Toda ') + WD[c.weekday].toLowerCase()) + ' · ' + t; }
+  function serviceSheet(c) {
+    var f = {
+      title: F({ key: 'title', label: 'Nome do culto', value: c ? c.title : '', placeholder: 'Ex.: Culto de Domingo', autocap: 'words' }),
+      kind: F({ key: 'kind', label: 'Tipo', type: 'select', options: [['semanal', 'Semanal (todo dia da semana)'], ['especial', 'Especial (data única)']], value: c ? c.kind : 'semanal' }),
+      weekday: F({ key: 'weekday', label: 'Dia da semana', type: 'select', options: [['', 'Selecione…']].concat(WD.map(function (n, i) { return [String(i), n]; })), value: c && c.weekday != null ? String(c.weekday) : '' }),
+      date: F({ key: 'date', label: 'Data', type: 'date', value: c ? c.date : '' }),
+      time: F({ key: 'time', label: 'Horário', type: 'time', value: c ? c.time : '' })
+    };
+    function sync() { var e = f.kind.get() === 'especial'; f.weekday.row.style.display = e ? 'none' : ''; f.date.row.style.display = e ? '' : 'none'; }
+    f.kind.input.addEventListener('change', sync); sync();
+    var base = ['title', 'kind', 'weekday', 'date', 'time'].map(function (k) { return f[k]; }), lf = locForm(c ? c.loc : null);
+    saveSheet(c ? 'Editar culto' : 'Novo culto', base.concat(lf.forms), base.map(function (x) { return x.row; }).concat(lf.rows), function (b) { return c ? api('PATCH', '/api/admin/services/' + c.id, b) : api('POST', '/api/admin/services', b); }, function () { reload(); loadServices(); });
+  }
+  function admCultos(body) {
+    return api('GET', '/api/services').then(function (r) {
+      clear(body); add(body, btn('Novo culto', 'sm', function () { serviceSheet(null); }));
+      var b = el('div', { class: 'cfa-box', style: 'margin-top:12px' }); body.appendChild(b);
+      if (!r.services.length) {
+        add(b, [el('div', { class: 'cfa-empty', text: 'Nenhum culto cadastrado aqui. Os membros veem a programação padrão do app (Domingo 19h00 e Quarta 19h30), sem localização.' }),
+          btn('Usar os cultos atuais e editar', 'sm line', function () { api('POST', '/api/admin/services-defaults').then(function () { reload(); loadServices(); }).catch(function (e) { toast(e.message); }); })]);
+      }
+      r.services.sort(function (a, c2) { return (a.kind === 'especial') - (c2.kind === 'especial') || ((a.weekday || 0) - (c2.weekday || 0)) || (a.date < c2.date ? -1 : 1) || (a.time < c2.time ? -1 : 1); });
+      r.services.forEach(function (c) {
+        b.appendChild(el('div', { class: 'cfa-li', style: 'align-items:flex-start' }, el('div', { class: 'b' }, el('div', { class: 't', text: c.title }), el('div', { class: 's', text: svWhen(c) }), el('div', { class: 's cfa-locsum', text: locSummary(c.loc) }),
+          el('div', { class: 'cfa-actions' }, btn('Editar', 'sm line', function () { serviceSheet(c); }), btn('Desativar', 'sm line', function () { api('POST', '/api/admin/services/' + c.id + '/deactivate').then(function () { reload(); loadServices(); }).catch(function (e) { toast(e.message); }); })))));
+      });
+    });
+  }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && S.backend) loadServices(); });
+  function loadServices() {
+    if (!window.cfaApplyServices) return;
+    if (!S.backend || !approved()) return cfaApplyServices([]);
+    api('GET', '/api/services').then(function (r) { cfaApplyServices(r.services); }).catch(function () { /* mantém o que está na tela */ });
   }
   function regSheet(v) {
     var box = el('div', null, el('div', { class: 'cfa-empty', text: 'Carregando…' })); sheet('Presenças — ' + v.title, box);
@@ -6882,7 +7093,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     if (id === 'conta') setTimeout(renderConta, 40);
     if (id === 'admin') setTimeout(renderAdmin, 40);
     if (id === 'cursos') setTimeout(renderCourses, 40);
-    if (id === 'cultos') setTimeout(renderEvents, 40);
+    if (id === 'cultos') setTimeout(function () { renderEvents(); loadServices(); }, 40);
     if (id === 'contribuir') setTimeout(renderContrib, 40);
     if (id === 'perfil') setTimeout(renderPerfilCard, 40);
   };
