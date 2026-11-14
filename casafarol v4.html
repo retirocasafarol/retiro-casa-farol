@@ -1913,6 +1913,7 @@ html.cfa-lock,html.cfa-lock body{overflow:hidden}
 .cfa-sum h4 button{background:none;border:0;color:#d4a64a;font:inherit;font-size:13px;cursor:pointer;text-decoration:underline}
 .cfa-sum .r{display:flex;justify-content:space-between;gap:12px;padding:4px 0;font-size:14px}
 .cfa-sum .r span:last-child{text-align:right;word-break:break-word}
+a.cfa-btn.cfa-wa{display:inline-block;width:auto;text-decoration:none;text-align:center;margin-top:0}
 
 </style>
 </head>
@@ -5764,7 +5765,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
   });
   R('GET', '/api/admin/courses/([^/]+)/enrollments', async function (m) {
     await needPerm('courses'); var q = await db.collection('courses/' + m[1] + '/enrollments').get();
-    return { enrollments: q.docs.map(function (d) { var v = d.data(); return { id: m[1] + ':' + d.id, name: v.name, phone: v.phone, email: v.email, status: v.status, certificate_url: v.certificateUrl || '' }; }) };
+    return { enrollments: q.docs.map(function (d) { var v = d.data(); return { id: m[1] + ':' + d.id, name: v.name, phone: v.phone, email: v.email, status: v.status, enrolled_at: v.enrolledAt || null, certificate_url: v.certificateUrl || '' }; }) };
   });
   R('POST', '/api/admin/enrollments/([^/:]+):([^/]+)', async function (m, b) {
     var x = await needPerm('courses'), path = 'courses/' + m[1] + '/enrollments/' + m[2], e = await snap(path); if (!e) throw E(404, 'not_found', 'Inscrição não encontrada.');
@@ -6777,7 +6778,10 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
       clear(box); if (!r.enrollments.length) box.appendChild(el('div', { class: 'cfa-empty', text: 'Ninguém inscrito.' }));
       r.enrollments.forEach(function (e) {
         var st = F({ key: 'st', label: 'Situação', type: 'select', options: [['inscrito', 'Inscrito'], ['confirmado', 'Confirmado'], ['concluido', 'Concluído'], ['nao_concluido', 'Não concluído'], ['cancelado', 'Cancelado']], value: e.status }), cert = F({ key: 'c', label: 'Link do certificado (https)', value: e.certificate_url || '' });
-        box.appendChild(el('div', { class: 'cfa-box' }, el('div', { class: 't', style: 'font-weight:600', text: e.name }), el('div', { class: 's', style: 'font-size:12.5px;color:var(--ink3);margin-bottom:8px', text: fmtPhone(e.phone) + ' · ' + e.email }), st.row, cert.row, btn('Salvar', 'sm', function () { api('POST', '/api/admin/enrollments/' + e.id, { status: st.get(), certificateUrl: cert.get() }).then(function () { toast('Salvo.'); }).catch(function (er) { if (!applyFieldErrors([cert], { certificateUrl: er.fields && er.fields.certificateUrl })) toast(er.message); }); })));
+        var uid = String(e.id).split(':')[1], wd = String(e.phone || '').replace(/\D/g, ''), canFicha = S.me.admin.principal || S.me.admin.permissions.indexOf('members') >= 0, acts = el('div', { style: 'display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px' });
+        if (canFicha) acts.appendChild(btn('Ver ficha', 'sm line', function () { memberSheet(uid); }));
+        if (wd.length >= 10) acts.appendChild(el('a', { class: 'cfa-btn sm line cfa-wa', href: 'https://wa.me/' + (wd.length <= 11 ? '55' : '') + wd, target: '_blank', rel: 'noopener', text: 'WhatsApp' }));
+        box.appendChild(el('div', { class: 'cfa-box' }, el('div', { class: 't', style: 'font-weight:600', text: e.name }), el('div', { class: 's', style: 'font-size:12.5px;color:var(--ink3)', text: 'Telefone: ' + fmtPhone(e.phone) }), el('div', { class: 's', style: 'font-size:12.5px;color:var(--ink3)', text: 'E-mail: ' + (e.email || '—') }), el('div', { class: 's', style: 'font-size:12.5px;color:var(--ink3)', text: 'Inscrito em: ' + (e.enrolled_at ? dt(e.enrolled_at) : '—') }), acts, st.row, cert.row, btn('Salvar', 'sm', function () { api('POST', '/api/admin/enrollments/' + e.id, { status: st.get(), certificateUrl: cert.get() }).then(function () { toast('Salvo.'); }).catch(function (er) { if (!applyFieldErrors([cert], { certificateUrl: er.fields && er.fields.certificateUrl })) toast(er.message); }); })));
       });
     }).catch(function (e) { clear(box); box.appendChild(alertBox(e.message)); });
   }
