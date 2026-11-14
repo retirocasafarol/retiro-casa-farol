@@ -1835,6 +1835,21 @@ html.cfa-lock,html.cfa-lock body{overflow:hidden}
 #cfa-toast.on{opacity:1;transform:translateX(-50%)}
 .home-greet-edit.cfa-chipbtn{width:auto;padding:0 12px;font:600 12px var(--sans);gap:6px;display:inline-flex;align-items:center;margin-right:8px}
 
+/* ── cadastro em 6 etapas: escolhas Sim/Não, grupos, filhos ── */
+.cfa-rg{display:flex;gap:10px;margin-top:6px}
+.cfa-rg.col{flex-direction:column}
+.cfa-rb{flex:1;min-height:48px;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:transparent;color:inherit;font:inherit;font-size:15px;cursor:pointer;text-align:center}
+.cfa-rg.col .cfa-rb{text-align:left}
+.cfa-rb.on{border-color:#d4a64a;background:rgba(212,166,74,.18);font-weight:600}
+.cfa-f.err .cfa-rb{border-color:#e07a6b}
+.cfa-gl{font-size:13px;margin-bottom:6px;opacity:.9}
+.cfa-kid{padding:12px;margin-bottom:12px;border:1px solid rgba(255,255,255,.16);border-radius:14px}
+.cfa-pend .cfa-sub{white-space:pre-line}
+.cfa-sum h4{display:flex;justify-content:space-between;align-items:center}
+.cfa-sum h4 button{background:none;border:0;color:#d4a64a;font:inherit;font-size:13px;cursor:pointer;text-decoration:underline}
+.cfa-sum .r{display:flex;justify-content:space-between;gap:12px;padding:4px 0;font-size:14px}
+.cfa-sum .r span:last-child{text-align:right;word-break:break-word}
+
 </style>
 </head>
 <body>
@@ -5061,7 +5076,6 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     cpf: function (v) { var d = dg(v); return d.length !== 11 ? 'O CPF deve ter 11 números.' : (cpfOk(d) ? '' : 'Este CPF não é válido. Confira os números.'); },
     birth: function (v) { if (!dateOk(v)) return 'Informe uma data de nascimento válida.'; return ageOf(v) < MIN_AGE ? 'O cadastro direto é permitido a partir de ' + MIN_AGE + ' anos.' : ''; },
     phone: function (v) { return phoneOk(v) ? '' : 'Informe o celular com DDD. Ex.: (11) 91234-5678.'; },
-    whatsapp: function (v) { return !dg(v) || phoneOk(v) ? '' : 'WhatsApp inválido. Informe com DDD ou deixe em branco.'; },
     email: function (v) { v = sp(v); return v.length <= 160 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) ? '' : 'Informe um e-mail válido.'; },
     cep: function (v) { return dg(v).length === 8 ? '' : 'O CEP deve ter 8 números.'; },
     street: function (v) { return sp(v).length >= 2 && sp(v).length <= 120 ? '' : 'Informe a rua.'; },
@@ -5069,8 +5083,14 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     complement: function (v) { return sp(v).length <= 80 ? '' : 'Complemento muito longo.'; },
     district: function (v) { return sp(v).length >= 2 && sp(v).length <= 80 ? '' : 'Informe o bairro.'; },
     city: function (v) { return sp(v).length >= 2 && sp(v).length <= 80 ? '' : 'Informe a cidade.'; },
-    state: function (v) { return UFS.indexOf(v) >= 0 ? '' : 'Escolha o estado (UF).'; }
+    state: function (v) { return UFS.indexOf(v) >= 0 ? '' : 'Escolha o estado (UF).'; },
+    civil: function (v) { return CIVIS.indexOf(v) >= 0 ? '' : 'Informe o estado civil.'; },
+    country: function (v) { return sp(v).length >= 2 && sp(v).length <= 60 ? '' : 'Informe o país.'; },
+    spouseName: function (v) { return CHECK.name(v) ? 'Informe o nome completo do cônjuge.' : ''; },
+    spouseCpf: function (v) { return CHECK.cpf(v); }
   };
+  var CIVIS = ['solteiro', 'casado', 'uniao', 'divorciado', 'viuvo'], METS = ['', 'amigos', 'redes', 'evento', 'outra'];
+  var AREAS = ['midia', 'louvor', 'kids', 'recepcao', 'mulheres', 'homens', 'casais', 'discipulado', 'eventos', 'acao_social', 'outros'], MAX_KIDS = 10;
   function pwProblem(pw) { if (!pw || pw.length < 8) return 'A senha deve ter pelo menos 8 caracteres.'; if (!/\p{L}/u.test(pw) || !/\d/.test(pw)) return 'Use letras e números na senha.'; return ''; }
   function check(body, keys, optional) {
     var f = {}, any = false;
@@ -5080,13 +5100,13 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     });
     if (any) throw E(400, 'validation', 'Revise os campos destacados.', f);
   }
-  var CONTACT_KEYS = ['phone', 'whatsapp', 'cep', 'street', 'number', 'complement', 'district', 'city', 'state'];
+  var CONTACT_KEYS = ['phone', 'cep', 'street', 'number', 'complement', 'district', 'city', 'state'];
   function clean(body, keys) {
     var o = {};
     keys.forEach(function (k) {
       if (body[k] === undefined) return;
       var v = String(body[k]);
-      o[k] = (k === 'phone' || k === 'whatsapp' || k === 'cep') ? dg(v) : (k === 'birth' || k === 'state' ? v : sp(v));
+      o[k] = (k === 'phone' || k === 'cep') ? dg(v) : (k === 'birth' || k === 'state' ? v : sp(v));
     });
     return o;
   }
@@ -5124,8 +5144,8 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     var x = await loadMe(true);
     if (!x) return { authenticated: false, csrf: '' };
     var m = x.m, st = m.status, member = { id: x.uid, name: m.name, status: st }, sv = null;
-    if (st === 'approved') Object.assign(member, { phone: m.phone, whatsapp: m.whatsapp || '', email: m.email, cpfMasked: masked(m), city: m.city });
-    else if (st === 'pending') sv = { title: 'Cadastro recebido!', message: 'Cadastro recebido! Seu cadastro foi enviado para a administração do Casa Farol. Assim que sua entrada for autorizada, você poderá acessar todas as funcionalidades do aplicativo.' };
+    if (st === 'approved') Object.assign(member, { phone: m.phone, email: m.email, cpfMasked: masked(m), city: m.city });
+    else if (st === 'pending') sv = { title: 'Cadastro enviado!', message: 'Seus dados foram recebidos pela Casa Farol.\n\nA administração irá verificar suas informações e confirmar sua autorização de acesso.\n\nAssim que seu cadastro for aprovado, você poderá entrar no aplicativo.' };
     else if (st === 'rejected') sv = { title: 'Cadastro não aprovado', message: 'Seu cadastro não foi aprovado.' + (m.statusReason ? ' Motivo: ' + m.statusReason + '.' : '') + ' Você pode corrigir os dados e reenviar para nova análise.', canResubmit: true };
     else sv = { title: 'Acesso suspenso', message: 'Seu acesso está suspenso. ' + CONTACT };
     var unread = 0;
@@ -5163,26 +5183,70 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
   R('POST', '/api/auth/logout', async function () { await auth.signOut(); reset(); return { ok: true }; });
   R('GET', '/api/auth/me', async function () { return meView(); });
 
-  R('POST', '/api/auth/register', async function (m, b) {
-    check(b, ['name', 'cpf', 'birth', 'phone', 'whatsapp', 'email', 'cep', 'street', 'number', 'complement', 'district', 'city', 'state']);
+  // valida e normaliza as respostas do cadastro (Sim/Não → boolean) e devolve o que vai para members/private/dependents
+  function buildProfile(b) {
     var f = {};
-    var pwp = pwProblem(b.password); if (pwp) f.password = pwp;
-    if (b.password !== b.passwordConfirm) f.passwordConfirm = 'As senhas não conferem.';
+    function bad(k, m) { if (!f[k]) f[k] = m; }
+    var ck = ['name', 'cpf', 'birth', 'phone', 'email', 'cep', 'street', 'number', 'complement', 'district', 'city', 'state', 'civil', 'country'];
+    ck.forEach(function (k) { var m = CHECK[k](b[k] == null ? '' : String(b[k])); if (m) bad(k, m); });
+    if (b.sex && ['F', 'M'].indexOf(b.sex) < 0) bad('sex', 'Opção inválida.');
+    if (sp(b.birthplace).length > 80) bad('birthplace', 'Texto muito longo.');
+    var cpf = dg(b.cpf), p = {};
+    ['baptized', 'cell', 'ministryRole', 'hasChildren'].forEach(function (k) { if (typeof b[k] !== 'boolean') bad(k, 'Escolha uma opção.'); });
+    if (typeof b.imageConsent !== 'boolean') bad('imageConsent', 'Escolha uma opção.');
+    var spouse = null;
+    if (b.civil === 'casado') {
+      var m1 = CHECK.spouseName(b.spouseName || ''), m2 = CHECK.spouseCpf(b.spouseCpf || '');
+      if (m1) bad('spouseName', m1); if (m2) bad('spouseCpf', m2); else if (dg(b.spouseCpf) === cpf) bad('spouseCpf', 'O CPF do cônjuge deve ser diferente do seu.');
+      spouse = { name: sp(b.spouseName), cpf: dg(b.spouseCpf) };
+    }
+    if (b.cell === true && sp(b.cellLeaders).length < 3) bad('cellLeaders', 'Informe o nome do(s) líder(es) da célula.');
+    if (b.ministryRole === true && sp(b.ministryRoleDesc).length < 3) bad('ministryRoleDesc', 'Descreva a função que você exerce.');
+    if (sp(b.cellLeaders).length > 160) bad('cellLeaders', 'Texto muito longo.');
+    if (sp(b.ministryRoleDesc).length > 200) bad('ministryRoleDesc', 'Texto muito longo.');
+    var kids = Array.isArray(b.children) ? b.children : [];
+    if (b.hasChildren === true) {
+      if (!kids.length) bad('children', 'Adicione ao menos um filho ou responda Não.');
+      if (kids.length > MAX_KIDS) bad('children', 'Máximo de ' + MAX_KIDS + ' filhos por cadastro. Fale com a secretaria para incluir mais.');
+      kids.forEach(function (k) { if (CHECK.name(k && k.name || '') && sp(k && k.name).length < 3) bad('children', 'Informe o nome completo de cada filho(a).'); if (k && k.birth && !dateOk(k.birth)) bad('children', 'Data de nascimento de filho inválida.'); });
+    } else kids = [];
+    if (METS.indexOf(b.metVia || '') < 0) bad('metVia', 'Opção inválida.');
+    var ints = Array.isArray(b.interests) ? b.interests : [];
+    if (ints.some(function (a) { return AREAS.indexOf(a) < 0; })) bad('interests', 'Opção inválida.');
+    if (ints.indexOf('outros') >= 0 && sp(b.interestsOther).length < 2) bad('interestsOther', 'Informe a área.');
+    if (b.metVia === 'outra' && sp(b.metOther).length > 160) bad('metOther', 'Texto muito longo.');
+    var pwp = pwProblem(b.password); if (pwp) bad('password', pwp);
+    if (b.password !== b.passwordConfirm) bad('passwordConfirm', 'As senhas não conferem.');
+    if (!b.acceptTerms) bad('acceptTerms', 'Obrigatório.');
+    if (!b.acceptPrivacy) bad('acceptPrivacy', 'Obrigatório.');
+    if (!b.truthConfirmed) bad('truthConfirmed', 'Confirme a veracidade dos dados.');
     if (Object.keys(f).length) throw E(400, 'validation', 'Revise os campos destacados.', f);
-    if (!b.acceptTerms || !b.acceptPrivacy) throw E(400, 'validation', 'Aceite os Termos de Uso e a Política de Privacidade.', { acceptTerms: 'Obrigatório.' });
-    var cpf = dg(b.cpf), email = sp(b.email).toLowerCase(), key = await cpfKey(cpf);
+    var c = clean(b, ['name', 'birth', 'phone', 'cep', 'street', 'number', 'complement', 'district', 'city', 'state', 'civil', 'country', 'birthplace']);
+    c.sex = b.sex || '';
+    c.baptized = b.baptized; c.cell = b.cell; c.cellLeaders = b.cell ? sp(b.cellLeaders) : '';
+    c.ministryRole = b.ministryRole; c.ministryRoleDesc = b.ministryRole ? sp(b.ministryRoleDesc) : '';
+    c.hasChildren = b.hasChildren; c.metVia = b.metVia || ''; c.metOther = b.metVia === 'outra' ? sp(b.metOther) : '';
+    c.interests = ints.filter(function (a, i) { return ints.indexOf(a) === i; }); c.interestsOther = ints.indexOf('outros') >= 0 ? sp(b.interestsOther) : '';
+    if (spouse) { c.spouseName = spouse.name; c.spouseCpfLast2 = spouse.cpf.slice(-2); }
+    return { c: c, cpf: cpf, spouse: spouse, kids: kids.map(function (k) { return { name: sp(k.name), birth: k.birth || '' }; }), image: b.imageConsent };
+  }
+
+  R('POST', '/api/auth/register', async function (m, b) {
+    var P = buildProfile(b), cpf = P.cpf, c = P.c, email = sp(b.email).toLowerCase(), key = await cpfKey(cpf);
     var dup = E(409, 'duplicate', 'Já existe um cadastro com estes dados. Entre com seu CPF e senha, ou use "Esqueci minha senha".');
     if (await snap('cpfIndex/' + key)) throw dup;
     var cred;
     try { cred = await auth.createUserWithEmailAndPassword(email, b.password); }
     catch (e) { if (e && e.code === 'auth/email-already-in-use') throw dup; if (e && e.code === 'auth/weak-password') throw E(400, 'validation', 'Revise os campos destacados.', { password: 'Senha muito fraca.' }); throw mapError(e); }
-    var uid = cred.user.uid, at = now(), c = clean(b, ['name', 'birth', 'phone', 'whatsapp', 'cep', 'street', 'number', 'complement', 'district', 'city', 'state']);
-    var member = Object.assign({}, c, { email: email, cpfLast2: cpf.slice(-2), status: 'pending', statusReason: '', statusAt: at, createdAt: at, consents: { terms: { version: (LEGAL.terms || {}).version || '', at: at }, privacy: { version: (LEGAL.privacy || {}).version || '', at: at } } });
+    var uid = cred.user.uid, at = now(), ver = function (d) { return { version: (LEGAL[d] || {}).version || '', at: at }; };
+    var member = Object.assign({}, c, { email: email, cpfLast2: cpf.slice(-2), status: 'pending', statusReason: '', statusAt: at, createdAt: at, consents: { terms: ver('terms'), privacy: ver('privacy'), image: { granted: P.image, at: at }, truth: { at: at } } });
+    var priv = { cpf: cpf }; if (P.spouse) priv.spouseCpf = P.spouse.cpf;
     var batch = db.batch();
     batch.set(ref('members/' + uid), member);
-    batch.set(ref('private/' + uid), { cpf: cpf });
+    batch.set(ref('private/' + uid), priv);
     batch.set(ref('cpfIndex/' + key), { uid: uid, email: email });
     batch.set(ref('directory/' + uid), { name: c.name, cpfLast2: cpf.slice(-2), approved: false });
+    P.kids.forEach(function (k) { batch.set(db.collection('members/' + uid + '/dependents').doc(), { name: k.name, birth: k.birth, createdAt: at }); });
     try { await batch.commit(); }
     catch (e) { try { await cred.user.delete(); } catch (x) { /* ok */ } reset(); throw mapError(e); }
     reset(); return meView();
@@ -5191,7 +5255,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
   R('POST', '/api/auth/resubmit', async function (m, b) {
     var x = await need();
     if (x.m.status !== 'rejected') throw E(409, 'conflict', 'Seu cadastro não está em situação de correção.');
-    var keys = ['name', 'phone', 'whatsapp', 'cep', 'street', 'number', 'complement', 'district', 'city', 'state'];
+    var keys = ['name', 'phone', 'cep', 'street', 'number', 'complement', 'district', 'city', 'state'];
     check(b, keys, true);
     var upd = Object.assign(clean(b, keys), { status: 'pending', statusReason: '', statusAt: now() });
     var batch = db.batch(); batch.update(ref('members/' + x.uid), upd);
@@ -5209,7 +5273,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
   /* — membro — */
   R('GET', '/api/member/profile', async function () {
     var x = await needApproved(), m = x.m;
-    return { profile: { id: x.uid, name: m.name, status: m.status, memberSince: m.createdAt, cpfMasked: masked(m), birth: m.birth, phone: m.phone, whatsapp: m.whatsapp || '', email: m.email, cep: m.cep, street: m.street, number: m.number, complement: m.complement || '', district: m.district, city: m.city, state: m.state } };
+    return { profile: Object.assign({ id: x.uid, name: m.name, status: m.status, memberSince: m.createdAt, cpfMasked: masked(m), birth: m.birth, phone: m.phone, email: m.email, cep: m.cep, street: m.street, number: m.number, complement: m.complement || '', district: m.district, city: m.city, state: m.state }, extraFields(m), { dependents: await kidsOf(x.uid) }) };
   });
   R('PATCH', '/api/member/profile', async function (m, b) {
     var x = await needApproved();
@@ -5297,7 +5361,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
   R('GET', '/api/member/privacy/export', async function () {
     var x = await needApproved(), pv = await snap('private/' + x.uid), h = await routeCall('GET', '/api/member/history');
     var mm = Object.assign({}, x.m); delete mm._id;
-    return { exportedAt: now(), member: Object.assign(mm, { cpf: pv ? pv.cpf : null }), history: h };
+    return { exportedAt: now(), member: Object.assign(mm, { cpf: pv ? pv.cpf : null, spouseCpf: pv ? pv.spouseCpf || null : null }), dependents: await kidsOf(x.uid), history: h };
   });
 
   /* — cursos e eventos (lado do membro) — */
@@ -5356,7 +5420,16 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
   });
 
   /* ══════════ administração ══════════ */
-  function memberRow(id, m) { return { id: id, name: m.name, cpfMasked: masked(m), birth: m.birth, phone: m.phone, whatsapp: m.whatsapp || '', email: m.email, city: m.city, state: m.state, status: m.status, createdAt: m.createdAt, statusAt: m.statusAt }; }
+  function extraFields(m) {
+    return { sex: m.sex || '', civil: m.civil || '', birthplace: m.birthplace || '', country: m.country || 'Brasil', spouseName: m.spouseName || '', spouseCpfMasked: m.spouseCpfLast2 ? '***.***.***-' + m.spouseCpfLast2 : '',
+      baptized: !!m.baptized, cell: !!m.cell, cellLeaders: m.cellLeaders || '', ministryRole: !!m.ministryRole, ministryRoleDesc: m.ministryRoleDesc || '', hasChildren: !!m.hasChildren,
+      metVia: m.metVia || '', metOther: m.metOther || '', interests: m.interests || [], interestsOther: m.interestsOther || '', consents: { image: (m.consents && m.consents.image) || null } };
+  }
+  async function kidsOf(uid) {
+    var q = await db.collection('members/' + uid + '/dependents').get();
+    return q.docs.map(function (d) { var v = d.data(); return { id: d.id, name: v.name, birth: v.birth || '' }; }).sort(function (a, b) { return a.name < b.name ? -1 : 1; });
+  }
+  function memberRow(id, m) { return { id: id, name: m.name, cpfMasked: masked(m), birth: m.birth, phone: m.phone, email: m.email, city: m.city, state: m.state, status: m.status, createdAt: m.createdAt, statusAt: m.statusAt }; }
   async function allMembers() { var q = await db.collection('members').get(); return q.docs.map(function (d) { return Object.assign({ _id: d.id }, d.data()); }); }
   var fold = function (s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); };
 
@@ -5399,14 +5472,14 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     await Promise.all(cs.docs.map(async function (c) { try { var e = await snap('courses/' + c.id + '/enrollments/' + m[1]); if (e) courses.push({ title: c.data().title, status: e.status, enrolled_at: e.enrolledAt }); } catch (er) { /* sem permissão em cursos */ } }));
     await Promise.all(es.docs.map(async function (v) { try { var r = await snap('events/' + v.id + '/registrations/' + m[1]); if (r) events.push({ title: v.data().title, starts_at: v.data().startsAt, status: r.status, attended: !!r.attended }); } catch (er) { /* idem */ } }));
     if (x.admin.principal) { try { var a = await snap('admins/' + m[1]); if (a && a.active) target = { principal: a.kind === 'principal' }; } catch (er) { /* ok */ } }
-    var mem = Object.assign(memberRow(m[1], t), { street: t.street, number: t.number, complement: t.complement || '', district: t.district, cep: t.cep });
-    return { member: mem, admin: target, statusHistory: hist, courses: courses, events: events };
+    var mem = Object.assign(memberRow(m[1], t), extraFields(t), { street: t.street, number: t.number, complement: t.complement || '', district: t.district, cep: t.cep }), kids = await kidsOf(m[1]);
+    return { member: mem, dependents: kids, admin: target, statusHistory: hist, courses: courses, events: events };
   });
   R('PATCH', '/api/admin/members/([^/]+)', async function (m, b) {
     var x = await needPerm('members'), t = await snap('members/' + m[1]);
     if (!t) throw E(404, 'not_found', 'Cadastro não encontrado.');
     if (b.email !== undefined && sp(b.email).toLowerCase() !== t.email) throw E(400, 'validation', 'Revise os campos destacados.', { email: 'O e-mail é o acesso da pessoa ao app e não pode ser trocado por aqui.' });
-    var keys = ['name', 'birth', 'phone', 'whatsapp', 'cep', 'street', 'number', 'complement', 'district', 'city', 'state'];
+    var keys = ['name', 'birth', 'phone', 'cep', 'street', 'number', 'complement', 'district', 'city', 'state'];
     check(b, keys.filter(function (k) { return k !== 'birth'; })); if (b.birth && !dateOk(b.birth)) throw E(400, 'validation', 'Revise os campos destacados.', { birth: 'Data inválida.' });
     var upd = clean(b, keys), batch = db.batch();
     batch.update(ref('members/' + m[1]), upd);
@@ -5453,7 +5526,8 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     var t = await snap('members/' + uid), adm = await snap('admins/' + uid);
     if (adm && adm.kind === 'principal') throw E(403, 'forbidden', 'Um administrador principal não pode ser anonimizado.');
     var pv = await snap('private/' + uid);
-    batch.update(ref('members/' + uid), { name: 'Membro removido', birth: '1900-01-01', phone: '', whatsapp: '', cep: '', street: '', number: '', complement: '', district: '', city: '', state: '', anonymized: true });
+    batch.update(ref('members/' + uid), { name: 'Membro removido', birth: '1900-01-01', phone: '', cep: '', street: '', number: '', complement: '', district: '', city: '', state: '', sex: '', birthplace: '', spouseName: '', spouseCpfLast2: '', cellLeaders: '', ministryRoleDesc: '', metOther: '', interestsOther: '', interests: [], anonymized: true });
+    (await db.collection('members/' + uid + '/dependents').get()).docs.forEach(function (d) { batch.delete(d.ref); });
     batch.update(ref('directory/' + uid), { name: 'Membro removido' });
     if (pv) { batch.delete(ref('private/' + uid)); batch.delete(ref('cpfIndex/' + await cpfKey(pv.cpf))); }
     addAudit(batch, x, 'member_anonymized', { member: uid });
@@ -5692,7 +5766,6 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     cpf: function (v) { var d = dg(v); return d.length !== 11 ? 'O CPF deve ter 11 números.' : (cpfOk(d) ? '' : 'Este CPF não é válido. Confira os números.'); },
     birth: function (v) { if (!dateOk(v)) return 'Informe uma data de nascimento válida.'; return ageOf(v) < (S.cfg.minAge || 18) ? 'O cadastro direto é permitido a partir de ' + (S.cfg.minAge || 18) + ' anos.' : ''; },
     phone: function (v) { return phoneOk(v) ? '' : 'Informe o celular com DDD. Ex.: (11) 91234-5678.'; },
-    whatsapp: function (v) { return !dg(v) || phoneOk(v) ? '' : 'WhatsApp inválido. Informe com DDD ou deixe em branco.'; },
     email: function (v) { v = sp(v); return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) ? '' : 'Informe um e-mail válido.'; },
     cep: function (v) { return dg(v).length === 8 ? '' : 'O CEP deve ter 8 números.'; },
     street: function (v) { return sp(v).length >= 2 ? '' : 'Informe a rua.'; },
@@ -5700,7 +5773,19 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     complement: function () { return ''; },
     district: function (v) { return sp(v).length >= 2 ? '' : 'Informe o bairro.'; },
     city: function (v) { return sp(v).length >= 2 ? '' : 'Informe a cidade.'; },
-    state: function (v) { return v ? '' : 'Escolha o estado (UF).'; }
+    state: function (v) { return v ? '' : 'Escolha o estado (UF).'; },
+    civil: function (v) { return v ? '' : 'Informe o estado civil.'; },
+    country: function (v) { return sp(v).length >= 2 ? '' : 'Informe o país.'; },
+    spouseName: function (v) { return V.name(v) ? 'Informe o nome completo do cônjuge.' : ''; },
+    spouseCpf: function (v) { return V.cpf(v); },
+    baptized: function (v) { return v ? '' : 'Escolha uma opção.'; },
+    cell: function (v) { return v ? '' : 'Escolha uma opção.'; },
+    ministryRole: function (v) { return v ? '' : 'Escolha uma opção.'; },
+    hasChildren: function (v) { return v ? '' : 'Escolha uma opção.'; },
+    imageConsent: function (v) { return v ? '' : 'Escolha uma opção.'; },
+    cellLeaders: function (v) { return sp(v).length >= 3 ? '' : 'Informe o nome do(s) líder(es) da célula.'; },
+    ministryDesc: function (v) { return sp(v).length >= 3 ? '' : 'Descreva a função que você exerce.'; },
+    interestsOther: function (v) { return sp(v).length >= 2 ? '' : 'Informe a área.'; }
   };
   function pwHint(pw) {
     if (!pw) return '';
@@ -5785,103 +5870,278 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     add(card, [head('Bem-vindo à Casa Farol', 'Entre com seu CPF e senha para acessar sua área de membro.', true), box, cpf.row, pw.row, go,
       el('button', { class: 'cfa-link', type: 'button', text: 'Esqueci minha senha', onclick: function () { openGate('forgot'); } }),
       el('div', { class: 'cfa-spacer' }),
-      btn('Primeiro acesso? Criar meu cadastro', 'ghost', function () { openGate('register'); })]);
+      btn('Primeiro acesso? Criar meu cadastro', 'ghost', registerEntry)]);
   }
 
-  /* ── Cadastro em 5 etapas ── */
-  var R = { step: 0, data: {}, agree: { terms: false, privacy: false }, proof: null };
-  var STEP_NAMES = ['Identificação', 'Contato', 'Endereço', 'Acesso', 'Finalização'];
-  var FIELD_STEP = { name: 0, cpf: 0, birth: 0, phone: 1, whatsapp: 1, email: 1, cep: 2, street: 2, number: 2, complement: 2, district: 2, city: 2, state: 2, password: 3, passwordConfirm: 3, acceptTerms: 4, acceptPrivacy: 4 };
-  function stepFields(i) {
-    var d = R.data, ufs = [['', 'Selecione…']].concat((S.cfg.ufs || []).map(function (u) { return [u, u]; }));
-    if (i === 0) return [F({ key: 'name', label: 'Nome completo', value: d.name, autocomplete: 'name', autocap: 'words', placeholder: 'Como está no seu documento' }), F({ key: 'cpf', label: 'CPF', value: d.cpf, mask: 'cpf', inputmode: 'numeric', placeholder: '000.000.000-00', hint: 'Usado para identificar você de forma única. Fica protegido e nunca aparece completo para outras pessoas.' }), F({ key: 'birth', label: 'Data de nascimento', type: 'date', value: d.birth, max: today(), autocomplete: 'bday' })];
-    if (i === 1) return [F({ key: 'phone', label: 'Celular', value: d.phone, mask: 'phone', type: 'tel', inputmode: 'tel', placeholder: '(00) 00000-0000', autocomplete: 'tel' }), F({ key: 'whatsapp', label: 'WhatsApp (opcional)', value: d.whatsapp, mask: 'phone', type: 'tel', inputmode: 'tel', placeholder: '(00) 00000-0000', hint: 'Se for o mesmo número, repita o celular.' }), F({ key: 'email', label: 'E-mail', value: d.email, type: 'email', inputmode: 'email', autocomplete: 'email', placeholder: 'seu@email.com' })];
-    if (i === 2) return [F({ key: 'cep', label: 'CEP', value: d.cep, mask: 'cep', inputmode: 'numeric', placeholder: '00000-000', autocomplete: 'postal-code' }), F({ key: 'street', label: 'Rua', value: d.street, autocomplete: 'address-line1', autocap: 'words' }), F({ key: 'number', label: 'Número', value: d.number, placeholder: 'ou S/N' }), F({ key: 'complement', label: 'Complemento (opcional)', value: d.complement, autocomplete: 'address-line2' }), F({ key: 'district', label: 'Bairro', value: d.district, autocap: 'words' }), F({ key: 'city', label: 'Cidade', value: d.city, autocomplete: 'address-level2', autocap: 'words' }), F({ key: 'state', label: 'Estado', type: 'select', options: ufs, value: d.state })];
-    return [];
+  /* ── Cadastro em 6 etapas + revisão ── */
+  var DRAFT_KEY = 'cf_reg_draft_v2';
+  var CIVIL = [['', 'Selecione…'], ['solteiro', 'Solteiro(a)'], ['casado', 'Casado(a)'], ['uniao', 'União estável'], ['divorciado', 'Divorciado(a)'], ['viuvo', 'Viúvo(a)']];
+  var CIVILL = {}; CIVIL.forEach(function (c) { if (c[0]) CIVILL[c[0]] = c[1]; });
+  var SEXL = { F: 'Feminino', M: 'Masculino' };
+  var METVIA = [['amigos', 'Convite de amigos ou familiares'], ['redes', 'Redes sociais'], ['evento', 'Evento da igreja'], ['outra', 'Outra forma']];
+  var AREAS = [['midia', 'Mídia'], ['louvor', 'Louvor'], ['kids', 'Kids'], ['recepcao', 'Recepção'], ['mulheres', 'Mulheres'], ['homens', 'Homens'], ['casais', 'Casais'], ['discipulado', 'Discipulado'], ['eventos', 'Eventos'], ['acao_social', 'Ação social'], ['outros', 'Outros']];
+  var AREAL = {}; AREAS.forEach(function (a) { AREAL[a[0]] = a[1]; });
+  var METL = {}; METVIA.forEach(function (a) { METL[a[0]] = a[1]; });
+  var YN = [['sim', 'Sim'], ['nao', 'Não']];
+  var STEP_NAMES = ['Dados pessoais', 'Contato e endereço', 'Minha caminhada', 'Família', 'Participação e serviço', 'Finalização'];
+  var FIELD_STEP = { name: 0, cpf: 0, birth: 0, sex: 0, civil: 0, birthplace: 0, spouseName: 0, spouseCpf: 0, phone: 1, email: 1, cep: 1, street: 1, number: 1, complement: 1, district: 1, city: 1, state: 1, country: 1, baptized: 2, cell: 2, cellLeaders: 2, ministryRole: 2, ministryRoleDesc: 2, hasChildren: 3, children: 3, metVia: 4, metOther: 4, interests: 4, interestsOther: 4, password: 5, passwordConfirm: 5, acceptTerms: 5, acceptPrivacy: 5, imageConsent: 5, truthConfirmed: 5 };
+  function blankR() { return { step: 0, started: false, data: {}, kids: [], agree: { terms: false, privacy: false, truth: false }, password: '', passwordConfirm: '' }; }
+  var R = blankR();
+
+  // Rascunho: guarda só o que não é sensível. CPF (do titular e do cônjuge) e senha NUNCA vão para o aparelho.
+  function saveDraft() { try { var d = {}; Object.keys(R.data).forEach(function (k) { if (k !== 'cpf' && k !== 'spouseCpf') d[k] = R.data[k]; }); localStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), data: d, kids: R.kids })); } catch (e) { /* ok */ } }
+  function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { /* ok */ } }
+  function loadDraft() { try { var j = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); if (j && Date.now() - j.at < 7 * 864e5 && j.data && Object.keys(j.data).length) { R.data = j.data; R.kids = j.kids || []; R.restored = true; } } catch (e) { /* ok */ } }
+  function registerEntry() { if (!R.started) { R.started = true; loadDraft(); } openGate('register'); }
+
+  /* campos de escolha */
+  function RG(o) {
+    var wrap = el('div', { class: 'cfa-f' }), msg = el('div', { class: 'cfa-msg', role: 'alert' }), val = o.value || '', btns = {};
+    var row = el('div', { class: 'cfa-rg' + (o.col ? ' col' : ''), role: 'radiogroup', 'aria-label': o.label });
+    function paint() { Object.keys(btns).forEach(function (k) { btns[k].classList.toggle('on', k === val); btns[k].setAttribute('aria-checked', k === val ? 'true' : 'false'); }); }
+    o.options.forEach(function (op) {
+      var b = el('button', { type: 'button', class: 'cfa-rb', role: 'radio', 'aria-checked': 'false', text: op[1], onclick: function () {
+        var nv = op[0];
+        if (nv === val) { if (!o.optional) return; nv = ''; }
+        if (o.onchange && o.onchange(nv, val) === false) return;
+        val = nv; paint(); wrap.classList.remove('err'); msg.textContent = '';
+      } });
+      btns[op[0]] = b; row.appendChild(b);
+    });
+    paint(); add(wrap, [o.label ? el('label', { text: o.label }) : null, row, msg]);
+    return { key: o.key, row: wrap, input: row, get: function () { return val; }, set: function (v) { val = v || ''; paint(); }, err: function (m) { wrap.classList.toggle('err', !!m); msg.textContent = m || ''; } };
   }
+  function CG(o) {
+    var wrap = el('div', { style: 'margin-bottom:14px' }), boxes = {};
+    function get() { return Object.keys(boxes).filter(function (k) { return boxes[k].checked; }); }
+    var list = el('div');
+    o.options.forEach(function (op) { var c = el('input', { type: 'checkbox' }); c.checked = (o.values || []).indexOf(op[0]) >= 0; c.addEventListener('change', function () { if (o.onchange) o.onchange(get()); }); boxes[op[0]] = c; list.appendChild(el('label', { class: 'cfa-chk' }, c, el('span', { text: op[1] }))); });
+    add(wrap, [el('div', { class: 'cfa-gl', text: o.label }), list]);
+    return { key: o.key, row: wrap, get: get };
+  }
+  // pergunta Sim/Não com campo de texto que aparece logo abaixo quando a resposta é Sim
+  function yesNoCond(o) {
+    var txt = F({ key: o.txtKey, label: o.txtLabel, placeholder: o.txtPlaceholder, value: o.txtValue, autocap: o.autocap || 'sentences' });
+    var tbox = el('div', { style: 'display:' + (o.value === 'sim' ? 'block' : 'none') }, txt.row);
+    var rg = RG({ key: o.key, label: o.label, value: o.value, options: YN, onchange: function (v) {
+      if (v === 'nao' && sp(txt.get())) { if (!window.confirm(o.confirmMsg)) return false; txt.set(''); txt.err(''); }
+      tbox.style.display = v === 'sim' ? 'block' : 'none';
+      if (v === 'sim') setTimeout(function () { try { txt.input.focus({ preventScroll: true }); } catch (e) { /* ok */ } }, 60);
+    } });
+    return { rg: rg, txt: txt, nodes: [rg.row, tbox], active: function () { return rg.get() === 'sim' ? [txt] : []; } };
+  }
+  function stepShell(card, box, title, sub, nodes, back, onNext) {
+    var next = btn(R.step === 5 ? 'Revisar meus dados' : 'Continuar', '', function () { clear(box); onNext(); });
+    add(card, [head(title, sub), nodes, box, el('div', { class: 'cfa-spacer' }), next, el('button', { class: 'cfa-link', type: 'button', text: R.step === 0 ? 'Voltar ao login' : 'Voltar', onclick: back })]);
+    card.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type !== 'checkbox') { e.preventDefault(); next.click(); } });
+  }
+  function goNext() { saveDraft(); R.step++; openGate('register'); }
+  function focusFirst(f) { setTimeout(function () { try { f.input.focus({ preventScroll: true }); } catch (e) { /* ok */ } }, 50); }
+
   function viewRegister(card) {
     var i = R.step, box = el('div');
-    var bar = el('div', { class: 'cfa-steps', 'aria-label': 'Etapa ' + (i + 1) + ' de 5' }); STEP_NAMES.forEach(function (n, k) { bar.appendChild(el('i', { class: k <= i ? 'on' : '' })); });
-    add(card, [bar, el('div', { class: 'cfa-stepname', text: 'Etapa ' + (i + 1) + ' de 5 · ' + STEP_NAMES[i] }), box]);
+    var bar = el('div', { class: 'cfa-steps', 'aria-label': i === 6 ? 'Revisão' : 'Etapa ' + (i + 1) + ' de 6' });
+    for (var k = 0; k < 6; k++) bar.appendChild(el('i', { class: k <= i ? 'on' : '' }));
+    add(card, [bar, el('div', { class: 'cfa-stepname', text: i === 6 ? 'Revisão final' : 'Etapa ' + (i + 1) + ' de 6 · ' + STEP_NAMES[i] }), box]);
     var back = function () { if (R.step === 0) openGate('login'); else { R.step--; openGate('register'); } };
-    if (i <= 2) return registerFieldsStep(card, i, box, back);
-    if (i === 3) return registerPasswordStep(card, box, back);
-    return registerFinalStep(card, box, back);
+    [stepPersonal, stepContact, stepJourney, stepFamily, stepService, stepFinal, stepReview][i](card, box, back);
   }
-  function registerFieldsStep(card, i, box, back) {
-    var forms = stepFields(i), next = btn(i === 2 ? 'Continuar' : 'Continuar', '', go);
-    add(card, [head(['Identificação', 'Contato', 'Endereço'][i], ['Vamos começar pelos seus dados pessoais.', 'Como podemos falar com você?', 'Onde você mora?'][i]), forms.map(function (f) { return f.row; })]);
-    if (i === 1) { var phone = forms[0], wa = forms[1]; add(card, el('button', { class: 'cfa-link', type: 'button', style: 'text-align:left;padding-top:0', text: 'Usar o mesmo número no WhatsApp', onclick: function () { wa.set(phone.get()); wa.err(''); } })); }
-    if (i === 2) {
-      var cep = forms[0], byKey = {}; forms.forEach(function (f) { byKey[f.key] = f; });
-      cep.input.addEventListener('input', function () {
-        var d = dg(cep.get()); if (d.length !== 8) return;
-        fetch('https://viacep.com.br/ws/' + d + '/json/').then(function (r) { return r.json(); }).then(function (j) {
-          if (j && !j.erro) { if (!byKey.street.get()) byKey.street.set(j.logradouro || ''); if (!byKey.district.get()) byKey.district.set(j.bairro || ''); if (!byKey.city.get()) byKey.city.set(j.localidade || ''); if (j.uf) byKey.state.set(j.uf); }
-        }).catch(function () { /* preenchimento manual */ });
-      });
+
+  /* ETAPA 1 — dados pessoais */
+  function stepPersonal(card, box, back) {
+    var d = R.data;
+    var name = F({ key: 'name', label: 'Nome completo', value: d.name, autocomplete: 'name', autocap: 'words', placeholder: 'Como está no seu documento' });
+    var cpf = F({ key: 'cpf', label: 'CPF', value: d.cpf, mask: 'cpf', inputmode: 'numeric', placeholder: '000.000.000-00', hint: 'Usado para identificar você de forma única. Fica protegido e nunca aparece completo para outras pessoas.' });
+    var birth = F({ key: 'birth', label: 'Data de nascimento', type: 'date', value: d.birth, max: today(), autocomplete: 'bday' });
+    var sex = F({ key: 'sex', label: 'Sexo (opcional)', type: 'select', options: [['', 'Prefiro não informar'], ['F', 'Feminino'], ['M', 'Masculino']], value: d.sex });
+    var civil = F({ key: 'civil', label: 'Estado civil', type: 'select', options: CIVIL, value: d.civil });
+    var nat = F({ key: 'birthplace', label: 'Naturalidade — cidade/estado (opcional)', value: d.birthplace, autocap: 'words', placeholder: 'Ex.: Porto Alegre/RS' });
+    var spName = F({ key: 'spouseName', label: 'Nome completo do cônjuge', value: d.spouseName, autocap: 'words' });
+    var spCpf = F({ key: 'spouseCpf', label: 'CPF do cônjuge', value: d.spouseCpf, mask: 'cpf', inputmode: 'numeric', placeholder: '000.000.000-00', hint: 'Coletamos o CPF do cônjuge apenas para vincular a família ao seu cadastro. Ele é protegido conforme a LGPD e não cria uma conta para o(a) cônjuge.' });
+    var spBox = el('div', { style: 'display:' + (d.civil === 'casado' ? 'block' : 'none') }, spName.row, spCpf.row);
+    civil.input.addEventListener('change', function () { var c = civil.get() === 'casado'; spBox.style.display = c ? 'block' : 'none'; if (c) focusFirst(spName); });
+    if (R.restored) { R.restored = false; box.appendChild(alertBox('Recuperamos o que você já tinha preenchido. Por segurança, informe novamente o CPF e crie a senha.', true)); }
+    stepShell(card, box, 'Dados pessoais', 'Vamos começar pelos seus dados.', [name.row, cpf.row, birth.row, sex.row, civil.row, spBox, nat.row], back, function () {
+      var forms = [name, cpf, birth, civil]; if (civil.get() === 'casado') forms.push(spName, spCpf);
+      var ok = validateForms(forms);
+      if (ok && civil.get() === 'casado' && dg(spCpf.get()) === dg(cpf.get())) { spCpf.err('O CPF do cônjuge deve ser diferente do seu.'); spCpf.input.focus(); ok = false; }
+      if (!ok) return;
+      [name, cpf, birth, sex, civil, nat].forEach(function (f) { R.data[f.key] = f.get(); });
+      if (civil.get() === 'casado') { R.data.spouseName = spName.get(); R.data.spouseCpf = spCpf.get(); } else { delete R.data.spouseName; delete R.data.spouseCpf; }
+      goNext();
+    });
+    focusFirst(name);
+  }
+
+  /* ETAPA 2 — contato e endereço */
+  function stepContact(card, box, back) {
+    var d = R.data, ufs = [['', 'Selecione…']].concat((S.cfg.ufs || []).map(function (u) { return [u, u]; }));
+    var f = {
+      phone: F({ key: 'phone', label: 'Telefone principal / WhatsApp', value: d.phone, mask: 'phone', type: 'tel', inputmode: 'tel', placeholder: '(00) 00000-0000', autocomplete: 'tel' }),
+      email: F({ key: 'email', label: 'E-mail', value: d.email, type: 'email', inputmode: 'email', autocomplete: 'email', placeholder: 'seu@email.com', hint: 'É com este e-mail que você recuperará sua senha.' }),
+      cep: F({ key: 'cep', label: 'CEP', value: d.cep, mask: 'cep', inputmode: 'numeric', placeholder: '00000-000', autocomplete: 'postal-code' }),
+      street: F({ key: 'street', label: 'Endereço / Rua', value: d.street, autocomplete: 'address-line1', autocap: 'words' }),
+      number: F({ key: 'number', label: 'Número', value: d.number, placeholder: 'ou S/N' }),
+      complement: F({ key: 'complement', label: 'Complemento (opcional)', value: d.complement, autocomplete: 'address-line2' }),
+      district: F({ key: 'district', label: 'Bairro', value: d.district, autocap: 'words' }),
+      city: F({ key: 'city', label: 'Cidade', value: d.city, autocomplete: 'address-level2', autocap: 'words' }),
+      state: F({ key: 'state', label: 'Estado', type: 'select', options: ufs, value: d.state }),
+      country: F({ key: 'country', label: 'País', value: d.country || 'Brasil', autocap: 'words' })
+    };
+    var order = ['phone', 'email', 'cep', 'street', 'number', 'complement', 'district', 'city', 'state', 'country'];
+    f.cep.input.addEventListener('input', function () {
+      var c = dg(f.cep.get()); if (c.length !== 8) return;
+      fetch('https://viacep.com.br/ws/' + c + '/json/').then(function (r) { return r.json(); }).then(function (j) {
+        if (j && !j.erro) { if (!f.street.get()) f.street.set(j.logradouro || ''); if (!f.district.get()) f.district.set(j.bairro || ''); if (!f.city.get()) f.city.set(j.localidade || ''); if (j.uf) f.state.set(j.uf); }
+      }).catch(function () { /* preenchimento manual */ });
+    });
+    stepShell(card, box, 'Contato e endereço', 'Como podemos falar com você e onde você mora?', order.map(function (k) { return f[k].row; }), back, function () {
+      var forms = order.map(function (k) { return f[k]; }); if (!validateForms(forms)) return;
+      forms.forEach(function (x) { R.data[x.key] = x.get(); }); goNext();
+    });
+    focusFirst(f.phone);
+  }
+
+  /* ETAPA 3 — minha caminhada */
+  function stepJourney(card, box, back) {
+    var d = R.data;
+    var bap = RG({ key: 'baptized', label: 'É batizado?', value: d.baptized, options: YN });
+    var cell = yesNoCond({ key: 'cell', label: 'Participa de alguma célula?', txtKey: 'cellLeaders', txtLabel: 'Nome do(s) líder(es) da célula', txtPlaceholder: 'Digite o nome do(s) líder(es)', value: d.cell, txtValue: d.cellLeaders, autocap: 'words', confirmMsg: 'Ao responder Não, o nome do(s) líder(es) que você digitou será apagado. Deseja continuar?' });
+    var min = yesNoCond({ key: 'ministryRole', label: 'Exerce alguma função em nosso ministério?', txtKey: 'ministryDesc', txtLabel: 'Qual função você exerce?', txtPlaceholder: 'Descreva a função que exerce na igreja.', value: d.ministryRole, txtValue: d.ministryDesc, confirmMsg: 'Ao responder Não, a descrição da função que você escreveu será apagada. Deseja continuar?' });
+    stepShell(card, box, 'Minha caminhada na Casa Farol', 'Conte um pouco da sua caminhada conosco.', [bap.row, cell.nodes, min.nodes], back, function () {
+      var forms = [bap, cell.rg, min.rg].concat(cell.active(), min.active()); if (!validateForms(forms)) return;
+      R.data.baptized = bap.get(); R.data.cell = cell.rg.get(); R.data.ministryRole = min.rg.get();
+      if (R.data.cell === 'sim') R.data.cellLeaders = cell.txt.get(); else delete R.data.cellLeaders;
+      if (R.data.ministryRole === 'sim') R.data.ministryDesc = min.txt.get(); else delete R.data.ministryDesc;
+      goNext();
+    });
+  }
+
+  /* ETAPA 4 — família */
+  function stepFamily(card, box, back) {
+    var d = R.data, kids = [], kidsBox = el('div');
+    var addBtn = btn('+ Adicionar outro filho', 'ghost', function () { addKid(); });
+    var area = el('div', { style: 'display:' + (d.hasChildren === 'sim' ? 'block' : 'none') }, kidsBox, addBtn);
+    function addKid(k) {
+      var nm = F({ key: 'kidName', label: 'Nome completo do filho(a)', value: k && k.name, autocap: 'words' });
+      var bd = F({ key: 'kidBirth', label: 'Data de nascimento (opcional)', type: 'date', value: k && k.birth, max: today() });
+      var rm = btn('Remover este filho', 'ghost', function () { kids.splice(kids.indexOf(item), 1); kidsBox.removeChild(item.node); });
+      rm.style.marginBottom = '12px';
+      var item = { nm: nm, bd: bd, node: el('div', { class: 'cfa-kid' }, nm.row, bd.row, rm) };
+      kids.push(item); kidsBox.appendChild(item.node); return item;
     }
-    add(card, [box, el('div', { class: 'cfa-spacer' }), next, el('button', { class: 'cfa-link', type: 'button', text: i === 0 ? 'Voltar ao login' : 'Voltar', onclick: back })]);
-    function save() { forms.forEach(function (f) { R.data[f.key] = f.get(); }); }
-    function go() {
-      clear(box);
+    var rg = RG({ key: 'hasChildren', label: 'Possui filhos?', value: d.hasChildren, options: YN, onchange: function (v) {
+      if (v === 'nao') {
+        var filled = kids.some(function (k) { return sp(k.nm.get()) || k.bd.get(); });
+        if (filled && !window.confirm('Ao responder Não, os filhos que você cadastrou serão removidos. Deseja continuar?')) return false;
+        kids.splice(0).forEach(function (k) { kidsBox.removeChild(k.node); });
+      } else if (!kids.length) { var it = addKid(); focusFirst(it.nm); }
+      area.style.display = v === 'sim' ? 'block' : 'none';
+    } });
+    if (d.hasChildren === 'sim') (R.kids.length ? R.kids : [null]).forEach(function (k) { addKid(k); });
+    stepShell(card, box, 'Família', 'Os dados dos filhos ficam vinculados ao seu cadastro e protegidos. Você, como responsável, controla essas informações.', [rg.row, area], back, function () {
+      var ok = validateForms([rg]);
+      if (rg.get() === 'sim') {
+        if (!kids.length) { box.appendChild(alertBox('Adicione ao menos um filho ou responda Não.')); ok = false; }
+        kids.forEach(function (k) {
+          var m1 = sp(k.nm.get()).length >= 3 ? '' : 'Informe o nome completo do filho(a).', b = k.bd.get(), m2 = b && !dateOk(b) ? 'Informe uma data válida.' : '';
+          k.nm.err(m1); k.bd.err(m2); if (m1 || m2) ok = false;
+        });
+      }
+      if (!ok) return;
+      R.data.hasChildren = rg.get();
+      R.kids = rg.get() === 'sim' ? kids.map(function (k) { return { name: sp(k.nm.get()), birth: k.bd.get() || '' }; }) : [];
+      goNext();
+    });
+  }
+
+  /* ETAPA 5 — participação e serviço */
+  function stepService(card, box, back) {
+    var d = R.data;
+    var other = F({ key: 'metOther', label: 'Descreva como conheceu', value: d.metOther, placeholder: 'Conte como foi' });
+    var oBox = el('div', { style: 'display:' + (d.metVia === 'outra' ? 'block' : 'none') }, other.row);
+    var met = RG({ key: 'metVia', label: 'Como você conheceu a Casa Farol? (opcional)', value: d.metVia, options: METVIA, col: true, optional: true, onchange: function (v) { oBox.style.display = v === 'outra' ? 'block' : 'none'; if (v !== 'outra') other.set(''); } });
+    var areaOther = F({ key: 'interestsOther', label: 'Qual outra área?', value: d.interestsOther, placeholder: 'Informe a área' });
+    var aBox = el('div', { style: 'display:' + ((d.interests || []).indexOf('outros') >= 0 ? 'block' : 'none') }, areaOther.row);
+    var cg = CG({ key: 'interests', label: 'Em quais áreas gostaria de colaborar?', options: AREAS, values: d.interests || [], onchange: function (vals) { var o = vals.indexOf('outros') >= 0; aBox.style.display = o ? 'block' : 'none'; if (o) focusFirst(areaOther); else areaOther.set(''); } });
+    stepShell(card, box, 'Participação e serviço', 'Estas perguntas são opcionais. Elas mostram seu interesse em colaborar, e não uma função que você já exerce.', [met.row, oBox, cg.row, aBox], back, function () {
+      var forms = []; if (cg.get().indexOf('outros') >= 0) forms.push(areaOther);
       if (!validateForms(forms)) return;
-      save();
-      if (i === 1 && S.cfg.requireContactVerification && !R.proof) return verifyContact(card, box, function () { R.step++; openGate('register'); });
-      R.step++; openGate('register');
-    }
-    card.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') go(); });
-    forms[0].input.focus && setTimeout(function () { try { forms[0].input.focus({ preventScroll: true }); } catch (e) { /* ok */ } }, 50);
+      R.data.metVia = met.get(); if (met.get() === 'outra') R.data.metOther = other.get(); else delete R.data.metOther;
+      R.data.interests = cg.get(); if (cg.get().indexOf('outros') >= 0) R.data.interestsOther = areaOther.get(); else delete R.data.interestsOther;
+      goNext();
+    });
   }
-  function verifyContact(card, box, done) {
-    clear(box);
-    var email = R.data.email, code = F({ key: 'code', label: 'Código recebido', inputmode: 'numeric', maxlength: 6, placeholder: '000000' }), ok = btn('Confirmar código', 'sm', confirm);
-    function send() { api('POST', '/api/auth/contact/request', { channel: 'email', dest: email }).then(function (r) { box.appendChild(alertBox('Enviamos um código para ' + email + '. ' + (r.devCode ? '(Modo teste — código: ' + r.devCode + ')' : ''), true)); }).catch(function (e) { box.appendChild(alertBox(e.message)); }); }
-    function confirm() { api('POST', '/api/auth/contact/verify', { channel: 'email', dest: email, code: code.get() }).then(function (r) { R.proof = r.proof; done(); }).catch(function (e) { code.err(e.message); }); }
-    add(box, [el('p', { class: 'cfa-sub', text: 'Para garantir que o e-mail é seu, vamos enviar um código de confirmação.' }), code.row, ok, el('button', { class: 'cfa-link', type: 'button', text: 'Reenviar código', onclick: send })]);
-    send();
-  }
-  function registerPasswordStep(card, box, back) {
+
+  /* ETAPA 6 — finalização e segurança */
+  function stepFinal(card, box, back) {
     var pw = F({ key: 'password', label: 'Criar senha', type: 'password', autocomplete: 'new-password', hint: 'Mínimo de 8 caracteres, com letras e números.' });
     var pc = F({ key: 'passwordConfirm', label: 'Confirmar senha', type: 'password', autocomplete: 'new-password' });
     var meter = el('div', { class: 'cfa-hint', style: 'margin:-6px 0 14px' }); pw.input.addEventListener('input', function () { meter.textContent = pw.get() ? 'Força: ' + pwHint(pw.get()) : ''; });
-    function go() { var a = pwCheck(pw.get()), b = pw.get() === pc.get() ? '' : 'As senhas não conferem.'; pw.err(a); pc.err(b); if (a || b) return; R.password = pw.get(); R.passwordConfirm = pc.get(); R.step++; openGate('register'); }
-    add(card, [head('Crie sua senha', 'Ela protege os seus dados. Não compartilhe com ninguém.'), pw.row, meter, pc.row, box, el('div', { class: 'cfa-spacer' }), btn('Continuar', '', go), el('button', { class: 'cfa-link', type: 'button', text: 'Voltar', onclick: back })]);
-    card.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+    var tChk = el('input', { type: 'checkbox', id: 'cfa-terms' }), pChk = el('input', { type: 'checkbox', id: 'cfa-priv' }), vChk = el('input', { type: 'checkbox', id: 'cfa-truth' });
+    tChk.checked = R.agree.terms; pChk.checked = R.agree.privacy; vChk.checked = R.agree.truth;
+    var img = RG({ key: 'imageConsent', label: 'Uso de imagem', value: R.data.imageConsent, options: [['sim', 'Sim, autorizo'], ['nao', 'Não autorizo']] });
+    var imgNote = el('p', { class: 'cfa-hint', style: 'margin:-8px 0 14px', text: 'Autorizo o uso da minha imagem (fotos e vídeos de cultos e eventos) em comunicações da Casa Farol. Esta escolha é separada dos termos e você conclui o cadastro de qualquer forma.' });
+    stepShell(card, box, 'Finalização e segurança', 'Crie sua senha e confirme os consentimentos.', [pw.row, meter, pc.row, img.row, imgNote,
+      el('label', { class: 'cfa-chk' }, tChk, el('span', null, 'Li e aceito os ', el('button', { type: 'button', text: 'Termos de Uso', onclick: function (e) { e.preventDefault(); showLegal('terms'); } }), '.')),
+      el('label', { class: 'cfa-chk' }, pChk, el('span', null, 'Tenho ciência da ', el('button', { type: 'button', text: 'Política de Privacidade', onclick: function (e) { e.preventDefault(); showLegal('privacy'); } }), '.')),
+      el('label', { class: 'cfa-chk' }, vChk, el('span', { text: 'Confirmo que os dados informados são verdadeiros.' }))], back, function () {
+      var a = pwCheck(pw.get()), b = pw.get() === pc.get() ? '' : 'As senhas não conferem.'; pw.err(a); pc.err(b);
+      var ok = !a && !b; if (!validateForms([img])) ok = false;
+      if (!tChk.checked || !pChk.checked || !vChk.checked) { box.appendChild(alertBox('Para continuar, aceite os Termos de Uso, confirme a ciência da Política de Privacidade e a veracidade dos dados.')); ok = false; }
+      if (!ok) return;
+      R.password = pw.get(); R.passwordConfirm = pc.get(); R.data.imageConsent = img.get(); R.agree = { terms: true, privacy: true, truth: true };
+      goNext();
+    });
   }
-  function registerFinalStep(card, box, back) {
-    var d = R.data;
-    function sec(title, step, rows) { return el('div', { class: 'cfa-sum' }, el('h4', null, title, el('button', { type: 'button', text: 'Corrigir', onclick: function () { R.step = step; openGate('register'); } })), rows.map(function (r) { return el('div', { class: 'r' }, el('span', { text: r[0] }), el('span', { text: r[1] || '—' })); })); }
-    var c = dg(d.cpf), bd = (d.birth || '').split('-').reverse().join('/');
+
+  /* REVISÃO e envio */
+  function reviewRows() {
+    var d = R.data, yn = function (v) { return v === 'sim' ? 'Sim' : (v === 'nao' ? 'Não' : '—'); }, c = dg(d.cpf);
     var addr = [d.street, d.number].filter(Boolean).join(', ') + (d.complement ? ' – ' + d.complement : '');
-    var tChk = el('input', { type: 'checkbox', id: 'cfa-terms' }), pChk = el('input', { type: 'checkbox', id: 'cfa-priv' });
-    tChk.checked = R.agree.terms; pChk.checked = R.agree.privacy;
-    tChk.onchange = function () { R.agree.terms = tChk.checked; }; pChk.onchange = function () { R.agree.privacy = pChk.checked; };
-    var go = btn('Confirmar cadastro', '', submit);
+    var kids = d.hasChildren === 'sim' ? R.kids.map(function (k) { return k.name + (k.birth ? ' (' + k.birth.split('-').reverse().join('/') + ')' : ''); }).join('; ') : 'Não';
+    var areas = (d.interests || []).map(function (a) { return a === 'outros' && d.interestsOther ? 'Outros: ' + d.interestsOther : AREAL[a]; }).join(', ');
+    var s0 = [['Nome', d.name], ['CPF', c ? '***.***.***-' + c.slice(-2) : '—'], ['Nascimento', (d.birth || '').split('-').reverse().join('/')], ['Sexo', SEXL[d.sex] || 'Não informado'], ['Estado civil', CIVILL[d.civil]]];
+    if (d.civil === 'casado') s0.push(['Cônjuge', d.spouseName], ['CPF do cônjuge', '***.***.***-' + dg(d.spouseCpf).slice(-2)]);
+    s0.push(['Naturalidade', d.birthplace]);
+    return [
+      ['Dados pessoais', 0, s0],
+      ['Contato e endereço', 1, [['Telefone / WhatsApp', d.phone], ['E-mail', d.email], ['Endereço', addr], ['Bairro', d.district], ['Cidade/UF', (d.city || '') + ' – ' + (d.state || '')], ['CEP', d.cep], ['País', d.country]]],
+      ['Minha caminhada', 2, [['Batizado(a)', yn(d.baptized)], ['Participa de célula', yn(d.cell) + (d.cell === 'sim' ? ' — ' + d.cellLeaders : '')], ['Função no ministério', yn(d.ministryRole) + (d.ministryRole === 'sim' ? ' — ' + d.ministryDesc : '')]]],
+      ['Família', 3, [['Filhos', kids]]],
+      ['Participação e serviço', 4, [['Como conheceu', d.metVia ? (METL[d.metVia] + (d.metVia === 'outra' && d.metOther ? ': ' + d.metOther : '')) : '—'], ['Áreas de interesse', areas || '—']]],
+      ['Consentimentos', 5, [['Senha', '••••••••'], ['Termos e Privacidade', 'Aceitos'], ['Uso de imagem', d.imageConsent === 'sim' ? 'Autorizado' : 'Não autorizado'], ['Veracidade dos dados', 'Confirmada']]]
+    ];
+  }
+  function stepReview(card, box, back) {
+    var go = btn('Confirmar e enviar cadastro', '', submit);
+    function sec(s) { return el('div', { class: 'cfa-sum' }, el('h4', null, s[0], el('button', { type: 'button', text: 'Corrigir', onclick: function () { R.step = s[1]; openGate('register'); } })), s[2].map(function (r) { return el('div', { class: 'r' }, el('span', { text: r[0] }), el('span', { text: r[1] || '—' })); })); }
     function submit() {
       clear(box);
-      if (!tChk.checked || !pChk.checked) return box.appendChild(alertBox('Para finalizar, aceite os Termos de Uso e a Política de Privacidade.'));
+      if (!R.password || !dg(R.data.cpf)) { R.step = !dg(R.data.cpf) ? 0 : 5; return openGate('register'); }
       busy(go, true, 'Enviando…');
-      var body = {}; Object.keys(d).forEach(function (k) { body[k] = d[k]; }); body.cpf = dg(d.cpf);
-      body.password = R.password; body.passwordConfirm = R.passwordConfirm; body.acceptTerms = true; body.acceptPrivacy = true; if (R.proof) body.contactProof = R.proof;
-      api('POST', '/api/auth/register', body).then(function (me) { R = { step: 0, data: {}, agree: { terms: false, privacy: false }, proof: null }; afterAuth(me); }).catch(function (e) {
+      api('POST', '/api/auth/register', buildBody()).then(function (me) { clearDraft(); R = blankR(); afterAuth(me); }).catch(function (e) {
         if (e.code === 'validation' && e.fields) {
           var steps = Object.keys(e.fields).map(function (k) { return FIELD_STEP[k]; }).filter(function (s) { return s !== undefined; });
           if (steps.length) { R.step = Math.min.apply(null, steps); R.errors = e.fields; openGate('register'); return toast('Revise os campos destacados.'); }
         }
-        if (e.code === 'duplicate') { box.appendChild(alertBox(e.message)); box.appendChild(el('button', { class: 'cfa-link', type: 'button', text: 'Já tenho cadastro — entrar', onclick: function () { openGate('login'); } })); }
-        else box.appendChild(alertBox(e.message));
+        box.appendChild(alertBox(e.message));
+        if (e.code === 'duplicate') box.appendChild(el('button', { class: 'cfa-link', type: 'button', text: 'Já tenho cadastro — entrar', onclick: function () { openGate('login'); } }));
       }).then(function () { busy(go, false); });
     }
-    add(card, [head('Confira e confirme', 'Revise seus dados. Depois do envio, a administração da igreja analisará seu cadastro.'),
-      sec('Identificação', 0, [['Nome', d.name], ['CPF', '***.***.***-' + c.slice(-2)], ['Nascimento', bd]]),
-      sec('Contato', 1, [['Celular', d.phone], ['WhatsApp', d.whatsapp], ['E-mail', d.email]]),
-      sec('Endereço', 2, [['Rua', addr], ['Bairro', d.district], ['Cidade/UF', (d.city || '') + ' – ' + (d.state || '')], ['CEP', d.cep]]),
-      el('div', { class: 'cfa-sum' }, el('h4', null, 'Acesso'), el('div', { class: 'r' }, el('span', { text: 'Senha' }), el('span', { text: '••••••••' })), el('button', { class: 'cfa-link', type: 'button', style: 'text-align:left;padding:4px 0', text: 'Corrigir senha', onclick: function () { R.step = 3; openGate('register'); } })),
-      el('label', { class: 'cfa-chk' }, tChk, el('span', null, 'Li e aceito os ', el('button', { type: 'button', text: 'Termos de Uso', onclick: function (e) { e.preventDefault(); showLegal('terms'); } }), '.')),
-      el('label', { class: 'cfa-chk' }, pChk, el('span', null, 'Li e aceito a ', el('button', { type: 'button', text: 'Política de Privacidade', onclick: function (e) { e.preventDefault(); showLegal('privacy'); } }), '.')),
-      box, el('div', { class: 'cfa-spacer' }), go, el('button', { class: 'cfa-link', type: 'button', text: 'Voltar', onclick: back })]);
+    add(card, [head('Confira seus dados', 'Revise tudo antes de enviar. Depois, a administração da igreja analisará seu cadastro.'), reviewRows().map(sec), box, el('div', { class: 'cfa-spacer' }), go, el('button', { class: 'cfa-link', type: 'button', text: 'Voltar', onclick: back })]);
   }
+  function buildBody() {
+    var d = R.data, b = {
+      name: d.name, cpf: dg(d.cpf), birth: d.birth, sex: d.sex || '', civil: d.civil, birthplace: d.birthplace || '', phone: d.phone, email: d.email, cep: d.cep, street: d.street, number: d.number, complement: d.complement || '', district: d.district, city: d.city, state: d.state, country: d.country || 'Brasil',
+      baptized: d.baptized === 'sim', cell: d.cell === 'sim', cellLeaders: d.cell === 'sim' ? d.cellLeaders : '', ministryRole: d.ministryRole === 'sim', ministryRoleDesc: d.ministryRole === 'sim' ? d.ministryDesc : '',
+      hasChildren: d.hasChildren === 'sim', children: d.hasChildren === 'sim' ? R.kids : [], metVia: d.metVia || '', metOther: d.metOther || '', interests: d.interests || [], interestsOther: d.interestsOther || '',
+      imageConsent: d.imageConsent === 'sim', truthConfirmed: true, password: R.password, passwordConfirm: R.passwordConfirm, acceptTerms: true, acceptPrivacy: true
+    };
+    if (d.civil === 'casado') { b.spouseName = d.spouseName; b.spouseCpf = dg(d.spouseCpf); }
+    return b;
+  }
+
   function showLegal(doc) {
     var body = el('div', null, el('p', { class: 'cfa-sub', style: 'color:var(--ink3)', text: 'Carregando…' }));
     sheet(doc === 'terms' ? 'Termos de Uso' : 'Política de Privacidade', body);
@@ -5942,8 +6202,8 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     add(card, [el('button', { class: 'cfa-link', type: 'button', text: 'Sair', onclick: logout })]);
   }
   function viewResubmit(card) {
-    var keys = [['name', 'Nome completo'], ['phone', 'Celular'], ['whatsapp', 'WhatsApp'], ['email', 'E-mail'], ['cep', 'CEP'], ['street', 'Rua'], ['number', 'Número'], ['complement', 'Complemento'], ['district', 'Bairro'], ['city', 'Cidade']];
-    var forms = keys.map(function (k) { return F({ key: k[0], label: k[1] + ' (só se precisar corrigir)', mask: k[0] === 'phone' || k[0] === 'whatsapp' ? 'phone' : (k[0] === 'cep' ? 'cep' : null) }); });
+    var keys = [['name', 'Nome completo'], ['phone', 'Telefone / WhatsApp'], ['email', 'E-mail'], ['cep', 'CEP'], ['street', 'Rua'], ['number', 'Número'], ['complement', 'Complemento'], ['district', 'Bairro'], ['city', 'Cidade']];
+    var forms = keys.map(function (k) { return F({ key: k[0], label: k[1] + ' (só se precisar corrigir)', mask: k[0] === 'phone' ? 'phone' : (k[0] === 'cep' ? 'cep' : null) }); });
     var st = F({ key: 'state', label: 'Estado', type: 'select', options: [['', 'Manter']].concat((S.cfg.ufs || []).map(function (u) { return [u, u]; })) }); forms.push(st);
     var box = el('div'), go = btn('Reenviar para análise', '', submit);
     function submit() {
@@ -6067,11 +6327,11 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     }
     var kv = function (k, v) { return el('div', { class: 'cfa-kv' }, el('span', { text: k }), el('span', { text: v || '—' })); };
     add(sec, [el('div', { class: 'cfa-lbl', text: 'Dados de identificação' }), el('div', { class: 'cfa-box' }, kv('Nome', p.name), kv('CPF', p.cpfMasked), kv('Nascimento', dt(p.birth, false)),
-      el('div', { class: 'cfa-actions' }, btn('Solicitar correção', 'sm line', identitySheet)))]);
+      el('div', { class: 'cfa-actions' }, btn('Solicitar correção', 'sm line', identitySheet))), extraBlocks(p, h.dependents || p.dependents)]);
 
     // contato + endereço editáveis
     var ufs = (S.cfg.ufs || []).map(function (u) { return [u, u]; });
-    var forms = [F({ key: 'phone', label: 'Celular', value: MASK.phone(p.phone), mask: 'phone', type: 'tel', inputmode: 'tel' }), F({ key: 'whatsapp', label: 'WhatsApp', value: p.whatsapp ? MASK.phone(p.whatsapp) : '', mask: 'phone', type: 'tel', inputmode: 'tel' }), F({ key: 'email', label: 'E-mail', value: p.email, type: 'email', inputmode: 'email' }),
+    var forms = [F({ key: 'phone', label: 'Telefone / WhatsApp', value: MASK.phone(p.phone), mask: 'phone', type: 'tel', inputmode: 'tel' }), F({ key: 'email', label: 'E-mail', value: p.email, type: 'email', inputmode: 'email' }),
       F({ key: 'cep', label: 'CEP', value: MASK.cep(p.cep), mask: 'cep', inputmode: 'numeric' }), F({ key: 'street', label: 'Rua', value: p.street }), F({ key: 'number', label: 'Número', value: p.number }), F({ key: 'complement', label: 'Complemento', value: p.complement || '' }), F({ key: 'district', label: 'Bairro', value: p.district }), F({ key: 'city', label: 'Cidade', value: p.city }), F({ key: 'state', label: 'Estado', type: 'select', options: ufs, value: p.state })];
     var fbox = el('div'), save = btn('Salvar alterações', '', function () {
       clear(fbox); if (!validateForms(forms)) return; busy(save, true, 'Salvando…');
@@ -6207,6 +6467,21 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
       r.groups.forEach(function (g) { var b = el('div', { class: 'cfa-box' }, el('div', { class: 'cfa-lbl', style: 'margin-top:0', text: L[g.kind] })); g.members.forEach(function (m) { b.appendChild(el('div', { class: 'cfa-li', style: 'cursor:pointer', onclick: function () { memberSheet(m.id); } }, el('div', { class: 'b' }, el('div', { class: 't', text: m.name }), el('div', { class: 's', text: m.cpfMasked + ' · ' + m.email })), el('span', { class: 'cfa-chip ' + m.status, text: STATUS[m.status] }))); }); box.appendChild(b); });
     }).catch(function (e) { clear(box); box.appendChild(alertBox(e.message)); });
   }
+
+  /* blocos com os dados novos do cadastro (usados em Meu Cadastro e no detalhe do administrador) */
+  function extraBlocks(m, kids) {
+    var kv = function (k, v) { return el('div', { class: 'cfa-kv' }, el('span', { text: k }), el('span', { text: v || '—' })); }, yn = function (v) { return v ? 'Sim' : 'Não'; };
+    var areas = (m.interests || []).map(function (a) { return a === 'outros' && m.interestsOther ? 'Outros: ' + m.interestsOther : (AREAL[a] || a); }).join(', ');
+    var fam = [kv('Estado civil', CIVILL[m.civil]), kv('Sexo', SEXL[m.sex] || 'Não informado'), kv('Naturalidade', m.birthplace)];
+    if (m.civil === 'casado') fam.push(kv('Cônjuge', m.spouseName), kv('CPF do cônjuge', m.spouseCpfMasked));
+    fam.push(kv('Filhos', m.hasChildren ? (kids && kids.length ? '' : 'Sim') : 'Não'));
+    (kids || []).forEach(function (k) { fam.push(kv('• ' + k.name, k.birth ? dt(k.birth, false) : '')); });
+    return [
+      el('div', { class: 'cfa-lbl', text: 'Família' }), el('div', { class: 'cfa-box' }, fam),
+      el('div', { class: 'cfa-lbl', text: 'Caminhada na Casa Farol' }), el('div', { class: 'cfa-box' }, kv('Batizado(a)', yn(m.baptized)), kv('Participa de célula', yn(m.cell)), m.cell ? kv('Líder(es) da célula', m.cellLeaders) : null, kv('Função no ministério', yn(m.ministryRole)), m.ministryRole ? kv('Função', m.ministryRoleDesc) : null),
+      el('div', { class: 'cfa-lbl', text: 'Participação' }), el('div', { class: 'cfa-box' }, kv('Como conheceu', m.metVia ? (METL[m.metVia] + (m.metOther ? ': ' + m.metOther : '')) : ''), kv('Áreas de interesse', areas), kv('Uso de imagem', m.consents && m.consents.image ? (m.consents.image.granted ? 'Autorizado' : 'Não autorizado') : ''))
+    ];
+  }
   function memberSheet(id) {
     var box = el('div', { class: 'cfa-light' }, el('div', { class: 'cfa-empty', text: 'Carregando…' })), sh = sheet('Cadastro', box);
     api('GET', '/api/admin/members/' + id).then(function (r) {
@@ -6214,7 +6489,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
       var kv = function (k, v) { return el('div', { class: 'cfa-kv' }, el('span', { text: k }), el('span', { text: v || '—' })); }, cpfSpan = el('span', { text: m.cpfMasked });
       var cpfRow = el('div', { class: 'cfa-kv' }, el('span', { text: 'CPF' }), el('span', null, cpfSpan, ' ', el('button', { class: 'cfa-chip', type: 'button', style: 'cursor:pointer;margin:0 0 0 6px', text: 'Ver completo', onclick: function () { revealCpf(m, cpfSpan); } })));
       add(box, [el('div', { style: 'margin-bottom:8px' }, el('span', { class: 'cfa-chip ' + m.status, text: STATUS[m.status] }), r.admin ? el('span', { class: 'cfa-chip', text: r.admin.principal ? 'Admin principal' : 'Administrador' }) : null),
-        el('div', { class: 'cfa-box' }, kv('Nome', m.name), cpfRow, kv('Nascimento', dt(m.birth, false)), kv('Celular', fmtPhone(m.phone)), kv('WhatsApp', fmtPhone(m.whatsapp)), kv('E-mail', m.email), kv('Endereço', [m.street, m.number, m.complement, m.district].filter(Boolean).join(', ')), kv('Cidade/UF', m.city + ' – ' + m.state), kv('CEP', MASK.cep(m.cep)), kv('Cadastro em', dt(m.createdAt)))]);
+        el('div', { class: 'cfa-box' }, kv('Nome', m.name), cpfRow, kv('Nascimento', dt(m.birth, false)), kv('Telefone / WhatsApp', fmtPhone(m.phone)), kv('E-mail', m.email), kv('Endereço', [m.street, m.number, m.complement, m.district].filter(Boolean).join(', ')), kv('Cidade/UF', m.city + ' – ' + m.state), kv('CEP', MASK.cep(m.cep)), kv('País', m.country), kv('Cadastro em', dt(m.createdAt))), extraBlocks(m, r.dependents)]);
       var acts = el('div', { class: 'cfa-actions' }); (TRANS[m.status] || []).forEach(function (to) { if (r.admin && r.admin.principal) return; acts.appendChild(btn({ approved: 'Aprovar', rejected: 'Rejeitar', blocked: 'Bloquear' }[to], to === 'approved' ? 'sm ok' : 'sm danger', function () { sh.close(); decideSheet(m, to); })); });
       acts.appendChild(btn('Editar dados', 'sm line', function () { sh.close(); editMemberSheet(m); })); box.appendChild(acts);
       add(box, [el('div', { class: 'cfa-lbl', text: 'Histórico de situação' }), el('div', { class: 'cfa-box' }, r.statusHistory.map(function (h) { return el('div', { class: 'cfa-li' }, el('div', { class: 'b' }, el('div', { class: 't', text: (h.from_status ? STATUS[h.from_status] + ' → ' : '') + STATUS[h.to_status] }), el('div', { class: 's', text: dt(h.at) + ' · por ' + (h.actorName || 'sistema') + (h.reason ? ' · “' + h.reason + '”' : '') }))); })),
@@ -6232,7 +6507,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     sh = sheet('Consultar CPF completo', el('div', { class: 'cfa-light' }, el('p', { style: 'font-size:13px;color:var(--ink3);margin:0 0 10px', text: 'O acesso ao CPF completo é registrado em auditoria com seu nome e motivo.' }), why.row, box, go));
   }
   function editMemberSheet(m) {
-    var forms = [F({ key: 'name', label: 'Nome', value: m.name }), F({ key: 'birth', label: 'Nascimento', type: 'date', value: m.birth }), F({ key: 'phone', label: 'Celular', value: MASK.phone(m.phone), mask: 'phone', type: 'tel' }), F({ key: 'whatsapp', label: 'WhatsApp', value: m.whatsapp ? MASK.phone(m.whatsapp) : '', mask: 'phone', type: 'tel' }), F({ key: 'email', label: 'E-mail', value: m.email }), F({ key: 'cep', label: 'CEP', value: MASK.cep(m.cep), mask: 'cep' }), F({ key: 'street', label: 'Rua', value: m.street }), F({ key: 'number', label: 'Número', value: m.number }), F({ key: 'complement', label: 'Complemento', value: m.complement || '' }), F({ key: 'district', label: 'Bairro', value: m.district }), F({ key: 'city', label: 'Cidade', value: m.city }), F({ key: 'state', label: 'UF', type: 'select', options: (S.cfg.ufs || []).map(function (u) { return [u, u]; }), value: m.state })];
+    var forms = [F({ key: 'name', label: 'Nome', value: m.name }), F({ key: 'birth', label: 'Nascimento', type: 'date', value: m.birth }), F({ key: 'phone', label: 'Telefone / WhatsApp', value: MASK.phone(m.phone), mask: 'phone', type: 'tel' }), F({ key: 'email', label: 'E-mail', value: m.email }), F({ key: 'cep', label: 'CEP', value: MASK.cep(m.cep), mask: 'cep' }), F({ key: 'street', label: 'Rua', value: m.street }), F({ key: 'number', label: 'Número', value: m.number }), F({ key: 'complement', label: 'Complemento', value: m.complement || '' }), F({ key: 'district', label: 'Bairro', value: m.district }), F({ key: 'city', label: 'Cidade', value: m.city }), F({ key: 'state', label: 'UF', type: 'select', options: (S.cfg.ufs || []).map(function (u) { return [u, u]; }), value: m.state })];
     var box = el('div'), sh, go = btn('Salvar', '', function () {
       clear(box); if (!validateForms(forms.filter(function (f) { return f.key !== 'birth'; }))) return; busy(go, true);
       var body = {}; forms.forEach(function (f) { body[f.key] = f.get(); });
@@ -6410,7 +6685,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
   if (window.PAGES && PAGES.indexOf('conta') < 0) PAGES.push('conta', 'admin');
   var _nav = window.nav;
   window.nav = function (id) {
-    if (id === 'cadastro' && S.backend) { if (approved()) return window.nav('conta'); if (S.me) return openGate('status'); R.step = 0; return openGate('register'); }
+    if (id === 'cadastro' && S.backend) { if (approved()) return window.nav('conta'); if (S.me) return openGate('status'); R.step = 0; return registerEntry(); }
     if ((id === 'conta' || id === 'admin') && S.backend && !approved()) { return openGate(S.me ? 'status' : 'login'); }
     _nav(id);
     if (id === 'conta' || id === 'admin') document.querySelectorAll('.cf-nav-btn').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-route') === 'perfil'); });
