@@ -4976,6 +4976,631 @@ function volReset(){
 }
 
 </script>
+<script id="cfa-fb-config">
+/* ═══ CASA FAROL · CONFIGURAÇÃO DO FIREBASE ═══
+   Dados do projeto Firebase (front/firebase-config.json). apiKey vazio = app só em modo local. */
+window.CF_FIREBASE_CONFIG = {
+  "apiKey": "AIzaSyBHt6PpeoicSknHiJtUoabrjcxVSVe_beQ",
+  "authDomain": "casa-farol-1c681.firebaseapp.com",
+  "projectId": "casa-farol-1c681",
+  "storageBucket": "casa-farol-1c681.firebasestorage.app",
+  "messagingSenderId": "114300830368",
+  "appId": "1:114300830368:web:4e8381cd4dd0092754bfc5"
+};
+window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
+</script>
+<script>window.CF_NO_FETCH = true; window.CF_LEGAL = {"terms":{"title":"Termos de Uso","sections":[["1. Sobre o aplicativo","O aplicativo Casa Farol é um canal da igreja para comunicação, participação em cursos e eventos, pedidos de oração, contribuições e acompanhamento da sua jornada."],["2. Cadastro e aprovação","Para usar as áreas internas é necessário criar um cadastro com dados verdadeiros. O cadastro é analisado pela administração e só é liberado após aprovação. A administração pode recusar, suspender ou bloquear acessos, registrando a justificativa."],["3. Sua conta","Você é responsável por manter sua senha em sigilo e por tudo o que ocorrer na sua conta. Avise a secretaria se suspeitar de uso indevido."],["4. Uso adequado","É proibido usar o aplicativo para fins ilegais, ofensivos, para tentar acessar dados de outras pessoas ou comprometer a segurança do sistema."],["5. Contribuições","Os registros de dízimos e ofertas são pessoais e confidenciais. Visualizam esses dados apenas você e as pessoas autorizadas pela administração para a área financeira."],["6. Alterações","Estes termos podem ser atualizados. Quando isso ocorrer, você poderá ser solicitado a aceitar a nova versão."]],"version":"2026-11-01","notice":"Texto-modelo: requer revisão jurídica antes do uso em produção."},"privacy":{"title":"Política de Privacidade","sections":[["1. Quem é o controlador","Casa Farol (preencher: razão social, CNPJ, endereço e e-mail do encarregado/DPO)."],["2. Dados que coletamos","Nome, CPF, data de nascimento, telefone, WhatsApp, e-mail, endereço, senha (guardada somente de forma criptografada irreversível), histórico de cursos, eventos e contribuições, e registros de segurança (ex.: data de acesso)."],["3. Para que usamos","Identificar você de forma única, avaliar e liberar seu acesso, inscrevê-lo em cursos e eventos, registrar contribuições, enviar avisos da igreja e proteger o aplicativo contra fraudes."],["4. Base legal","Execução de procedimentos ligados ao seu vínculo com a igreja, cumprimento de obrigações legais e seu consentimento, que você pode revisar a qualquer tempo."],["5. Quem acessa","Somente administradores autorizados, conforme a função. Informações financeiras só são vistas por quem tem permissão específica. Seu CPF aparece mascarado e sua consulta completa é registrada."],["6. Compartilhamento","Não vendemos seus dados. Eles podem ser tratados por provedores de hospedagem e envio de mensagens, sob contrato, e por autoridades quando exigido por lei."],["7. Seus direitos (LGPD)","Você pode confirmar a existência de tratamento, acessar, corrigir, exportar, solicitar a exclusão/anonimização e revogar consentimento, no menu \"Meu Cadastro\" ou pela secretaria. Dados que a lei obriga a manter (ex.: registros financeiros) são conservados pelo prazo legal."],["8. Segurança","Usamos conexão segura (HTTPS), senhas com hash e salt, CPF protegido, controle de acesso por função e registro de auditoria."],["9. Retenção","Mantemos os dados enquanto houver vínculo e pelos prazos legais; depois, são eliminados ou anonimizados."]],"version":"2026-11-01","notice":"Texto-modelo: requer revisão jurídica antes do uso em produção."}};</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script id="cfa-fb-adapter">
+/* ═══ CASA FAROL — ADAPTADOR FIREBASE ═══════════════════════════════════════════
+   Faz o papel do servidor Node dentro do navegador: recebe as mesmas chamadas
+   "/api/..." que a interface já usa e as executa com Firebase Auth + Firestore.
+   A SEGURANÇA NÃO ESTÁ AQUI: este código roda no aparelho da pessoa e pode ser
+   ignorado por quem quiser. Quem barra de verdade são as Regras do Firestore
+   (firebase/firestore.rules). Aqui só montamos as consultas e validamos por conforto.
+   Sem configuração do Firebase (ou sem o SDK), nada é instalado e o app segue em modo local. */
+(function () {
+  'use strict';
+  var cfg = window.CF_FIREBASE_CONFIG;
+  if (!cfg || !cfg.apiKey || !window.firebase) return;
+
+  var app = firebase.apps && firebase.apps.length ? firebase.app() : firebase.initializeApp(cfg);
+  var auth = firebase.auth(), db = firebase.firestore();
+  var LEGAL = window.CF_LEGAL || {};
+  var UFS = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
+  var ROLES = { pastor: 'Pastor(a)', comunicacao: 'Comunicação', financeiro: 'Financeiro' };
+  var PERMS = ['members', 'courses', 'events', 'communication', 'finance'];
+  var KINDS = ['dizimo', 'oferta', 'campanha', 'outro'];
+  var CONTACT = window.CF_CONTACT_HINT || 'Procure a secretaria da igreja.';
+  var MIN_AGE = 18;
+
+  /* ── utilidades ── */
+  function E(status, code, message, fields) { var e = { status: status, code: code, message: message }; if (fields) e.fields = fields; return e; }
+  var now = function () { return new Date().toISOString(); };
+  var dg = function (v) { return String(v || '').replace(/\D/g, ''); };
+  var sp = function (v) { return String(v == null ? '' : v).replace(/\s+/g, ' ').trim(); };
+  var ref = function (p) { return db.doc(p); };
+  var cache = { me: null };
+  function reset() { cache.me = null; }
+
+  function mapError(e) {
+    if (e && e.status && e.code && e.message) return e;
+    var c = (e && e.code) || '';
+    if (c === 'permission-denied' || c === 'firestore/permission-denied') return E(403, 'forbidden', 'Você não tem permissão para esta ação.');
+    if (c === 'unavailable' || c === 'auth/network-request-failed') return E(0, 'network', 'Sem conexão com o servidor. Verifique sua internet e tente de novo.');
+    if (c === 'auth/too-many-requests') return E(429, 'rate_limited', 'Muitas tentativas. Aguarde alguns minutos e tente de novo.');
+    if (c === 'auth/invalid-credential' || c === 'auth/wrong-password' || c === 'auth/user-not-found' || c === 'auth/invalid-login-credentials') return E(401, 'bad_credentials', 'CPF ou senha incorretos.');
+    if (c === 'auth/user-disabled') return E(403, 'forbidden', 'Este acesso está desativado. ' + CONTACT);
+    if (c === 'auth/requires-recent-login') return E(401, 'bad_credentials', 'Por segurança, entre novamente e repita a operação.');
+    return E(500, 'internal', 'Não foi possível concluir. Tente novamente.');
+  }
+
+  // Chave do índice CPF → e-mail. PBKDF2 com sal fixo do app: dificulta varredura casual,
+  // mas NÃO impede quem conhece um CPF de descobrir o e-mail daquela pessoa (limitação assumida).
+  async function cpfKey(cpf) {
+    var enc = new TextEncoder();
+    var base = await crypto.subtle.importKey('raw', enc.encode(cpf), 'PBKDF2', false, ['deriveBits']);
+    var bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: enc.encode('casafarol-cpf-v1'), iterations: 100000 }, base, 256);
+    return Array.prototype.map.call(new Uint8Array(bits), function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+  }
+
+  /* ── validação (conforto; o que vale é a regra do Firestore) ── */
+  function cpfOk(c) {
+    if (c.length !== 11 || /^(\d)\1{10}$/.test(c)) return false;
+    for (var t = 9; t < 11; t++) { var s = 0; for (var i = 0; i < t; i++) s += +c[i] * (t + 1 - i); var r = (s * 10) % 11; if (r === 10) r = 0; if (r !== +c[t]) return false; }
+    return true;
+  }
+  function dateOk(s) { if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false; var p = s.split('-').map(Number), d = new Date(p[0], p[1] - 1, p[2]); return d.getFullYear() === p[0] && d.getMonth() === p[1] - 1 && d.getDate() === p[2] && p[0] >= 1900 && d <= new Date(); }
+  function ageOf(iso) { var p = iso.split('-').map(Number), n = new Date(), a = n.getFullYear() - p[0]; if (n.getMonth() + 1 < p[1] || (n.getMonth() + 1 === p[1] && n.getDate() < p[2])) a--; return a; }
+  function phoneOk(v) { var d = dg(v); if ((d.length === 12 || d.length === 13) && d.indexOf('55') === 0) d = d.slice(2); if (d.length !== 10 && d.length !== 11) return false; if (+d.slice(0, 2) < 11) return false; return d.length === 10 || d[2] === '9'; }
+  var CHECK = {
+    name: function (v) { v = sp(v); return v.length >= 5 && v.length <= 120 && v.split(' ').length >= 2 && /^[\p{L}][\p{L}'’. -]*$/u.test(v) ? '' : 'Informe seu nome completo (nome e sobrenome).'; },
+    cpf: function (v) { var d = dg(v); return d.length !== 11 ? 'O CPF deve ter 11 números.' : (cpfOk(d) ? '' : 'Este CPF não é válido. Confira os números.'); },
+    birth: function (v) { if (!dateOk(v)) return 'Informe uma data de nascimento válida.'; return ageOf(v) < MIN_AGE ? 'O cadastro direto é permitido a partir de ' + MIN_AGE + ' anos.' : ''; },
+    phone: function (v) { return phoneOk(v) ? '' : 'Informe o celular com DDD. Ex.: (11) 91234-5678.'; },
+    whatsapp: function (v) { return !dg(v) || phoneOk(v) ? '' : 'WhatsApp inválido. Informe com DDD ou deixe em branco.'; },
+    email: function (v) { v = sp(v); return v.length <= 160 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) ? '' : 'Informe um e-mail válido.'; },
+    cep: function (v) { return dg(v).length === 8 ? '' : 'O CEP deve ter 8 números.'; },
+    street: function (v) { return sp(v).length >= 2 && sp(v).length <= 120 ? '' : 'Informe a rua.'; },
+    number: function (v) { return sp(v).length >= 1 && sp(v).length <= 20 ? '' : 'Informe o número (ou S/N).'; },
+    complement: function (v) { return sp(v).length <= 80 ? '' : 'Complemento muito longo.'; },
+    district: function (v) { return sp(v).length >= 2 && sp(v).length <= 80 ? '' : 'Informe o bairro.'; },
+    city: function (v) { return sp(v).length >= 2 && sp(v).length <= 80 ? '' : 'Informe a cidade.'; },
+    state: function (v) { return UFS.indexOf(v) >= 0 ? '' : 'Escolha o estado (UF).'; }
+  };
+  function pwProblem(pw) { if (!pw || pw.length < 8) return 'A senha deve ter pelo menos 8 caracteres.'; if (!/\p{L}/u.test(pw) || !/\d/.test(pw)) return 'Use letras e números na senha.'; return ''; }
+  function check(body, keys, optional) {
+    var f = {}, any = false;
+    keys.forEach(function (k) {
+      if (optional && body[k] === undefined) return;
+      var m = CHECK[k](body[k] == null ? '' : String(body[k])); if (m) { f[k] = m; any = true; }
+    });
+    if (any) throw E(400, 'validation', 'Revise os campos destacados.', f);
+  }
+  var CONTACT_KEYS = ['phone', 'whatsapp', 'cep', 'street', 'number', 'complement', 'district', 'city', 'state'];
+  function clean(body, keys) {
+    var o = {};
+    keys.forEach(function (k) {
+      if (body[k] === undefined) return;
+      var v = String(body[k]);
+      o[k] = (k === 'phone' || k === 'whatsapp' || k === 'cep') ? dg(v) : (k === 'birth' || k === 'state' ? v : sp(v));
+    });
+    return o;
+  }
+
+  /* ── leitura do usuário atual ── */
+  var authReady = new Promise(function (res) { var done = false; auth.onAuthStateChanged(function () { if (!done) { done = true; res(); } reset(); }); });
+  async function snap(path) { var s = await ref(path).get(); return s.exists ? Object.assign({ _id: s.id }, s.data()) : null; }
+  async function loadMe(force) {
+    await authReady;
+    var u = auth.currentUser;
+    if (!u) { cache.me = null; return null; }
+    if (cache.me && !force && cache.me.uid === u.uid) return cache.me;
+    var m = await snap('members/' + u.uid);
+    if (!m) { cache.me = null; return null; }
+    var a = await snap('admins/' + u.uid);
+    var admin = null;
+    if (a && a.active && m.status === 'approved') {
+      admin = { principal: a.kind === 'principal', role: a.role || null, roleLabel: a.kind === 'principal' ? (ROLES[a.role] || 'Administrador principal') : 'Administrador', permissions: a.kind === 'principal' ? PERMS.slice() : (a.permissions || []) };
+    }
+    cache.me = { uid: u.uid, user: u, m: m, admin: admin };
+    return cache.me;
+  }
+  async function need() { var x = await loadMe(); if (!x) throw E(401, 'unauthenticated', 'Entre na sua conta para continuar.'); return x; }
+  async function needApproved() { var x = await need(); if (x.m.status !== 'approved') throw E(403, 'forbidden', 'Seu cadastro ainda não foi aprovado.'); return x; }
+  async function needPerm(p) {
+    var x = await needApproved();
+    if (!x.admin || (!x.admin.principal && x.admin.permissions.indexOf(p) < 0)) throw E(403, 'forbidden', 'Você não tem permissão para esta ação.');
+    return x;
+  }
+  async function needPrincipal() { var x = await needApproved(); if (!x.admin || !x.admin.principal) throw E(403, 'forbidden', 'Apenas administradores principais podem fazer isso.'); return x; }
+  var has = function (x, p) { return !!x.admin && (x.admin.principal || x.admin.permissions.indexOf(p) >= 0); };
+
+  function masked(m) { return '***.***.***-' + (m.cpfLast2 || '••'); }
+  async function meView() {
+    var x = await loadMe(true);
+    if (!x) return { authenticated: false, csrf: '' };
+    var m = x.m, st = m.status, member = { id: x.uid, name: m.name, status: st }, sv = null;
+    if (st === 'approved') Object.assign(member, { phone: m.phone, whatsapp: m.whatsapp || '', email: m.email, cpfMasked: masked(m), city: m.city });
+    else if (st === 'pending') sv = { title: 'Cadastro recebido!', message: 'Cadastro recebido! Seu cadastro foi enviado para a administração do Casa Farol. Assim que sua entrada for autorizada, você poderá acessar todas as funcionalidades do aplicativo.' };
+    else if (st === 'rejected') sv = { title: 'Cadastro não aprovado', message: 'Seu cadastro não foi aprovado.' + (m.statusReason ? ' Motivo: ' + m.statusReason + '.' : '') + ' Você pode corrigir os dados e reenviar para nova análise.', canResubmit: true };
+    else sv = { title: 'Acesso suspenso', message: 'Seu acesso está suspenso. ' + CONTACT };
+    var unread = 0;
+    if (st === 'approved') { try { var q = await db.collection('notifications').where('to', '==', x.uid).get(); q.docs.forEach(function (d) { if (!d.data().readAt) unread++; }); } catch (e) { /* ok */ } }
+    var out = { authenticated: true, csrf: '', mustChangePassword: false, member: member, unread: unread };
+    if (sv) out.statusView = sv;
+    if (x.admin) out.admin = x.admin;
+    return out;
+  }
+
+  /* ── escrita auxiliar: auditoria + notificação entram no mesmo lote ── */
+  function addAudit(batch, x, action, details) { batch.set(db.collection('audit').doc(), { actor: x.uid, actorName: x.m.name, action: action, at: now(), details: details || null }); }
+  function addNote(batch, to, title, body) { batch.set(db.collection('notifications').doc(), { to: to, title: title, body: body, createdAt: now(), readAt: null }); }
+
+  /* ══════════ rotas ══════════ */
+  var routes = [];
+  function R(method, re, fn) { routes.push([method, new RegExp('^' + re + '$'), fn]); }
+
+  /* — público — */
+  R('GET', '/api/public/config', async function () { return { termsVersion: (LEGAL.terms || {}).version, privacyVersion: (LEGAL.privacy || {}).version, minAge: MIN_AGE, ufs: UFS, requireContactVerification: false, contactHint: CONTACT }; });
+  R('GET', '/api/public/legal/(terms|privacy)', async function (m) { var d = LEGAL[m[1]]; if (!d) throw E(404, 'not_found', 'Documento não encontrado.'); return d; });
+
+  /* — autenticação — */
+  R('POST', '/api/auth/login', async function (m, b) {
+    var cpf = dg(b.cpf), bad = E(401, 'bad_credentials', 'CPF ou senha incorretos.');
+    if (!cpfOk(cpf) || !b.password) throw bad;
+    var ix = await snap('cpfIndex/' + await cpfKey(cpf));
+    if (!ix) throw bad;
+    try { await auth.signInWithEmailAndPassword(ix.email, b.password); } catch (e) { throw mapError(e); }
+    reset();
+    var me = await meView();
+    if (!me.authenticated) { await auth.signOut(); throw E(401, 'bad_credentials', 'Cadastro incompleto. Fale com a secretaria. ' + CONTACT); }
+    return me;
+  });
+  R('POST', '/api/auth/logout', async function () { await auth.signOut(); reset(); return { ok: true }; });
+  R('GET', '/api/auth/me', async function () { return meView(); });
+
+  R('POST', '/api/auth/register', async function (m, b) {
+    check(b, ['name', 'cpf', 'birth', 'phone', 'whatsapp', 'email', 'cep', 'street', 'number', 'complement', 'district', 'city', 'state']);
+    var f = {};
+    var pwp = pwProblem(b.password); if (pwp) f.password = pwp;
+    if (b.password !== b.passwordConfirm) f.passwordConfirm = 'As senhas não conferem.';
+    if (Object.keys(f).length) throw E(400, 'validation', 'Revise os campos destacados.', f);
+    if (!b.acceptTerms || !b.acceptPrivacy) throw E(400, 'validation', 'Aceite os Termos de Uso e a Política de Privacidade.', { acceptTerms: 'Obrigatório.' });
+    var cpf = dg(b.cpf), email = sp(b.email).toLowerCase(), key = await cpfKey(cpf);
+    var dup = E(409, 'duplicate', 'Já existe um cadastro com estes dados. Entre com seu CPF e senha, ou use "Esqueci minha senha".');
+    if (await snap('cpfIndex/' + key)) throw dup;
+    var cred;
+    try { cred = await auth.createUserWithEmailAndPassword(email, b.password); }
+    catch (e) { if (e && e.code === 'auth/email-already-in-use') throw dup; if (e && e.code === 'auth/weak-password') throw E(400, 'validation', 'Revise os campos destacados.', { password: 'Senha muito fraca.' }); throw mapError(e); }
+    var uid = cred.user.uid, at = now(), c = clean(b, ['name', 'birth', 'phone', 'whatsapp', 'cep', 'street', 'number', 'complement', 'district', 'city', 'state']);
+    var member = Object.assign({}, c, { email: email, cpfLast2: cpf.slice(-2), status: 'pending', statusReason: '', statusAt: at, createdAt: at, consents: { terms: { version: (LEGAL.terms || {}).version || '', at: at }, privacy: { version: (LEGAL.privacy || {}).version || '', at: at } } });
+    var batch = db.batch();
+    batch.set(ref('members/' + uid), member);
+    batch.set(ref('private/' + uid), { cpf: cpf });
+    batch.set(ref('cpfIndex/' + key), { uid: uid, email: email });
+    batch.set(ref('directory/' + uid), { name: c.name, cpfLast2: cpf.slice(-2), approved: false });
+    try { await batch.commit(); }
+    catch (e) { try { await cred.user.delete(); } catch (x) { /* ok */ } reset(); throw mapError(e); }
+    reset(); return meView();
+  });
+
+  R('POST', '/api/auth/resubmit', async function (m, b) {
+    var x = await need();
+    if (x.m.status !== 'rejected') throw E(409, 'conflict', 'Seu cadastro não está em situação de correção.');
+    var keys = ['name', 'phone', 'whatsapp', 'cep', 'street', 'number', 'complement', 'district', 'city', 'state'];
+    check(b, keys, true);
+    var upd = Object.assign(clean(b, keys), { status: 'pending', statusReason: '', statusAt: now() });
+    var batch = db.batch(); batch.update(ref('members/' + x.uid), upd);
+    await batch.commit(); reset(); return meView();
+  });
+
+  R('POST', '/api/auth/password-reset/request', async function (m, b) {
+    var cpf = dg(b.cpf), generic = 'Se houver um cadastro com este CPF, enviamos um link de redefinição para o e-mail registrado. Confira também a caixa de spam.';
+    if (cpfOk(cpf)) {
+      try { var ix = await snap('cpfIndex/' + await cpfKey(cpf)); if (ix) await auth.sendPasswordResetEmail(ix.email); } catch (e) { /* resposta idêntica de propósito */ }
+    }
+    return { ok: true, message: generic, resetByLink: true };
+  });
+
+  /* — membro — */
+  R('GET', '/api/member/profile', async function () {
+    var x = await needApproved(), m = x.m;
+    return { profile: { id: x.uid, name: m.name, status: m.status, memberSince: m.createdAt, cpfMasked: masked(m), birth: m.birth, phone: m.phone, whatsapp: m.whatsapp || '', email: m.email, cep: m.cep, street: m.street, number: m.number, complement: m.complement || '', district: m.district, city: m.city, state: m.state } };
+  });
+  R('PATCH', '/api/member/profile', async function (m, b) {
+    var x = await needApproved();
+    if (b.email !== undefined && sp(b.email).toLowerCase() !== x.m.email) throw E(400, 'validation', 'Revise os campos destacados.', { email: 'O e-mail é o seu acesso ao app. Para trocá-lo, fale com a secretaria.' });
+    check(b, CONTACT_KEYS);
+    await ref('members/' + x.uid).update(clean(b, CONTACT_KEYS)); reset(); return { ok: true };
+  });
+  R('POST', '/api/member/password', async function (m, b) {
+    var x = await needApproved(), f = {};
+    var p = pwProblem(b.password); if (p) f.password = p;
+    if (b.password !== b.passwordConfirm) f.passwordConfirm = 'As senhas não conferem.';
+    if (Object.keys(f).length) throw E(400, 'validation', 'Revise os campos destacados.', f);
+    try {
+      await x.user.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(x.user.email, b.current || ''));
+      await x.user.updatePassword(b.password);
+    } catch (e) { var c = e && e.code; if (c === 'auth/wrong-password' || c === 'auth/invalid-credential' || c === 'auth/invalid-login-credentials') throw E(400, 'validation', 'Revise os campos destacados.', { current: 'Senha atual incorreta.' }); throw mapError(e); }
+    return { ok: true };
+  });
+  R('GET', '/api/member/notifications', async function () {
+    var x = await needApproved(), q = await db.collection('notifications').where('to', '==', x.uid).get();
+    var rows = q.docs.map(function (d) { var v = d.data(); return { id: d.id, title: v.title, body: v.body, created_at: v.createdAt, read_at: v.readAt || null }; });
+    rows.sort(function (a, b) { return a.created_at < b.created_at ? 1 : -1; });
+    return { notifications: rows.slice(0, 30) };
+  });
+  R('POST', '/api/member/notifications/read', async function () {
+    var x = await needApproved(), q = await db.collection('notifications').where('to', '==', x.uid).get(), batch = db.batch(), n = 0;
+    q.docs.forEach(function (d) { if (!d.data().readAt) { batch.update(d.ref, { readAt: now() }); n++; } });
+    if (n) await batch.commit(); return { ok: true };
+  });
+
+  function contribRow(id, v) { return { id: id, name: v.name, kind: v.kind, amount_cents: v.amountCents, paid_at: v.paidAt, reference: v.reference || '', source: v.source, confirmed_at: v.confirmedAt || null, voided_at: v.voidedAt || null, created_at: v.createdAt }; }
+  async function myContribs(uid) {
+    var q = await db.collection('contributions').where('uid', '==', uid).get();
+    var rows = q.docs.map(function (d) { return contribRow(d.id, d.data()); });
+    rows.sort(function (a, b) { return (a.paid_at < b.paid_at) ? 1 : (a.paid_at > b.paid_at ? -1 : 0); });
+    return rows;
+  }
+  R('GET', '/api/member/contributions', async function () {
+    var x = await needApproved(), rows = await myContribs(x.uid), tot = {};
+    rows.forEach(function (c) { if (c.voided_at || !c.confirmed_at) return; var y = String(c.paid_at).slice(0, 4); tot[y] = (tot[y] || 0) + c.amount_cents; });
+    return { contributions: rows, totalsByYearCents: tot };
+  });
+  function parseMoney(v) {
+    var s = String(v == null ? '' : v).replace(/[R$\s]/g, '');
+    if (!s) return NaN;
+    if (s.indexOf(',') >= 0) s = s.replace(/\./g, '').replace(',', '.');
+    var n = Number(s); return isFinite(n) ? Math.round(n * 100) : NaN;
+  }
+  function contribFields(b) {
+    var f = {}, cents = parseMoney(b.amount);
+    if (!(cents > 0) || cents >= 1000000000) f.amount = 'Informe um valor válido.';
+    if (KINDS.indexOf(b.kind) < 0) f.kind = 'Escolha o tipo.';
+    if (!dateOk(b.paidAt || '')) f.paidAt = 'Informe uma data válida.';
+    if (Object.keys(f).length) throw E(400, 'validation', 'Revise os campos destacados.', f);
+    return { kind: b.kind, amountCents: cents, paidAt: b.paidAt, reference: sp(b.reference).slice(0, 120) };
+  }
+  R('POST', '/api/member/contributions', async function (m, b) {
+    var x = await needApproved(), c = contribFields(b);
+    await db.collection('contributions').add(Object.assign(c, { uid: x.uid, name: x.m.name, source: 'member', confirmedAt: null, voidedAt: null, createdAt: now() }));
+    return { ok: true };
+  });
+
+  R('GET', '/api/member/history', async function () {
+    var x = await needApproved(), out = { courses: [], events: [], contributions: await myContribs(x.uid) };
+    var cs = await db.collection('courses').get(), es = await db.collection('events').get();
+    await Promise.all(cs.docs.map(async function (c) { var e = await snap('courses/' + c.id + '/enrollments/' + x.uid); if (e) out.courses.push({ title: c.data().title, status: e.status, enrolled_at: e.enrolledAt, completed_at: e.completedAt || null, certificate_url: e.certificateUrl || null }); }));
+    await Promise.all(es.docs.map(async function (v) { var r = await snap('events/' + v.id + '/registrations/' + x.uid); if (r) out.events.push({ title: v.data().title, starts_at: v.data().startsAt, status: r.status, attended: !!r.attended, completed: !!r.completed }); }));
+    return out;
+  });
+  R('POST', '/api/member/identity-change', async function (m, b) {
+    var x = await needApproved(), field = { name: 'full_name', birth: 'birth_date', cpf: 'cpf' }[b.field];
+    if (!field) throw E(400, 'validation', 'Campo inválido.');
+    if (b.field === 'cpf') throw E(400, 'validation', 'Revise os campos destacados.', { value: 'A troca de CPF é feita pessoalmente na secretaria, com documento.' });
+    var msg = CHECK[b.field](b.value); if (msg) throw E(400, 'validation', 'Revise os campos destacados.', { value: msg });
+    if (sp(b.reason).length < 5) throw E(400, 'validation', 'Revise os campos destacados.', { reason: 'Explique o motivo (mínimo 5 caracteres).' });
+    await db.collection('requests').add({ uid: x.uid, name: x.m.name, kind: 'identity', field: field, value: b.field === 'birth' ? String(b.value) : sp(b.value), reason: sp(b.reason).slice(0, 500), note: '', status: 'open', createdAt: now() });
+    return { ok: true, message: 'Solicitação enviada. Você será avisado(a) da decisão.' };
+  });
+  R('POST', '/api/member/privacy/requests', async function (m, b) {
+    var x = await needApproved();
+    if (b.kind !== 'delete' && b.kind !== 'correct') throw E(400, 'validation', 'Tipo inválido.');
+    await db.collection('requests').add({ uid: x.uid, name: x.m.name, kind: b.kind, field: '', value: '', reason: '', note: sp(b.note).slice(0, 500), status: 'open', createdAt: now() });
+    return { ok: true, message: 'Solicitação registrada. A administração responderá pelo aplicativo.' };
+  });
+  R('GET', '/api/member/privacy/export', async function () {
+    var x = await needApproved(), pv = await snap('private/' + x.uid), h = await routeCall('GET', '/api/member/history');
+    var mm = Object.assign({}, x.m); delete mm._id;
+    return { exportedAt: now(), member: Object.assign(mm, { cpf: pv ? pv.cpf : null }), history: h };
+  });
+
+  /* — cursos e eventos (lado do membro) — */
+  function isoSort(a, b) { return String(a.starts_at || '') < String(b.starts_at || '') ? -1 : 1; }
+  R('GET', '/api/courses', async function () {
+    var x = await needApproved(), adm = has(x, 'courses'), q = await db.collection('courses').where('active', '==', true).get();
+    var rows = await Promise.all(q.docs.map(async function (d) {
+      var v = d.data(), mine = await snap('courses/' + d.id + '/enrollments/' + x.uid), taken = 0;
+      if (adm) { var en = await db.collection('courses/' + d.id + '/enrollments').get(); en.docs.forEach(function (e) { if (['inscrito', 'confirmado', 'concluido'].indexOf(e.data().status) >= 0) taken++; }); }
+      return { id: d.id, title: v.title, description: v.description || '', starts_at: v.startsAt || null, ends_at: null, capacity: adm ? (v.capacity || 0) : 0, taken: taken, my_status: mine ? mine.status : null, my_enrolled_at: mine ? mine.enrolledAt : null, my_completed_at: mine ? (mine.completedAt || null) : null, my_certificate: mine ? (mine.certificateUrl || null) : null };
+    }));
+    rows.sort(isoSort); return { courses: rows };
+  });
+  R('POST', '/api/courses/([^/]+)/enroll', async function (m) {
+    var x = await needApproved(), c = await snap('courses/' + m[1]);
+    if (!c || !c.active) throw E(404, 'not_found', 'Curso não encontrado.');
+    var path = 'courses/' + m[1] + '/enrollments/' + x.uid, cur = await snap(path);
+    if (cur && cur.status !== 'cancelado') throw E(409, 'conflict', 'Você já está inscrito neste curso.');
+    if (cur) await ref(path).update({ status: 'inscrito', enrolledAt: now() });
+    else await ref(path).set({ uid: x.uid, name: x.m.name, phone: x.m.phone, email: x.m.email, status: 'inscrito', enrolledAt: now() });
+    return { ok: true };
+  });
+  R('POST', '/api/courses/([^/]+)/cancel', async function (m) {
+    var x = await needApproved(), path = 'courses/' + m[1] + '/enrollments/' + x.uid, cur = await snap(path);
+    if (!cur || ['inscrito', 'confirmado'].indexOf(cur.status) < 0) throw E(404, 'not_found', 'Inscrição não encontrada.');
+    await ref(path).update({ status: 'cancelado' }); return { ok: true };
+  });
+  R('GET', '/api/events', async function () {
+    var x = await needApproved(), adm = has(x, 'events'), q = await db.collection('events').where('active', '==', true).get();
+    var rows = await Promise.all(q.docs.map(async function (d) {
+      var v = d.data(), mine = await snap('events/' + d.id + '/registrations/' + x.uid), taken = 0;
+      if (adm) { var rg = await db.collection('events/' + d.id + '/registrations').get(); rg.docs.forEach(function (e) { if (e.data().status === 'inscrito') taken++; }); }
+      return { id: d.id, title: v.title, description: v.description || '', starts_at: v.startsAt || null, location: v.location || '', capacity: adm ? (v.capacity || 0) : 0, taken: taken, my_status: mine ? mine.status : null, my_attended: mine ? !!mine.attended : false, my_completed: mine ? !!mine.completed : false };
+    }));
+    rows.sort(isoSort); return { events: rows };
+  });
+  R('POST', '/api/events/([^/]+)/register', async function (m) {
+    var x = await needApproved(), v = await snap('events/' + m[1]);
+    if (!v || !v.active) throw E(404, 'not_found', 'Evento não encontrado.');
+    var path = 'events/' + m[1] + '/registrations/' + x.uid, cur = await snap(path);
+    if (cur && cur.status === 'inscrito') throw E(409, 'conflict', 'Você já está inscrito neste evento.');
+    if (cur) await ref(path).update({ status: 'inscrito', registeredAt: now() });
+    else await ref(path).set({ uid: x.uid, name: x.m.name, status: 'inscrito', attended: false, completed: false, registeredAt: now() });
+    return { ok: true };
+  });
+  R('POST', '/api/events/([^/]+)/cancel', async function (m) {
+    var x = await needApproved(), path = 'events/' + m[1] + '/registrations/' + x.uid, cur = await snap(path);
+    if (!cur || cur.status !== 'inscrito') throw E(404, 'not_found', 'Inscrição não encontrada.');
+    await ref(path).update({ status: 'cancelado' }); return { ok: true };
+  });
+  R('GET', '/api/announcements', async function () {
+    await needApproved();
+    var q = await db.collection('announcements').where('active', '==', true).get();
+    var rows = q.docs.map(function (d) { var v = d.data(); return { id: d.id, title: v.title, body: v.body, created_at: v.createdAt }; });
+    rows.sort(function (a, b) { return a.created_at < b.created_at ? 1 : -1; }); return { announcements: rows };
+  });
+
+  /* ══════════ administração ══════════ */
+  function memberRow(id, m) { return { id: id, name: m.name, cpfMasked: masked(m), birth: m.birth, phone: m.phone, whatsapp: m.whatsapp || '', email: m.email, city: m.city, state: m.state, status: m.status, createdAt: m.createdAt, statusAt: m.statusAt }; }
+  async function allMembers() { var q = await db.collection('members').get(); return q.docs.map(function (d) { return Object.assign({ _id: d.id }, d.data()); }); }
+  var fold = function (s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); };
+
+  R('GET', '/api/admin/dashboard', async function () {
+    var x = await needPerm('members'), all = await allMembers(), n = { pending: 0, approved: 0, rejected: 0, blocked: 0 };
+    all.forEach(function (m) { if (n[m.status] !== undefined) n[m.status]++; });
+    var admins = 0; try { var aq = await db.collection('admins').get(); aq.docs.forEach(function (d) { if (d.data().active) admins++; }); } catch (e) { admins = 0; }
+    var rq = await db.collection('requests').get(), idr = 0, prv = 0;
+    rq.docs.forEach(function (d) { var v = d.data(); if (v.status !== 'open') return; if (v.kind === 'identity') idr++; else prv++; });
+    return { pendingApproval: n.pending, approved: n.approved, pending: n.pending, rejected: n.rejected, blocked: n.blocked, activeAdmins: admins, identityRequests: idr, privacyRequests: prv };
+  });
+  R('GET', '/api/admin/members', async function (m, b, qs) {
+    await needPerm('members');
+    var all = await allMembers(), st = qs.get('status') || '', q = (qs.get('q') || '').trim(), lim = Math.min(+qs.get('limit') || 50, 200);
+    var rows = all.filter(function (r) { return !st || r.status === st; });
+    if (q) {
+      if (/^\d{11}$/.test(q)) { var ix = await snap('cpfIndex/' + await cpfKey(q)); rows = rows.filter(function (r) { return ix && r._id === ix.uid; }); }
+      else { var f = fold(q); rows = rows.filter(function (r) { return fold(r.name).indexOf(f) >= 0 || fold(r.email).indexOf(f) >= 0; }); }
+    }
+    rows.sort(st === 'pending' ? function (a, b) { return a.createdAt < b.createdAt ? -1 : 1; } : function (a, b) { return fold(a.name) < fold(b.name) ? -1 : 1; });
+    return { total: rows.length, members: rows.slice(0, lim).map(function (r) { return memberRow(r._id, r); }) };
+  });
+  R('GET', '/api/admin/duplicates', async function () {
+    await needPerm('members');
+    var all = (await allMembers()).filter(function (m) { return !m.anonymized; }), groups = [];
+    [['name_birth', function (m) { return fold(m.name) + '|' + m.birth; }], ['email', function (m) { return fold(m.email); }], ['phone', function (m) { return dg(m.phone); }]].forEach(function (k) {
+      var map = {}; all.forEach(function (m) { var key = k[1](m); if (key) (map[key] = map[key] || []).push(m); });
+      Object.keys(map).forEach(function (key) { if (map[key].length > 1) groups.push({ kind: k[0], members: map[key].map(function (m) { return memberRow(m._id, m); }) }); });
+    });
+    return { groups: groups };
+  });
+  R('GET', '/api/admin/members/([^/]+)', async function (m) {
+    var x = await needPerm('members'), t = await snap('members/' + m[1]);
+    if (!t) throw E(404, 'not_found', 'Cadastro não encontrado.');
+    var hq = await db.collection('members/' + m[1] + '/history').get();
+    var hist = hq.docs.map(function (d) { var v = d.data(); return { from_status: v.from || null, to_status: v.to, at: v.at, actorName: v.actorName, reason: v.reason || '' }; });
+    hist.sort(function (a, b) { return a.at < b.at ? -1 : 1; });
+    var courses = [], events = [], target = null;
+    var cs = await db.collection('courses').get(), es = await db.collection('events').get();
+    await Promise.all(cs.docs.map(async function (c) { try { var e = await snap('courses/' + c.id + '/enrollments/' + m[1]); if (e) courses.push({ title: c.data().title, status: e.status, enrolled_at: e.enrolledAt }); } catch (er) { /* sem permissão em cursos */ } }));
+    await Promise.all(es.docs.map(async function (v) { try { var r = await snap('events/' + v.id + '/registrations/' + m[1]); if (r) events.push({ title: v.data().title, starts_at: v.data().startsAt, status: r.status, attended: !!r.attended }); } catch (er) { /* idem */ } }));
+    if (x.admin.principal) { try { var a = await snap('admins/' + m[1]); if (a && a.active) target = { principal: a.kind === 'principal' }; } catch (er) { /* ok */ } }
+    var mem = Object.assign(memberRow(m[1], t), { street: t.street, number: t.number, complement: t.complement || '', district: t.district, cep: t.cep });
+    return { member: mem, admin: target, statusHistory: hist, courses: courses, events: events };
+  });
+  R('PATCH', '/api/admin/members/([^/]+)', async function (m, b) {
+    var x = await needPerm('members'), t = await snap('members/' + m[1]);
+    if (!t) throw E(404, 'not_found', 'Cadastro não encontrado.');
+    if (b.email !== undefined && sp(b.email).toLowerCase() !== t.email) throw E(400, 'validation', 'Revise os campos destacados.', { email: 'O e-mail é o acesso da pessoa ao app e não pode ser trocado por aqui.' });
+    var keys = ['name', 'birth', 'phone', 'whatsapp', 'cep', 'street', 'number', 'complement', 'district', 'city', 'state'];
+    check(b, keys.filter(function (k) { return k !== 'birth'; })); if (b.birth && !dateOk(b.birth)) throw E(400, 'validation', 'Revise os campos destacados.', { birth: 'Data inválida.' });
+    var upd = clean(b, keys), batch = db.batch();
+    batch.update(ref('members/' + m[1]), upd);
+    if (upd.name && upd.name !== t.name) batch.update(ref('directory/' + m[1]), { name: upd.name });
+    addAudit(batch, x, 'member_edited', { member: m[1], fields: Object.keys(upd) });
+    await batch.commit(); return { ok: true };
+  });
+
+  var STATUS_NOTE = { approved: ['Cadastro aprovado', 'Seu cadastro foi aprovado. Bem-vindo(a) à Casa Farol!'], rejected: ['Cadastro não aprovado', 'Seu cadastro não foi aprovado. Abra o app para ver o motivo e corrigir os dados.'], blocked: ['Acesso suspenso', 'Seu acesso ao app foi suspenso. Procure a administração da igreja.'] };
+  R('POST', '/api/admin/members/([^/]+)/status', async function (m, b) {
+    var x = await needPerm('members'), t = await snap('members/' + m[1]), to = b.to;
+    if (!t) throw E(404, 'not_found', 'Cadastro não encontrado.');
+    if (m[1] === x.uid) throw E(403, 'forbidden', 'Você não pode alterar a própria situação.');
+    var adm = await snap('admins/' + m[1]); if (adm && adm.kind === 'principal') throw E(403, 'forbidden', 'Administradores principais não podem ser rejeitados ou bloqueados.');
+    var ok = { pending: ['approved', 'rejected'], approved: ['blocked'], rejected: ['approved'], blocked: ['approved'] };
+    if (!ok[t.status] || ok[t.status].indexOf(to) < 0) throw E(409, 'conflict', 'Esta mudança de situação não é permitida.');
+    var why = sp(b.reason); if (to !== 'approved' && why.length < 5) throw E(400, 'validation', 'Informe a justificativa (mínimo 5 caracteres).', { reason: 'Informe a justificativa (mínimo 5 caracteres).' });
+    var at = now(), batch = db.batch();
+    batch.update(ref('members/' + m[1]), { status: to, statusReason: why, statusAt: at });
+    batch.update(ref('directory/' + m[1]), { approved: to === 'approved', name: t.name });
+    batch.set(db.collection('members/' + m[1] + '/history').doc(), { from: t.status, to: to, at: at, actor: x.uid, actorName: x.m.name, reason: why });
+    addAudit(batch, x, 'member_status', { member: m[1], from: t.status, to: to });
+    addNote(batch, m[1], STATUS_NOTE[to][0], STATUS_NOTE[to][1] + (to === 'rejected' && why ? ' Motivo: ' + why : ''));
+    await batch.commit(); return { ok: true };
+  });
+  R('POST', '/api/admin/members/([^/]+)/reveal-cpf', async function (m, b) {
+    var x = await needPrincipal();
+    if (sp(b.reason).length < 5) throw E(400, 'validation', 'Informe o motivo.', { reason: 'Informe o motivo.' });
+    var pv = await snap('private/' + m[1]); if (!pv) throw E(404, 'not_found', 'CPF não disponível.');
+    var batch = db.batch(); addAudit(batch, x, 'cpf_revealed', { member: m[1], reason: sp(b.reason).slice(0, 200) }); await batch.commit().catch(function () { /* melhor esforço */ });
+    var c = pv.cpf; return { cpf: c.slice(0, 3) + '.' + c.slice(3, 6) + '.' + c.slice(6, 9) + '-' + c.slice(9) };
+  });
+
+  /* solicitações */
+  R('GET', '/api/admin/identity-requests', async function () {
+    await needPerm('members'); var q = await db.collection('requests').where('kind', '==', 'identity').get();
+    return { requests: q.docs.filter(function (d) { return d.data().status === 'open'; }).map(function (d) { var v = d.data(); return { id: d.id, name: v.name, field: v.field, requested: v.value, reason: v.reason }; }) };
+  });
+  R('GET', '/api/admin/privacy-requests', async function () {
+    await needPerm('members'); var q = await db.collection('requests').get();
+    return { requests: q.docs.filter(function (d) { return d.data().status === 'open' && d.data().kind !== 'identity'; }).map(function (d) { var v = d.data(); return { id: d.id, name: v.name, kind: v.kind, note: v.note, created_at: v.createdAt }; }) };
+  });
+  async function anonymize(x, uid, batch) {
+    var t = await snap('members/' + uid), adm = await snap('admins/' + uid);
+    if (adm && adm.kind === 'principal') throw E(403, 'forbidden', 'Um administrador principal não pode ser anonimizado.');
+    var pv = await snap('private/' + uid);
+    batch.update(ref('members/' + uid), { name: 'Membro removido', birth: '1900-01-01', phone: '', whatsapp: '', cep: '', street: '', number: '', complement: '', district: '', city: '', state: '', anonymized: true });
+    batch.update(ref('directory/' + uid), { name: 'Membro removido' });
+    if (pv) { batch.delete(ref('private/' + uid)); batch.delete(ref('cpfIndex/' + await cpfKey(pv.cpf))); }
+    addAudit(batch, x, 'member_anonymized', { member: uid });
+  }
+  async function decideRequest(id, b, kinds) {
+    var x = await needPerm('members'), q = await snap('requests/' + id);
+    if (!q || q.status !== 'open' || kinds.indexOf(q.kind) < 0) throw E(404, 'not_found', 'Solicitação não encontrada.');
+    var approve = !!b.approve, note = sp(b.note);
+    if (!approve && note.length < 5) throw E(400, 'validation', 'Informe o motivo da recusa.', { note: 'Informe o motivo da recusa.' });
+    var batch = db.batch(), at = now();
+    batch.update(ref('requests/' + id), { status: approve ? 'approved' : 'rejected', decidedBy: x.uid, decidedAt: at, decisionNote: note });
+    if (approve && q.kind === 'identity') {
+      var upd = q.field === 'full_name' ? { name: q.value } : (q.field === 'birth_date' ? { birth: q.value } : null);
+      if (!upd) throw E(400, 'validation', 'Este tipo de correção é feito pela secretaria.');
+      batch.update(ref('members/' + q.uid), upd); if (upd.name) batch.update(ref('directory/' + q.uid), { name: upd.name });
+    }
+    if (approve && q.kind === 'delete') { if (!x.admin.principal) throw E(403, 'forbidden', 'A anonimização é feita por um administrador principal.'); await anonymize(x, q.uid, batch); }
+    addAudit(batch, x, 'request_' + (approve ? 'approved' : 'rejected'), { request: id, kind: q.kind });
+    if (q.kind !== 'delete' || !approve) addNote(batch, q.uid, approve ? 'Solicitação atendida' : 'Solicitação recusada', approve ? 'Sua solicitação foi atendida.' : 'Sua solicitação foi recusada. Motivo: ' + note);
+    await batch.commit(); return { ok: true };
+  }
+  R('POST', '/api/admin/identity-requests/([^/]+)/decide', function (m, b) { return decideRequest(m[1], b, ['identity']); });
+  R('POST', '/api/admin/privacy-requests/([^/]+)/decide', function (m, b) { return decideRequest(m[1], b, ['correct', 'delete']); });
+
+  /* administradores */
+  function adminRow(id, a, names) { return { id: id, memberId: id, name: a.name, kind: a.kind, role: a.role || null, roleLabel: a.kind === 'principal' ? (ROLES[a.role] || 'Principal') : 'Administrador', active: !!a.active, grantedAt: a.grantedAt, grantedBy: a.grantedBy, grantedByName: a.grantedByName || (names && names[a.grantedBy]) || '', permissions: a.kind === 'principal' ? PERMS.slice() : (a.permissions || []) }; }
+  R('GET', '/api/admin/administrators', async function () {
+    await needPrincipal(); var q = await db.collection('admins').get(), rows = q.docs.map(function (d) { return adminRow(d.id, d.data()); });
+    var taken = {}; rows.forEach(function (a) { if (a.kind === 'principal' && a.active) taken[a.role] = true; });
+    var vac = Object.keys(ROLES).filter(function (r) { return !taken[r]; }).map(function (r) { return { role: r, label: ROLES[r], hint: 'Defina o titular pelo Console do Firebase (veja o guia de instalação, "Primeiros administradores").' }; });
+    return { administrators: rows, vacantPrincipalRoles: vac, permissions: PERMS };
+  });
+  function permsOk(p) { return Array.isArray(p) && p.length >= 1 && p.every(function (k) { return PERMS.indexOf(k) >= 0; }); }
+  R('POST', '/api/admin/administrators', async function (m, b) {
+    var x = await needPrincipal(); if (!permsOk(b.permissions)) throw E(400, 'validation', 'Escolha ao menos uma permissão.');
+    var t = await snap('members/' + b.memberId); if (!t || t.status !== 'approved') throw E(404, 'not_found', 'Escolha um membro aprovado.');
+    var cur = await snap('admins/' + b.memberId); if (cur && cur.kind === 'principal') throw E(409, 'conflict', 'Esta pessoa já é administradora principal.');
+    var at = now(), batch = db.batch(), perms = b.permissions.filter(function (p, i, a) { return a.indexOf(p) === i; });
+    if (cur) {
+      if (cur.active) throw E(409, 'conflict', 'Esta pessoa já é administradora.');
+      batch.update(ref('admins/' + b.memberId), { permissions: perms, active: true, updatedAt: at, updatedBy: x.uid });
+    } else batch.set(ref('admins/' + b.memberId), { kind: 'additional', name: t.name, permissions: perms, active: true, grantedAt: at, grantedBy: x.uid, grantedByName: x.m.name });
+    batch.set(db.collection('admins/' + b.memberId + '/history').doc(), { action: 'granted', at: at, actor: x.uid, actor_name: x.m.name, details: { after: perms, note: sp(b.note) } });
+    addAudit(batch, x, 'admin_granted', { member: b.memberId, permissions: perms });
+    addNote(batch, b.memberId, 'Você agora é administrador(a)', 'Você recebeu permissões de administração no Casa Farol.');
+    await batch.commit(); return { ok: true };
+  });
+  R('PATCH', '/api/admin/administrators/([^/]+)', async function (m, b) {
+    var x = await needPrincipal(), a = await snap('admins/' + m[1]);
+    if (!a) throw E(404, 'not_found', 'Administrador não encontrado.');
+    if (a.kind === 'principal') throw E(403, 'forbidden', 'Administradores principais não podem ser alterados por aqui.');
+    var upd = { updatedAt: now(), updatedBy: x.uid }, action, details = {};
+    if (b.permissions !== undefined) { if (!permsOk(b.permissions)) throw E(400, 'validation', 'Escolha ao menos uma permissão.'); upd.permissions = b.permissions; action = 'permissions_changed'; details = { before: a.permissions, after: b.permissions }; }
+    else if (b.active !== undefined) { upd.active = !!b.active; upd.permissions = a.permissions; action = b.active ? 'activated' : 'deactivated'; }
+    else throw E(400, 'validation', 'Nada para alterar.');
+    var batch = db.batch(); batch.update(ref('admins/' + m[1]), upd);
+    batch.set(db.collection('admins/' + m[1] + '/history').doc(), { action: action, at: upd.updatedAt, actor: x.uid, actor_name: x.m.name, details: details });
+    addAudit(batch, x, 'admin_' + action, { member: m[1] }); await batch.commit(); return { ok: true };
+  });
+  R('GET', '/api/admin/administrators/([^/]+)/history', async function (m) {
+    await needPrincipal(); var q = await db.collection('admins/' + m[1] + '/history').get(), rows = q.docs.map(function (d) { return d.data(); });
+    rows.sort(function (a, b) { return a.at < b.at ? 1 : -1; }); return { history: rows };
+  });
+  R('POST', '/api/admin/principals/transfer', async function () { await needPrincipal(); throw E(501, 'unsupported', 'A troca de titular de um papel principal é feita pelo Console do Firebase (veja o guia).'); });
+
+  /* finanças */
+  R('GET', '/api/admin/contributions', async function (m, b, qs) {
+    await needPerm('finance'); var id = qs.get('memberId'), q = id ? await db.collection('contributions').where('uid', '==', id).get() : await db.collection('contributions').get();
+    var rows = q.docs.map(function (d) { return contribRow(d.id, d.data()); });
+    rows.sort(function (a, b) { return a.created_at < b.created_at ? 1 : -1; });
+    if (id) { try { var xx = await need(); var batch = db.batch(); addAudit(batch, xx, 'finance_viewed', { member: id }); await batch.commit(); } catch (e) { /* melhor esforço */ } }
+    return { contributions: rows.slice(0, 500) };
+  });
+  R('POST', '/api/admin/contributions', async function (m, b) {
+    var x = await needPerm('finance'), c = contribFields(b), t = await snap('members/' + b.memberId);
+    if (!t) throw E(404, 'not_found', 'Membro não encontrado.');
+    var batch = db.batch(), at = now();
+    batch.set(db.collection('contributions').doc(), Object.assign(c, { uid: b.memberId, name: t.name, source: 'admin', confirmedAt: at, confirmedBy: x.uid, voidedAt: null, createdAt: at }));
+    addAudit(batch, x, 'contribution_recorded', { member: b.memberId }); await batch.commit(); return { ok: true };
+  });
+  R('POST', '/api/admin/contributions/([^/]+)/confirm', async function (m) {
+    var x = await needPerm('finance'), c = await snap('contributions/' + m[1]); if (!c) throw E(404, 'not_found', 'Lançamento não encontrado.');
+    if (c.voidedAt || c.confirmedAt) throw E(409, 'conflict', 'Este lançamento não está aguardando conferência.');
+    var batch = db.batch(); batch.update(ref('contributions/' + m[1]), { confirmedAt: now(), confirmedBy: x.uid }); addAudit(batch, x, 'contribution_confirmed', { id: m[1] });
+    addNote(batch, c.uid, 'Contribuição confirmada', 'Sua contribuição foi conferida pelo financeiro. Obrigado!'); await batch.commit(); return { ok: true };
+  });
+  R('POST', '/api/admin/contributions/([^/]+)/void', async function (m, b) {
+    var x = await needPerm('finance'), c = await snap('contributions/' + m[1]); if (!c) throw E(404, 'not_found', 'Lançamento não encontrado.');
+    if (c.voidedAt) throw E(409, 'conflict', 'Já estornado.'); if (sp(b.reason).length < 5) throw E(400, 'validation', 'Informe o motivo.', { reason: 'Informe o motivo (mínimo 5 caracteres).' });
+    var batch = db.batch(); batch.update(ref('contributions/' + m[1]), { voidedAt: now(), voidedBy: x.uid, voidReason: sp(b.reason).slice(0, 200) }); addAudit(batch, x, 'contribution_voided', { id: m[1] }); await batch.commit(); return { ok: true };
+  });
+
+  /* cursos, eventos, avisos (administração) */
+  function need2(b, f) { var e = {}; f.forEach(function (k) { if (sp(b[k]).length < 2) e[k] = 'Preencha este campo.'; }); if (Object.keys(e).length) throw E(400, 'validation', 'Revise os campos destacados.', e); }
+  function cap(b) { var n = sp(b.capacity) ? Number(b.capacity) : 0; if (!isFinite(n) || n < 0 || n > 100000 || Math.floor(n) !== n) throw E(400, 'validation', 'Revise os campos destacados.', { capacity: 'Informe um número inteiro.' }); return n; }
+  R('POST', '/api/admin/courses', async function (m, b) {
+    var x = await needPerm('courses'); need2(b, ['title']); var n = cap(b), batch = db.batch(), r = db.collection('courses').doc();
+    batch.set(r, { title: sp(b.title).slice(0, 120), description: sp(b.description).slice(0, 1000), startsAt: sp(b.startsAt), capacity: n, active: true, createdAt: now(), createdBy: x.uid }); addAudit(batch, x, 'course_created', { id: r.id }); await batch.commit(); return { ok: true };
+  });
+  R('GET', '/api/admin/courses/([^/]+)/enrollments', async function (m) {
+    await needPerm('courses'); var q = await db.collection('courses/' + m[1] + '/enrollments').get();
+    return { enrollments: q.docs.map(function (d) { var v = d.data(); return { id: m[1] + ':' + d.id, name: v.name, phone: v.phone, email: v.email, status: v.status, certificate_url: v.certificateUrl || '' }; }) };
+  });
+  R('POST', '/api/admin/enrollments/([^/:]+):([^/]+)', async function (m, b) {
+    var x = await needPerm('courses'), path = 'courses/' + m[1] + '/enrollments/' + m[2], e = await snap(path); if (!e) throw E(404, 'not_found', 'Inscrição não encontrada.');
+    var url = sp(b.certificateUrl); if (url && !/^https:\/\/\S+$/.test(url)) throw E(400, 'validation', 'Revise os campos destacados.', { certificateUrl: 'Use um link que comece com https://' });
+    var upd = { status: b.status, certificateUrl: url }; if (b.status === 'concluido') upd.completedAt = e.completedAt || now();
+    var batch = db.batch(); batch.update(ref(path), upd); addAudit(batch, x, 'enrollment_updated', { course: m[1], member: m[2], status: b.status }); await batch.commit(); return { ok: true };
+  });
+  R('POST', '/api/admin/events', async function (m, b) {
+    var x = await needPerm('events'); need2(b, ['title']); var n = cap(b), batch = db.batch(), r = db.collection('events').doc();
+    batch.set(r, { title: sp(b.title).slice(0, 120), description: sp(b.description).slice(0, 1000), startsAt: sp(b.startsAt), location: sp(b.location).slice(0, 120), capacity: n, active: true, createdAt: now(), createdBy: x.uid }); addAudit(batch, x, 'event_created', { id: r.id }); await batch.commit(); return { ok: true };
+  });
+  R('GET', '/api/admin/events/([^/]+)/registrations', async function (m) {
+    await needPerm('events'); var q = await db.collection('events/' + m[1] + '/registrations').get();
+    return { registrations: q.docs.map(function (d) { var v = d.data(); return { member_id: d.id, name: v.name, status: v.status, attended: !!v.attended, completed: !!v.completed }; }) };
+  });
+  R('POST', '/api/admin/events/([^/]+)/attendance', async function (m, b) {
+    var x = await needPerm('events'), path = 'events/' + m[1] + '/registrations/' + b.memberId;
+    if (!(await snap(path))) throw E(404, 'not_found', 'Inscrição não encontrada.');
+    var batch = db.batch(); batch.update(ref(path), { attended: !!b.attended, completed: !!b.completed }); addAudit(batch, x, 'attendance_set', { event: m[1], member: b.memberId }); await batch.commit(); return { ok: true };
+  });
+  R('POST', '/api/admin/announcements', async function (m, b) {
+    var x = await needPerm('communication'); need2(b, ['title', 'body']); var batch = db.batch();
+    batch.set(db.collection('announcements').doc(), { title: sp(b.title).slice(0, 120), body: String(b.body).trim().slice(0, 2000), active: true, createdAt: now(), createdBy: x.uid }); addAudit(batch, x, 'announcement_created', {}); await batch.commit(); return { ok: true };
+  });
+  R('POST', '/api/admin/announcements/([^/]+)/deactivate', async function (m) { await needPerm('communication'); await ref('announcements/' + m[1]).update({ active: false }); return { ok: true }; });
+  R('GET', '/api/admin/audit', async function (m, b, qs) {
+    await needPrincipal(); var q = await db.collection('audit').get(), lim = Math.min(+qs.get('limit') || 100, 500);
+    var rows = q.docs.map(function (d) { var v = d.data(); return { action: v.action, at: v.at, actor_name: v.actorName, details: v.details }; });
+    rows.sort(function (a, b) { return a.at < b.at ? 1 : -1; }); return { events: rows.slice(0, lim) };
+  });
+
+  /* ══════════ despachante ══════════ */
+  async function routeCall(method, url, body) {
+    var u = new URL(url, 'https://x.invalid'), path = u.pathname;
+    for (var i = 0; i < routes.length; i++) {
+      var r = routes[i]; if (r[0] !== method) continue; var mm = path.match(r[1]); if (mm) return r[2](mm, body || {}, u.searchParams);
+    }
+    throw E(404, 'not_found', 'Recurso não encontrado.');
+  }
+  window.CF_BACKEND = {
+    kind: 'firebase',
+    call: function (method, url, body) { return routeCall(method, url, body).catch(function (e) { throw mapError(e); }); }
+  };
+})();
+
+</script>
 <script id="cfa-js">
 /* ═══ CASA FAROL — CONTAS ═══════════════════════════════════════════════════
    Cliente do backend (casafarol-server). Toda autorização é decidida no SERVIDOR;
@@ -4991,6 +5616,7 @@ function volReset(){
   var KIND = { dizimo: 'Dízimo', oferta: 'Oferta', campanha: 'Campanha', outro: 'Outro' };
   var TRANS = { pending: ['approved', 'rejected'], approved: ['blocked'], rejected: ['approved'], blocked: ['approved'] };
   var uid = 0;
+  function today() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
   var $ = function (id) { return document.getElementById(id); };
 
   /* ── DOM helper (sem innerHTML com dados: evita XSS) ── */
@@ -5015,6 +5641,16 @@ function volReset(){
 
   /* ── API ── */
   function api(method, path, body) {
+    var p;
+    if (window.CF_BACKEND) p = window.CF_BACKEND.call(method, path, body).then(function (j) { if (j && j.csrf) S.csrf = j.csrf; return j; });
+    else if (window.CF_NO_FETCH) p = Promise.reject({ status: 0, code: 'no_backend', message: 'Servidor de contas indisponível.' });
+    else p = rawApi(method, path, body);
+    return p.catch(function (e) {
+      if (e && e.status === 401 && e.code === 'unauthenticated' && S.me) { S.me = null; S.csrf = ''; renderBlocks(); openGate('login'); }
+      throw e;
+    });
+  }
+  function rawApi(method, path, body) {
     var ctl = ('AbortController' in window) ? new AbortController() : null;
     var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 12000);
     var h = { Accept: 'application/json' };
@@ -5031,10 +5667,7 @@ function volReset(){
           return j;
         });
       }, function () { clearTimeout(timer); throw { status: 0, code: 'network', message: 'Sem conexão com o servidor. Verifique sua internet e tente de novo.' }; })
-      .catch(function (e) {
-        if (e && e.status === 401 && e.code === 'unauthenticated' && S.me) { S.me = null; S.csrf = ''; renderBlocks(); openGate('login'); }
-        throw e;
-      });
+      ;
   }
 
   /* ── máscaras e validação (apenas conforto; o servidor revalida tudo) ── */
@@ -5095,7 +5728,7 @@ function volReset(){
   }
   function validateForms(forms) { var ok = true; forms.forEach(function (f) { var fn = V[f.key]; var m = fn ? fn(f.get()) : ''; f.err(m); if (m) ok = false; }); if (!ok) { var first = forms.filter(function (f) { return f.row.classList.contains('err'); })[0]; if (first) first.input.focus(); } return ok; }
   function applyFieldErrors(forms, fields) { var any = false; forms.forEach(function (f) { if (fields && fields[f.key]) { f.err(fields[f.key]); any = true; } }); return any; }
-  function busy(btn, on, label) { btn.disabled = !!on; if (label !== undefined) { if (on) { btn._t = btn.textContent; btn.textContent = label; } else if (btn._t) btn.textContent = btn._t; } }
+  function busy(btn, on, label) { btn.disabled = !!on; if (on) { if (label !== undefined) { btn._t = btn.textContent; btn.textContent = label; } } else if (btn._t) { btn.textContent = btn._t; btn._t = null; } }
   function money(c) { return (c / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
   function dt(s, time) { if (!s) return '—'; var d = new Date(s.length === 10 ? s + 'T12:00:00' : s); return isNaN(d) ? s : d.toLocaleString('pt-BR', time === false || s.length === 10 ? { dateStyle: 'short' } : { dateStyle: 'short', timeStyle: 'short' }); }
   function fmtPhone(p) { return p ? MASK.phone(p) : '—'; }
@@ -5161,7 +5794,7 @@ function volReset(){
   var FIELD_STEP = { name: 0, cpf: 0, birth: 0, phone: 1, whatsapp: 1, email: 1, cep: 2, street: 2, number: 2, complement: 2, district: 2, city: 2, state: 2, password: 3, passwordConfirm: 3, acceptTerms: 4, acceptPrivacy: 4 };
   function stepFields(i) {
     var d = R.data, ufs = [['', 'Selecione…']].concat((S.cfg.ufs || []).map(function (u) { return [u, u]; }));
-    if (i === 0) return [F({ key: 'name', label: 'Nome completo', value: d.name, autocomplete: 'name', autocap: 'words', placeholder: 'Como está no seu documento' }), F({ key: 'cpf', label: 'CPF', value: d.cpf, mask: 'cpf', inputmode: 'numeric', placeholder: '000.000.000-00', hint: 'Usado para identificar você de forma única. Fica protegido e nunca aparece completo para outras pessoas.' }), F({ key: 'birth', label: 'Data de nascimento', type: 'date', value: d.birth, max: new Date().toISOString().slice(0, 10), autocomplete: 'bday' })];
+    if (i === 0) return [F({ key: 'name', label: 'Nome completo', value: d.name, autocomplete: 'name', autocap: 'words', placeholder: 'Como está no seu documento' }), F({ key: 'cpf', label: 'CPF', value: d.cpf, mask: 'cpf', inputmode: 'numeric', placeholder: '000.000.000-00', hint: 'Usado para identificar você de forma única. Fica protegido e nunca aparece completo para outras pessoas.' }), F({ key: 'birth', label: 'Data de nascimento', type: 'date', value: d.birth, max: today(), autocomplete: 'bday' })];
     if (i === 1) return [F({ key: 'phone', label: 'Celular', value: d.phone, mask: 'phone', type: 'tel', inputmode: 'tel', placeholder: '(00) 00000-0000', autocomplete: 'tel' }), F({ key: 'whatsapp', label: 'WhatsApp (opcional)', value: d.whatsapp, mask: 'phone', type: 'tel', inputmode: 'tel', placeholder: '(00) 00000-0000', hint: 'Se for o mesmo número, repita o celular.' }), F({ key: 'email', label: 'E-mail', value: d.email, type: 'email', inputmode: 'email', autocomplete: 'email', placeholder: 'seu@email.com' })];
     if (i === 2) return [F({ key: 'cep', label: 'CEP', value: d.cep, mask: 'cep', inputmode: 'numeric', placeholder: '00000-000', autocomplete: 'postal-code' }), F({ key: 'street', label: 'Rua', value: d.street, autocomplete: 'address-line1', autocap: 'words' }), F({ key: 'number', label: 'Número', value: d.number, placeholder: 'ou S/N' }), F({ key: 'complement', label: 'Complemento (opcional)', value: d.complement, autocomplete: 'address-line2' }), F({ key: 'district', label: 'Bairro', value: d.district, autocap: 'words' }), F({ key: 'city', label: 'Cidade', value: d.city, autocomplete: 'address-level2', autocap: 'words' }), F({ key: 'state', label: 'Estado', type: 'select', options: ufs, value: d.state })];
     return [];
@@ -5267,7 +5900,7 @@ function volReset(){
     function submit() {
       clear(box); var m = V.cpf(cpf.get()); cpf.err(m); if (m) return;
       busy(go, true, 'Enviando…');
-      api('POST', '/api/auth/password-reset/request', { cpf: dg(cpf.get()) }).then(function (r) { gate.cpf = dg(cpf.get()); gate.dev = r.devCode; gate.msg = r.message; openGate('reset'); }).catch(function (e) { box.appendChild(alertBox(e.message)); }).then(function () { busy(go, false); });
+      api('POST', '/api/auth/password-reset/request', { cpf: dg(cpf.get()) }).then(function (r) { if (r.resetByLink) { box.appendChild(alertBox(r.message, true)); return; } gate.cpf = dg(cpf.get()); gate.dev = r.devCode; gate.msg = r.message; openGate('reset'); }).catch(function (e) { box.appendChild(alertBox(e.message)); }).then(function () { busy(go, false); });
     }
     card.addEventListener('keydown', function (e) { if (e.key === 'Enter') submit(); });
     add(card, [head('Recuperar senha', 'Informe seu CPF. Se houver cadastro, enviaremos um código para o e-mail registrado.'), cpf.row, box, el('div', { class: 'cfa-spacer' }), go, el('button', { class: 'cfa-link', type: 'button', text: 'Voltar ao login', onclick: function () { openGate('login'); } })]);
@@ -5403,7 +6036,7 @@ function volReset(){
   function declareSheet() {
     var kind = F({ key: 'kind', label: 'Tipo', type: 'select', options: [['dizimo', 'Dízimo'], ['oferta', 'Oferta'], ['campanha', 'Campanha'], ['outro', 'Outro']] });
     var amount = F({ key: 'amount', label: 'Valor (R$)', inputmode: 'decimal', placeholder: '0,00' });
-    var paid = F({ key: 'paidAt', label: 'Data', type: 'date', value: new Date().toISOString().slice(0, 10), max: new Date().toISOString().slice(0, 10) });
+    var paid = F({ key: 'paidAt', label: 'Data', type: 'date', value: today(), max: today() });
     var ref = F({ key: 'reference', label: 'Referência (opcional)', placeholder: 'Ex.: comprovante PIX' }), box = el('div'), sh;
     var go = btn('Enviar para conferência', '', function () {
       clear(box); busy(go, true);
@@ -5639,8 +6272,8 @@ function volReset(){
       clear(body);
       add(body, [el('div', { class: 'cfa-lbl', text: 'Administradores principais (mesmo nível de autoridade)' })]);
       var pb = el('div', { class: 'cfa-box' }); body.appendChild(pb);
-      r.administrators.filter(function (a) { return a.kind === 'principal'; }).forEach(function (a) { pb.appendChild(el('div', { class: 'cfa-li', style: 'align-items:flex-start' }, el('div', { class: 'b' }, el('div', { class: 't', text: a.roleLabel + ' — ' + a.name }), el('div', { class: 's', text: 'Acesso total · desde ' + dt(a.grantedAt, false) }), el('div', { class: 'cfa-actions' }, btn('Transferir papel', 'sm line', function () { transferSheet(a); }), btn('Histórico', 'sm line', function () { histSheet(a); }))))); });
-      r.vacantPrincipalRoles.forEach(function (v) { pb.appendChild(el('div', { class: 'cfa-li' }, el('div', { class: 'b' }, el('div', { class: 't', text: v.label + ' — vago' }), el('div', { class: 's', text: 'Defina o titular no servidor: npm run cli -- make-principal --cpf … --role ' + v.role })))); });
+      r.administrators.filter(function (a) { return a.kind === 'principal'; }).forEach(function (a) { pb.appendChild(el('div', { class: 'cfa-li', style: 'align-items:flex-start' }, el('div', { class: 'b' }, el('div', { class: 't', text: a.roleLabel + ' — ' + a.name }), el('div', { class: 's', text: 'Acesso total · desde ' + dt(a.grantedAt, false) }), el('div', { class: 'cfa-actions' }, window.CF_BACKEND ? null : btn('Transferir papel', 'sm line', function () { transferSheet(a); }), btn('Histórico', 'sm line', function () { histSheet(a); }))))); });
+      r.vacantPrincipalRoles.forEach(function (v) { pb.appendChild(el('div', { class: 'cfa-li' }, el('div', { class: 'b' }, el('div', { class: 't', text: v.label + ' — vago' }), el('div', { class: 's', text: v.hint || ('Defina o titular no servidor: npm run cli -- make-principal --cpf … --role ' + v.role) })))); });
       add(body, [el('div', { class: 'cfa-lbl', text: 'Administradores adicionais' }), btn('Nomear administrador', 'sm', function () { nominateSheet(r.permissions); })]);
       var ab = el('div', { class: 'cfa-box', style: 'margin-top:10px' }); body.appendChild(ab);
       var extra = r.administrators.filter(function (a) { return a.kind === 'additional'; });
@@ -5694,7 +6327,7 @@ function volReset(){
     sh = sheet('Estornar lançamento', el('div', { class: 'cfa-light' }, el('p', { style: 'font-size:13px;color:var(--ink3);margin:0 0 10px', text: 'Lançamentos não são apagados nem editados: o estorno fica registrado.' }), why.row, box, go));
   }
   function recordSheet() {
-    var mp = memberPicker(null), kind = F({ key: 'kind', label: 'Tipo', type: 'select', options: [['dizimo', 'Dízimo'], ['oferta', 'Oferta'], ['campanha', 'Campanha'], ['outro', 'Outro']] }), amount = F({ key: 'amount', label: 'Valor (R$)', inputmode: 'decimal' }), paid = F({ key: 'paidAt', label: 'Data', type: 'date', value: new Date().toISOString().slice(0, 10) }), ref = F({ key: 'reference', label: 'Referência' }), box = el('div'), sh;
+    var mp = memberPicker(null), kind = F({ key: 'kind', label: 'Tipo', type: 'select', options: [['dizimo', 'Dízimo'], ['oferta', 'Oferta'], ['campanha', 'Campanha'], ['outro', 'Outro']] }), amount = F({ key: 'amount', label: 'Valor (R$)', inputmode: 'decimal' }), paid = F({ key: 'paidAt', label: 'Data', type: 'date', value: today() }), ref = F({ key: 'reference', label: 'Referência' }), box = el('div'), sh;
     var go = btn('Registrar', '', function () { clear(box); if (!mp.pick.id) return box.appendChild(alertBox('Escolha o membro.')); busy(go, true); api('POST', '/api/admin/contributions', { memberId: mp.pick.id, kind: kind.get(), amount: amount.get(), paidAt: paid.get(), reference: ref.get() }).then(function () { sh.close(); toast('Registrado.'); reload(); }).catch(function (e) { if (!applyFieldErrors([amount, paid, kind], e.fields)) box.appendChild(alertBox(e.message)); busy(go, false); }); });
     sh = sheet('Registrar contribuição', el('div', { class: 'cfa-light' }, mp.node, kind.row, amount.row, paid.row, ref.row, box, go));
   }
