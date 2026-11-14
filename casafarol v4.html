@@ -496,19 +496,7 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   margin:0 -.2em;
 }
 .bib-vmark.bib-hl-fav{background-color:rgba(245,201,90,.55);}
-.bib-vmark.bib-hl-green{background-color:rgba(143,226,155,.6);}
-.bib-vmark.bib-hl-yellow{background-color:rgba(252,233,106,.6);}
-.bib-vmark.bib-hl-blue{background-color:rgba(143,211,244,.55);}
-.bib-vmark.bib-hl-cream{background-color:rgba(247,239,192,.85);}
-.bib-vmark.bib-hl-orange{background-color:rgba(245,192,131,.6);}
-.bib-vmark.bib-hl-pink{background-color:rgba(243,168,220,.55);}
 #p-biblia.bib-dark .bib-vmark.bib-hl-fav{background-color:rgba(245,201,90,.28);}
-#p-biblia.bib-dark .bib-vmark.bib-hl-green{background-color:rgba(143,226,155,.28);}
-#p-biblia.bib-dark .bib-vmark.bib-hl-yellow{background-color:rgba(252,233,106,.28);}
-#p-biblia.bib-dark .bib-vmark.bib-hl-blue{background-color:rgba(143,211,244,.28);}
-#p-biblia.bib-dark .bib-vmark.bib-hl-cream{background-color:rgba(247,239,192,.22);}
-#p-biblia.bib-dark .bib-vmark.bib-hl-orange{background-color:rgba(245,192,131,.28);}
-#p-biblia.bib-dark .bib-vmark.bib-hl-pink{background-color:rgba(243,168,220,.28);}
 /* Selection bar (multi-select actions) */
 .bib-selection-bar{
   position:fixed;left:16px;right:16px;
@@ -540,18 +528,6 @@ button{background:none;border:none;cursor:pointer;font-family:inherit;color:inhe
   pointer-events:none;z-index:61;
 }
 .bib-hl-picker.show{transform:translateY(0);opacity:1;pointer-events:all;}
-.bib-vmark.bib-hl-red{background-color:rgba(244,160,154,.55);}
-.bib-vmark.bib-hl-purple{background-color:rgba(201,179,242,.6);}
-.bib-vmark.bib-hl-teal{background-color:rgba(143,224,210,.55);}
-.bib-vmark.bib-hl-lime{background-color:rgba(212,236,138,.6);}
-.bib-vmark.bib-hl-sand{background-color:rgba(227,205,164,.65);}
-.bib-vmark.bib-hl-gray{background-color:rgba(207,207,203,.6);}
-#p-biblia.bib-dark .bib-vmark.bib-hl-red{background-color:rgba(244,160,154,.28);}
-#p-biblia.bib-dark .bib-vmark.bib-hl-purple{background-color:rgba(201,179,242,.3);}
-#p-biblia.bib-dark .bib-vmark.bib-hl-teal{background-color:rgba(143,224,210,.26);}
-#p-biblia.bib-dark .bib-vmark.bib-hl-lime{background-color:rgba(212,236,138,.26);}
-#p-biblia.bib-dark .bib-vmark.bib-hl-sand{background-color:rgba(227,205,164,.28);}
-#p-biblia.bib-dark .bib-vmark.bib-hl-gray{background-color:rgba(207,207,203,.24);}
 
 .bib-hl-swatches{display:flex;align-items:center;gap:10px;flex:1;justify-content:center;}
 .bib-hl-dot{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,.2);transition:transform .12s;flex-shrink:0;}
@@ -1849,6 +1825,45 @@ html.cfa-has-backend .home-greet-edit:not(.cfa-menubtn){display:none;}
 #p-biblia.active{height:100dvh;padding-bottom:calc(var(--nav-h) + var(--safe-b));}
 #p-biblia .bib-screen{padding-bottom:calc(var(--nav-h) + var(--safe-b) + 16px);}
 .bib-topbar{padding-top:calc(var(--safe-t) + 10px);}
+
+/* ══ BÍBLIA — identidade Casa Farol (cabeçalho preto, detalhes champagne, títulos em serifa) ══ */
+.bib-topbar{background:var(--night);border-bottom:1px solid rgba(212,183,127,.2)}
+.bib-topbar-title{font:500 22px/1 var(--serif);color:#fff;letter-spacing:.01em}
+.bib-topbar .bib-back,.bib-topbar .bib-icon-btn{background:rgba(255,255,255,.06);border:1px solid rgba(212,183,127,.3)}
+.bib-topbar .bib-back svg,.bib-topbar .bib-icon-btn svg{stroke:var(--gold-lt);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.bib-reader-ref,.bib-nav-title{font-family:var(--serif)!important;font-weight:500;font-size:19px}
+.bib-book-name{font-family:var(--serif);font-size:18px;font-weight:500}
+.bib-continue-ref{font-family:var(--serif)}
+.bib-continue-card{background:var(--night);border:1px solid rgba(212,183,127,.2)}
+.bib-verse .bib-vnum{color:var(--gold)}
+#p-biblia.bib-dark .bib-topbar{background:var(--night);border-color:rgba(212,183,127,.2)}
+#p-biblia.bib-dark .bib-reader-ref,#p-biblia.bib-dark .bib-book-name{color:#EDE8DF}
+#p-biblia.bib-dark .bib-chap-btn.read,#p-biblia.bib-dark .bib-chap-btn:active{background:rgba(212,183,127,.14);border-color:rgba(212,183,127,.4);color:var(--gold-lt)}
+#p-biblia.bib-dark .bib-vnum{color:var(--gold-lt)}
+.bib-vmark.bib-hl-cream{background-color:rgba(247,239,192,.62);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-cream{background-color:rgba(247,239,192,.30);}
+.bib-vmark.bib-hl-honey{background-color:rgba(242,201,107,.62);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-honey{background-color:rgba(242,201,107,.30);}
+.bib-vmark.bib-hl-champagne{background-color:rgba(230,211,163,.62);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-champagne{background-color:rgba(230,211,163,.30);}
+.bib-vmark.bib-hl-amber{background-color:rgba(235,178,106,.62);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-amber{background-color:rgba(235,178,106,.30);}
+.bib-vmark.bib-hl-copper{background-color:rgba(217,161,132,.62);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-copper{background-color:rgba(217,161,132,.30);}
+.bib-vmark.bib-hl-terracotta{background-color:rgba(204,142,125,.62);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-terracotta{background-color:rgba(204,142,125,.30);}
+.bib-vmark.bib-hl-rose{background-color:rgba(232,176,168,.62);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-rose{background-color:rgba(232,176,168,.30);}
+.bib-vmark.bib-hl-blush{background-color:rgba(240,207,196,.62);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-blush{background-color:rgba(240,207,196,.30);}
+.bib-vmark.bib-hl-sand{background-color:rgba(217,195,160,.62);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-sand{background-color:rgba(217,195,160,.30);}
+.bib-vmark.bib-hl-taupe{background-color:rgba(201,187,166,.62);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-taupe{background-color:rgba(201,187,166,.30);}
+.bib-vmark.bib-hl-stone{background-color:rgba(207,207,203,.62);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-stone{background-color:rgba(207,207,203,.30);}
+.bib-vmark.bib-hl-bronze{background-color:rgba(184,146,74,.62);}
+#p-biblia.bib-dark .bib-vmark.bib-hl-bronze{background-color:rgba(184,146,74,.30);}
 .spoti-header{padding-top:calc(var(--safe-t) + 12px);}
 
 /* ── Mensagens: cabeçalho escuro coerente ── */
@@ -2653,7 +2668,7 @@ a.cfa-btn.cfa-wa{display:inline-block;width:auto;text-decoration:none;text-align
 <div class="page" id="p-celulas">
   <div class="pg-back" onclick="nav('inicio')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg> Início</div>
   <div class="ph rv in"><div class="ph-eye">Comunidade</div><div class="ph-h"><em>Nossas</em> Células</div><div class="ph-sub">Grupos pequenos que crescem juntos</div></div>
-  <div class="lc-wrap">
+  <div class="lc-wrap" id="cel-list">
     <div class="cel-card rv"><div class="cel-top"><div class="cel-name">Célula Centro</div><div class="cel-badge">Terça</div></div><div class="cel-meta"><div class="cel-mr"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>19h30</div><div class="cel-mr"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Rua das Flores, 123</div><div class="cel-mr"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Líder: João Silva</div></div></div>
     <div class="cel-card rv"><div class="cel-top"><div class="cel-name">Célula Zona Norte</div><div class="cel-badge">Quarta</div></div><div class="cel-meta"><div class="cel-mr"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>20h00</div><div class="cel-mr"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Av. Brasil, 456</div><div class="cel-mr"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Líder: Maria Santos</div></div></div>
     <div class="cel-card rv"><div class="cel-top"><div class="cel-name">Célula Jovens</div><div class="cel-badge">Sexta</div></div><div class="cel-meta"><div class="cel-mr"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>19h00</div><div class="cel-mr"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Rua Ipê, 78</div><div class="cel-mr"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Líder: Pedro Lima</div></div></div>
@@ -3630,6 +3645,18 @@ function cfRenderWeekly(sem,esp){
   box.className='cw-list';
   box.innerHTML=rows.join('')||'<div class="cw-card"><div class="cw-day">Nenhum culto cadastrado.</div></div>';
 }
+
+// células cadastradas pela administração (list = null → sem acesso; [] → nenhuma cadastrada)
+function cfaApplyCells(list){
+  var box=document.getElementById('cel-list'); if(!box)return;
+  if(!list){box.innerHTML='<div class="cel-card"><div class="cel-mr">Entre na sua conta aprovada para ver as células.</div></div>';return;}
+  if(!list.length){box.innerHTML='<div class="cel-card"><div class="cel-mr">Nenhuma célula cadastrada ainda.</div></div>';return;}
+  var CLK='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>', USR='<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>';
+  list.sort(function(a,b){return a.weekday-b.weekday||(a.time<b.time?-1:1);});
+  box.innerHTML=list.map(function(c){
+    return '<div class="cel-card"><div class="cel-top"><div class="cel-name">'+cfEsc(c.name)+'</div><div class="cel-badge">'+cfEsc((CF_WD[c.weekday]||'').split('-')[0])+'</div></div><div class="cel-meta"><div class="cel-mr">'+CLK+cfEsc(cfTimeLabel(c.time))+'</div>'+(c.leader?'<div class="cel-mr">'+USR+'Líder: '+cfEsc(c.leader)+'</div>':'')+'</div>'+cfLocHTML(c.loc)+'</div>';
+  }).join('');
+}
 // chamado por account.js com os cultos cadastrados pela administração (lista vazia = programação padrão do app, sem localização)
 function cfaApplyServices(list){
   var custom=!!(list&&list.length), sem=[],esp={};
@@ -3682,19 +3709,21 @@ var BIB = {
   selectedVerses:{}, availableVersions:[], highlights:{}
 };
 var HL_COLORS=[
-  {key:'green', hex:'#8FE29B'},
-  {key:'yellow', hex:'#FCE96A'},
-  {key:'blue', hex:'#8FD3F4'},
   {key:'cream', hex:'#F7EFC0'},
-  {key:'orange', hex:'#F5C083'},
-  {key:'pink', hex:'#F3A8DC'},
-  {key:'red', hex:'#F4A09A'},
-  {key:'purple', hex:'#C9B3F2'},
-  {key:'teal', hex:'#8FE0D2'},
-  {key:'lime', hex:'#D4EC8A'},
-  {key:'sand', hex:'#E3CDA4'},
-  {key:'gray', hex:'#CFCFCB'}
+  {key:'honey', hex:'#F2C96B'},
+  {key:'champagne', hex:'#E6D3A3'},
+  {key:'amber', hex:'#EBB26A'},
+  {key:'copper', hex:'#D9A184'},
+  {key:'terracotta', hex:'#CC8E7D'},
+  {key:'rose', hex:'#E8B0A8'},
+  {key:'blush', hex:'#F0CFC4'},
+  {key:'sand', hex:'#D9C3A0'},
+  {key:'taupe', hex:'#C9BBA6'},
+  {key:'stone', hex:'#CFCFCB'},
+  {key:'bronze', hex:'#B8924A'}
 ];
+// marcações antigas (cores fora da identidade) passam para a paleta champagne
+var HL_LEGACY={green:'sand',yellow:'honey',blue:'taupe',pink:'rose',orange:'amber',red:'terracotta',purple:'taupe',teal:'stone',lime:'champagne',gray:'stone'};
 var BIB_BASE = 'https://api.scripture.api.bible/v1';
 function bibEl(id){ return document.getElementById(id); }
 
@@ -3709,7 +3738,7 @@ function bibInit(){
     BIB.readChapters = JSON.parse(localStorage.getItem('bib_read')||'{}');
     BIB.favorites = JSON.parse(localStorage.getItem('bib_favs')||'[]');
     BIB.lastPosition = JSON.parse(localStorage.getItem('bib_last')||'null');
-    BIB.highlights = JSON.parse(localStorage.getItem('bib_hl')||'{}');
+    BIB.highlights = JSON.parse(localStorage.getItem('bib_hl')||'{}'); Object.keys(BIB.highlights).forEach(function(k){ if(HL_LEGACY[BIB.highlights[k]]) BIB.highlights[k]=HL_LEGACY[BIB.highlights[k]]; });
   }catch(e){}
   bibApplyDark();
   if(!BIB.apiKey){ bibShowScreen('setup'); return; }
@@ -5990,6 +6019,24 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     return { title: sp(b.title).slice(0, 120), kind: kind, weekday: kind === 'semanal' ? wd : null, date: date, time: time, loc: buildLoc(b) };
   }
   function svOut(d) { var v = d.data(); return { id: d.id, title: v.title, kind: v.kind, weekday: v.weekday == null ? null : v.weekday, date: v.date || '', time: v.time, loc: v.loc || null }; }
+  /* células (grupos pequenos) */
+  function cellFields(b) {
+    need2(b, ['name']); var f = {}, wd = Number(b.weekday), time = sp(b.time);
+    if (sp(b.weekday) === '' || !(wd >= 0 && wd <= 6) || Math.floor(wd) !== wd) f.weekday = 'Escolha o dia da semana.';
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) f.time = 'Informe o horário.';
+    if (Object.keys(f).length) throw E(400, 'validation', 'Revise os campos destacados.', f);
+    return { name: sp(b.name).slice(0, 100), weekday: wd, time: time, leader: sp(b.leader).slice(0, 80), loc: buildLoc(b) };
+  }
+  function cellOut(d) { var v = d.data(); return { id: d.id, name: v.name, weekday: v.weekday, time: v.time, leader: v.leader || '', loc: v.loc || null }; }
+  R('GET', '/api/cells', async function () { await needApproved(); var q = await db.collection('cells').where('active', '==', true).get(); return { cells: q.docs.map(cellOut) }; });
+  R('POST', '/api/admin/cells', async function (m, b) {
+    var x = await needPerm('members'), d = cellFields(b), batch = db.batch(), r = db.collection('cells').doc(); d.active = true; d.createdAt = now(); d.createdBy = x.uid;
+    batch.set(r, d); addAudit(batch, x, 'cell_created', { id: r.id }); await batch.commit(); return { ok: true };
+  });
+  R('PATCH', '/api/admin/cells/([^/]+)', async function (m, b) {
+    var x = await needPerm('members'), d = cellFields(b), batch = db.batch(); d.updatedAt = now(); d.updatedBy = x.uid; batch.update(ref('cells/' + m[1]), d); addAudit(batch, x, 'cell_edited', { id: m[1] }); await batch.commit(); return { ok: true };
+  });
+  R('POST', '/api/admin/cells/([^/]+)/deactivate', async function (m) { var x = await needPerm('members'), batch = db.batch(); batch.update(ref('cells/' + m[1]), { active: false }); addAudit(batch, x, 'cell_deactivated', { id: m[1] }); await batch.commit(); return { ok: true }; });
   R('GET', '/api/services', async function () { await needApproved(); var q = await db.collection('services').where('active', '==', true).get(); return { services: q.docs.map(svOut) }; });
   R('POST', '/api/admin/services', async function (m, b) {
     var x = await needPerm('events'), d = svFields(b), batch = db.batch(), r = db.collection('services').doc(); d.active = true; d.createdAt = now(); d.createdBy = x.uid;
@@ -6597,7 +6644,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
   }
   function renderBlocks() {
     document.documentElement.classList.toggle('cfa-has-backend', !!S.backend);
-    renderPerfilCard(); renderCourses(); renderEvents(); renderContrib(); renderAvisos(); loadServices();
+    renderPerfilCard(); renderCourses(); renderEvents(); renderContrib(); renderAvisos(); loadServices(); loadCells();
   }
   // Avisos da tela inicial: vêm dos avisos publicados pela administração (permissão "Comunicação")
   function canEditAvisos() { var a = S.me && S.me.admin; return !!a && approved() && (a.principal || a.permissions.indexOf('communication') >= 0); }
@@ -6779,7 +6826,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
   var ADM = { tab: 'painel' };
   function adminTabs() {
     var a = S.me.admin, t = [], has = function (p) { return a.principal || a.permissions.indexOf(p) >= 0; };
-    if (has('members')) t.push(['painel', 'Painel'], ['membros', 'Membros'], ['solic', 'Solicitações']);
+    if (has('members')) t.push(['painel', 'Painel'], ['membros', 'Membros'], ['solic', 'Solicitações'], ['celulas', 'Células']);
     if (a.principal) t.push(['admins', 'Administradores']);
     if (has('finance')) t.push(['fin', 'Finanças']);
     if (has('courses')) t.push(['cursos', 'Cursos']);
@@ -6796,7 +6843,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     var bar = el('div', { class: 'cfa-tabs' }), body = el('div', { class: 'cfa-sec cfa-light', id: 'cfa-adm-panel' });
     tabs.forEach(function (t) { bar.appendChild(el('button', { type: 'button', class: t[0] === ADM.tab ? 'on' : '', text: t[1], onclick: function () { ADM.tab = t[0]; renderAdmin(); } })); });
     add(root, [bar, body]); loading(body);
-    ({ painel: admPainel, membros: admMembros, solic: admSolic, admins: admAdmins, fin: admFin, cursos: admCursos, cultos: admCultos, eventos: admEventos, avisos: admAvisos, audit: admAudit })[ADM.tab](body).catch(function (e) { clear(body); body.appendChild(alertBox(e.message)); });
+    ({ painel: admPainel, membros: admMembros, solic: admSolic, admins: admAdmins, fin: admFin, cursos: admCursos, cultos: admCultos, celulas: admCelulas, eventos: admEventos, avisos: admAvisos, audit: admAudit })[ADM.tab](body).catch(function (e) { clear(body); body.appendChild(alertBox(e.message)); });
   }
   function loading(n) { clear(n); n.appendChild(el('div', { class: 'cfa-empty', text: 'Carregando…' })); }
   function reload() { renderAdmin(); }
@@ -7115,7 +7162,34 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
       });
     });
   }
-  document.addEventListener('visibilitychange', function () { if (!document.hidden && S.backend) loadServices(); });
+  /* ── células ── */
+  function cellSheet(c) {
+    var f = {
+      name: F({ key: 'name', label: 'Nome da célula', value: c ? c.name : '', placeholder: 'Ex.: Célula Centro', autocap: 'words', maxlength: 100 }),
+      weekday: F({ key: 'weekday', label: 'Dia da semana', type: 'select', options: [['', 'Selecione…']].concat(WD.map(function (n, i) { return [String(i), n]; })), value: c ? String(c.weekday) : '' }),
+      time: F({ key: 'time', label: 'Horário', type: 'time', value: c ? c.time : '' }),
+      leader: F({ key: 'leader', label: 'Líder (opcional)', value: c ? c.leader : '', autocap: 'words', maxlength: 80 })
+    };
+    var base = ['name', 'weekday', 'time', 'leader'].map(function (k) { return f[k]; }), lf = locForm(c ? c.loc : null);
+    saveSheet(c ? 'Editar célula' : 'Nova célula', base.concat(lf.forms), base.map(function (x) { return x.row; }).concat(lf.rows), function (b) { return c ? api('PATCH', '/api/admin/cells/' + c.id, b) : api('POST', '/api/admin/cells', b); }, function () { reload(); loadCells(); });
+  }
+  function admCelulas(body) {
+    return api('GET', '/api/cells').then(function (r) {
+      clear(body); add(body, addBtn('Nova célula', function () { cellSheet(null); }));
+      var b = admList(body, r.cells.length ? '' : 'Nenhuma célula cadastrada. Os membros veem a mensagem "Nenhuma célula cadastrada ainda."');
+      r.cells.sort(function (a, c2) { return a.weekday - c2.weekday || (a.time < c2.time ? -1 : 1); });
+      r.cells.forEach(function (c) {
+        b.appendChild(admCard(c.name, [['clock', WD[c.weekday] + ' · ' + String(c.time).replace(':', 'h')], ['users', c.leader ? 'Líder: ' + c.leader : '', !c.leader], ['pin', locSummary(c.loc), !c.loc]],
+          [btn('Editar', 'sm line', function () { cellSheet(c); }), btn('Desativar', 'sm line', function () { api('POST', '/api/admin/cells/' + c.id + '/deactivate').then(function () { reload(); loadCells(); }).catch(function (e) { toast(e.message); }); })]));
+      });
+    });
+  }
+  function loadCells() {
+    if (!window.cfaApplyCells || !S.backend) return;
+    if (!approved()) return cfaApplyCells(null);
+    api('GET', '/api/cells').then(function (r) { cfaApplyCells(r.cells); }).catch(function () { /* mantém a tela */ });
+  }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && S.backend) { loadServices(); loadCells(); } });
   function loadServices() {
     if (!window.cfaApplyServices) return;
     if (!S.backend || !approved()) return cfaApplyServices([]);
@@ -7186,6 +7260,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     if (id === 'admin') setTimeout(renderAdmin, 40);
     if (id === 'cursos') setTimeout(renderCourses, 40);
     if (id === 'cultos') setTimeout(function () { renderEvents(); loadServices(); }, 40);
+    if (id === 'celulas') setTimeout(loadCells, 40);
     if (id === 'contribuir') setTimeout(renderContrib, 40);
     if (id === 'perfil') setTimeout(renderPerfilCard, 40);
   };
