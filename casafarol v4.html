@@ -1748,6 +1748,7 @@ html.cfa-lock,html.cfa-lock body{overflow:hidden}
 .cfa-brand img{width:84px;height:84px;object-fit:contain;filter:brightness(0) invert(1);opacity:.95}
 .cfa-brand small{font-size:12px;letter-spacing:.04em;color:rgba(243,239,230,.55);text-align:center;line-height:1.5;max-width:300px}
 .cfa-h{font-family:var(--serif);font-size:30px;line-height:1.1;font-weight:500;margin:0 0 6px;color:#fff}
+.cfa-h.ctr,.cfa-sub.ctr{text-align:center}
 .cfa-h em{font-style:italic;color:var(--gold-lt)}
 .cfa-sub{font-size:14px;line-height:1.55;color:rgba(243,239,230,.62);margin:0 0 20px}
 .cfa-card{position:relative;display:flex;flex-direction:column;flex:1}
@@ -5757,7 +5758,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
   }
   function closeGate() { var g = $('cfa-gate'); if (g) g.classList.remove('on'); document.documentElement.classList.remove('cfa-lock'); }
   function alertBox(msg, ok) { return el('div', { class: 'cfa-alert' + (ok ? ' ok' : ''), role: 'alert', text: msg }); }
-  function head(h, sub) { return [el('h2', { class: 'cfa-h' }, h), sub ? el('p', { class: 'cfa-sub', text: sub }) : null]; }
+  function head(h, sub, center) { return [el('h2', { class: 'cfa-h' + (center ? ' ctr' : '') }, h), sub ? el('p', { class: 'cfa-sub' + (center ? ' ctr' : ''), text: sub }) : null]; }
 
   function afterAuth(me) {
     S.me = me; S.csrf = me.csrf || S.csrf; S.visitor = false;
@@ -5781,11 +5782,10 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
       api('POST', '/api/auth/login', { cpf: dg(cpf.get()), password: pw.get() }).then(afterAuth).catch(function (e) { box.appendChild(alertBox(e.message)); pw.set(''); }).then(function () { busy(go, false); });
     }
     card.addEventListener('keydown', function (e) { if (e.key === 'Enter') submit(); });
-    add(card, [head('Bem-vindo(a) à Casa Farol', 'Entre com seu CPF e senha para acessar sua área de membro.'), box, cpf.row, pw.row, go,
+    add(card, [head('Bem-vindo à Casa Farol', 'Entre com seu CPF e senha para acessar sua área de membro.', true), box, cpf.row, pw.row, go,
       el('button', { class: 'cfa-link', type: 'button', text: 'Esqueci minha senha', onclick: function () { openGate('forgot'); } }),
       el('div', { class: 'cfa-spacer' }),
-      btn('Primeiro acesso? Criar meu cadastro', 'ghost', function () { openGate('register'); }),
-      el('button', { class: 'cfa-link', type: 'button', text: 'Continuar sem entrar', onclick: function () { S.visitor = true; closeGate(); renderBlocks(); } })]);
+      btn('Primeiro acesso? Criar meu cadastro', 'ghost', function () { openGate('register'); })]);
   }
 
   /* ── Cadastro em 5 etapas ── */
@@ -5939,7 +5939,7 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     add(card, [el('div', { class: 'cfa-pend' }, icon, el('h2', { class: 'cfa-h', text: sv.title || 'Cadastro' }), el('p', { class: 'cfa-sub', text: sv.message || '' })), box, el('div', { class: 'cfa-spacer' })]);
     add(card, btn('Atualizar situação', '', function () { api('GET', '/api/auth/me').then(function (m) { if (m.member.status === 'approved') afterAuth(m); else { S.me = m; openGate('status'); toast('Sua situação continua: ' + STATUS[m.member.status] + '.'); } }).catch(function (e) { box.appendChild(alertBox(e.message)); }); }));
     if (sv.canResubmit) add(card, btn('Corrigir meus dados e reenviar', 'ghost', function () { openGate('resubmit'); }));
-    add(card, [el('button', { class: 'cfa-link', type: 'button', text: 'Explorar o conteúdo público do app', onclick: function () { S.visitor = true; closeGate(); renderBlocks(); } }), el('button', { class: 'cfa-link', type: 'button', text: 'Sair', onclick: logout })]);
+    add(card, [el('button', { class: 'cfa-link', type: 'button', text: 'Sair', onclick: logout })]);
   }
   function viewResubmit(card) {
     var keys = [['name', 'Nome completo'], ['phone', 'Celular'], ['whatsapp', 'WhatsApp'], ['email', 'E-mail'], ['cep', 'CEP'], ['street', 'Rua'], ['number', 'Número'], ['complement', 'Complemento'], ['district', 'Bairro'], ['city', 'Cidade']];
