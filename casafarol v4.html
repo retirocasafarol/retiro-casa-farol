@@ -1265,6 +1265,19 @@ a.nt-sbtn{text-decoration:none;}
 .cf-loc-btn:active{transform:scale(.97)}
 button.cf-loc-btn{cursor:pointer;font-family:var(--sans)}
 .cf-wa-btn{gap:7px;padding:8px 14px;background:var(--night);border-color:var(--night);color:var(--gold-lt)}.cf-wa-btn:active{background:var(--night-2)}.cf-wa-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cel-new{padding:18px}
+.cel-head{display:flex;align-items:center;gap:14px}
+.cel-av{width:60px;height:60px;border-radius:50%;flex-shrink:0;background:var(--gold-bg) center/cover no-repeat;border:2px solid var(--gold-border);box-shadow:0 0 0 3px #fff,0 0 0 4px var(--gold-border)}
+.cel-av-i{display:flex;align-items:center;justify-content:center;font:500 24px var(--serif);color:var(--gold)}
+.cel-av-i svg{width:26px;height:26px;stroke:var(--gold);fill:none;stroke-width:1.5}
+.cel-hb{flex:1;min-width:0}
+.cel-when{font:700 10.5px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.cel-new .cel-name{font-size:21px;line-height:1.2;margin-top:4px}
+.cel-ld{font-size:13px;color:var(--ink3);margin-top:3px}
+.cel-new .cf-loc.cel-locinfo{margin-top:16px}
+.cel-acts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.cel-acts.one{grid-template-columns:1fr}
+.cf-loc-btn.cel-act{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:46px;padding:0 10px;box-sizing:border-box;font-size:11px;white-space:nowrap}
 .cw-list{display:flex;flex-direction:column;gap:12px}
 .cw-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:16px 18px;box-shadow:0 6px 18px rgba(17,17,16,.05)}
 .cw-top{display:flex;align-items:center;gap:14px}
@@ -2013,6 +2026,8 @@ a.cfa-btn.cfa-wa{display:inline-block;width:auto;text-decoration:none;text-align
 .cfa-acard .m .ic svg{width:16px;height:16px;stroke:var(--gold);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .cfa-acard .cfa-actions{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);gap:8px}
 .cfa-acard .cfa-actions .cfa-btn{flex:1 1 0;min-width:0;width:auto;padding:11px 8px;text-align:center}
+
+.cfa-ph{width:64px;height:64px;border-radius:50%;background:var(--gold-bg) center/cover no-repeat;border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink3);text-align:center;flex-shrink:0}
 
 </style>
 </head>
@@ -3616,20 +3631,24 @@ function cfLocChoose(btn){
 document.addEventListener('keydown',function(e){if(e.key==='Escape')cfLocClose();});
 var CF_PIN='<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
 var CF_VIDEO='<svg viewBox="0 0 24 24"><rect x="3" y="6" width="12" height="12" rx="2.5"/><path d="M15 10.5l6-3.5v10l-6-3.5"/></svg>';
-function cfLocHTML(l,cls){
+function cfLocBtnHTML(l,cls){
   if(!l)return '';
-  var online=l.mode==='online', name='', addr='', btn='';
-  if(online){
-    name=cfEsc(l.place?'Online · '+l.place:'Online');
-    if(cfHttps(l.onlineUrl))btn='<a class="cf-loc-btn" href="'+cfEsc(l.onlineUrl)+'" target="_blank" rel="noopener noreferrer">Acessar online</a>';
-  }else{
+  var c='cf-loc-btn'+(cls?' '+cls:'');
+  if(l.mode==='online')return cfHttps(l.onlineUrl)?'<a class="'+c+'" href="'+cfEsc(l.onlineUrl)+'" target="_blank" rel="noopener noreferrer">Acessar online</a>':'';
+  if(!(l.street||l.place||cfHttps(l.mapUrl)))return '';
+  return cfLocOptions(l).length?'<button type="button" class="'+c+'" data-loc="'+cfEsc(JSON.stringify(l))+'" onclick="cfLocChoose(this)">Ver localização</button>':'';
+}
+function cfLocHTML(l,cls,noBtn){
+  if(!l)return '';
+  var online=l.mode==='online', name='', addr='';
+  if(online){ name=cfEsc(l.place?'Online · '+l.place:'Online'); }
+  else{
     var street=[l.street,l.number].filter(Boolean).join(', '), rest=[l.district,[l.city,l.state].filter(Boolean).join('/')].filter(Boolean).join(' – ');
     if(l.place){name=cfEsc(l.place); addr=cfEsc(cfLocAddr(l));}
     else{name=cfEsc(street||rest); addr=street?cfEsc(rest):'';}
     if(!name)return '';
-    if(cfLocOptions(l).length)btn='<button type="button" class="cf-loc-btn" data-loc="'+cfEsc(JSON.stringify(l))+'" onclick="cfLocChoose(this)">Ver localização</button>';
   }
-  return '<div class="cf-loc'+(cls?' '+cls:'')+'"><div class="cf-loc-ic">'+(online?CF_VIDEO:CF_PIN)+'</div><div class="cf-loc-tx"><div class="cf-loc-n">'+name+'</div>'+(addr?'<div class="cf-loc-a">'+addr+'</div>':'')+'</div>'+btn+'</div>';
+  return '<div class="cf-loc'+(cls?' '+cls:'')+'"><div class="cf-loc-ic">'+(online?CF_VIDEO:CF_PIN)+'</div><div class="cf-loc-tx"><div class="cf-loc-n">'+name+'</div>'+(addr?'<div class="cf-loc-a">'+addr+'</div>':'')+'</div>'+(noBtn?'':cfLocBtnHTML(l))+'</div>';
 }
 var CULTOS_PADRAO=JSON.parse(JSON.stringify({sem:CULTOS_SEMANAIS,esp:CULTOS_ESPECIAIS}));
 function cfTimeLabel(t){var m=/^(\d{2}):(\d{2})$/.exec(t||'');return m?m[1]+'h'+m[2]:(t||'');}
@@ -3647,9 +3666,9 @@ function cfRenderWeekly(sem,esp){
   box.innerHTML=rows.join('')||'<div class="cw-card"><div class="cw-day">Nenhum culto cadastrado.</div></div>';
 }
 
-function cfWaBtn(ph,label){
+function cfWaBtn(ph,label,cls){
   var d=String(ph||'').replace(/\D/g,''); if(d.length<10)return '';
-  return '<a class="cf-loc-btn cf-wa-btn" href="https://wa.me/'+(d.length<=11?'55':'')+d+'" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.7-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg>'+cfEsc(label)+'</a>';
+  return '<a class="cf-loc-btn cf-wa-btn'+(cls?' '+cls:'')+'" href="https://wa.me/'+(d.length<=11?'55':'')+d+'" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.7-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg>'+cfEsc(label)+'</a>';
 }
 // células cadastradas pela administração (list = null → sem acesso; [] → nenhuma cadastrada)
 function cfaApplyCells(list){
@@ -3659,7 +3678,10 @@ function cfaApplyCells(list){
   var CLK='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>', USR='<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>';
   list.sort(function(a,b){return a.weekday-b.weekday||(a.time<b.time?-1:1);});
   box.innerHTML=list.map(function(c){
-    return '<div class="cel-card"><div class="cel-top"><div class="cel-name">'+cfEsc(c.name)+'</div><div class="cel-badge">'+cfEsc((CF_WD[c.weekday]||'').split('-')[0])+'</div></div><div class="cel-meta"><div class="cel-mr">'+CLK+cfEsc(cfTimeLabel(c.time))+'</div>'+((c.leader||c.leaderPhone)?'<div class="cel-mr">'+USR+'<span style="flex:1;min-width:0">'+(c.leader?'Líder: '+cfEsc(c.leader):'Líder')+'</span>'+cfWaBtn(c.leaderPhone,'WhatsApp')+'</div>':'')+'</div>'+cfLocHTML(c.loc)+'</div>';
+    var ini=(c.leader||'').trim().charAt(0).toUpperCase();
+    var av=(c.leaderPhoto&&/^data:image\/jpeg;base64,/.test(c.leaderPhoto))?'<div class="cel-av" style="background-image:url('+c.leaderPhoto+')"></div>':((c.leader||c.leaderPhone)?'<div class="cel-av cel-av-i">'+(ini?cfEsc(ini):USR)+'</div>':'');
+    var wa=cfWaBtn(c.leaderPhone,'WhatsApp','cel-act'), lb=cfLocBtnHTML(c.loc,'cel-act'), acts=(wa||lb)?'<div class="cel-acts'+(wa&&lb?'':' one')+'">'+wa+lb+'</div>':'';
+    return '<div class="cel-card cel-new"><div class="cel-head">'+av+'<div class="cel-hb"><div class="cel-when">'+cfEsc((CF_WD[c.weekday]||'').split('-')[0])+' · '+cfEsc(cfTimeLabel(c.time))+'</div><div class="cel-name">'+cfEsc(c.name)+'</div>'+(c.leader?'<div class="cel-ld">Líder: '+cfEsc(c.leader)+'</div>':'')+'</div></div>'+cfLocHTML(c.loc,'cel-locinfo',true)+acts+'</div>';
   }).join('');
 }
 // chamado por account.js com os cultos cadastrados pela administração (lista vazia = programação padrão do app, sem localização)
@@ -6031,10 +6053,12 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
     if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) f.time = 'Informe o horário.';
     var lp = digits(b.leaderPhone); if (lp.length > 11 && lp.indexOf('55') === 0) lp = lp.slice(2);
     if (lp && (lp.length < 10 || lp.length > 11)) f.leaderPhone = 'Informe DDD + número.';
+    var ph = typeof b.leaderPhoto === 'string' ? b.leaderPhoto : '';
+    if (ph && !(/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(ph) && ph.length <= 150000)) f.leaderPhoto = 'Foto inválida ou muito grande.';
     if (Object.keys(f).length) throw E(400, 'validation', 'Revise os campos destacados.', f);
-    return { leaderPhone: lp, name: sp(b.name).slice(0, 100), weekday: wd, time: time, leader: sp(b.leader).slice(0, 80), loc: buildLoc(b) };
+    return { leaderPhoto: ph, leaderPhone: lp, name: sp(b.name).slice(0, 100), weekday: wd, time: time, leader: sp(b.leader).slice(0, 80), loc: buildLoc(b) };
   }
-  function cellOut(d) { var v = d.data(); return { id: d.id, name: v.name, weekday: v.weekday, time: v.time, leader: v.leader || '', leaderPhone: v.leaderPhone || '', loc: v.loc || null }; }
+  function cellOut(d) { var v = d.data(); return { id: d.id, name: v.name, weekday: v.weekday, time: v.time, leader: v.leader || '', leaderPhone: v.leaderPhone || '', leaderPhoto: v.leaderPhoto || '', loc: v.loc || null }; }
   R('GET', '/api/cells', async function () { await needApproved(); var q = await db.collection('cells').where('active', '==', true).get(); return { cells: q.docs.map(cellOut) }; });
   R('POST', '/api/admin/cells', async function (m, b) {
     var x = await needPerm('members'), d = cellFields(b), batch = db.batch(), r = db.collection('cells').doc(); d.active = true; d.createdAt = now(); d.createdBy = x.uid;
@@ -7169,6 +7193,26 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
       });
     });
   }
+  /* foto do líder: reduz para 320x320 (JPEG) e guarda no próprio documento da célula */
+  function photoField(initial) {
+    var data = initial || '', wrap = el('div', { class: 'cfa-f' }), prev = el('div', { class: 'cfa-ph' }), file = el('input', { type: 'file', accept: 'image/*', style: 'display:none' }), msg = el('div', { class: 'cfa-hint' }), rm;
+    function draw() { prev.style.backgroundImage = data ? 'url(' + data + ')' : ''; prev.textContent = data ? '' : 'Sem foto'; rm.style.display = data ? '' : 'none'; }
+    var pick = btn('Escolher foto', 'sm line', function () { file.click(); });
+    rm = btn('Remover foto', 'sm line', function () { data = ''; draw(); });
+    file.addEventListener('change', function () {
+      var f = file.files && file.files[0]; if (!f) return; msg.textContent = 'Processando…';
+      var img = new Image(), url = URL.createObjectURL(f);
+      img.onload = function () {
+        var S = 320, c = document.createElement('canvas'); c.width = c.height = S; var x = c.getContext('2d'), m = Math.min(img.width, img.height);
+        x.fillStyle = '#fff'; x.fillRect(0, 0, S, S); x.drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, S, S);
+        data = c.toDataURL('image/jpeg', 0.82); URL.revokeObjectURL(url); msg.textContent = ''; draw(); file.value = '';
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); msg.textContent = 'Não foi possível ler esta imagem. Tente outra.'; };
+      img.src = url;
+    });
+    add(wrap, [el('label', { text: 'Foto do líder (opcional)' }), el('div', { style: 'display:flex;align-items:center;gap:14px' }, prev, el('div', { style: 'display:flex;flex-direction:column;gap:8px' }, pick, rm)), file, msg]); draw();
+    return { key: 'leaderPhoto', row: wrap, get: function () { return data; }, set: function (v) { data = v || ''; draw(); }, err: function (m) { msg.textContent = m || ''; } };
+  }
   /* ── células ── */
   function cellSheet(c) {
     var f = {
@@ -7178,7 +7222,8 @@ window.CF_CONTACT_HINT = "Procure a secretaria da igreja.";
       leader: F({ key: 'leader', label: 'Líder (opcional)', value: c ? c.leader : '', autocap: 'words', maxlength: 80 }),
       leaderPhone: F({ key: 'leaderPhone', label: 'WhatsApp do líder (opcional)', mask: 'phone', inputmode: 'tel', value: c && c.leaderPhone ? MASK.phone(c.leaderPhone) : '', hint: 'Aparece com o botão de WhatsApp para todos os membros aprovados.' })
     };
-    var base = ['name', 'weekday', 'time', 'leader', 'leaderPhone'].map(function (k) { return f[k]; }), lf = locForm(c ? c.loc : null);
+    f.leaderPhoto = photoField(c ? c.leaderPhoto : '');
+    var base = ['name', 'weekday', 'time', 'leader', 'leaderPhoto', 'leaderPhone'].map(function (k) { return f[k]; }), lf = locForm(c ? c.loc : null);
     saveSheet(c ? 'Editar célula' : 'Nova célula', base.concat(lf.forms), base.map(function (x) { return x.row; }).concat(lf.rows), function (b) { return c ? api('PATCH', '/api/admin/cells/' + c.id, b) : api('POST', '/api/admin/cells', b); }, function () { reload(); loadCells(); });
   }
   function admCelulas(body) {
