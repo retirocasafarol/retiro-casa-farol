@@ -2812,9 +2812,6 @@ a.cfa-btn.cfa-wa{display:inline-block;width:auto;text-decoration:none;text-align
       <button class="bib-icon-btn" onclick="bibToggleDark()" title="Modo escuro">
         <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
-      <button class="bib-icon-btn" onclick="bibShowSettings()" title="Configurações">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </button>
     </div>
   </div>
 
@@ -4126,7 +4123,7 @@ async function bibLoadVerseCount(chapIdx){
     BIB._cachedChapData=data.data;
     BIB._cachedChapIdx=chapIdx;
     var verses=bibExtractVerses(data.data.content||[]);
-    BIB.pickerVerseCount=verses.length||30;
+    BIB.pickerVerseCount=verses.reduce(function(m,v){return Math.max(m,v.end||parseInt(v.num,10)||0);},0)||30;
     grid.innerHTML='';
     for(var v=1;v<=BIB.pickerVerseCount;v++){
       var btn=document.createElement('button');
@@ -4212,7 +4209,7 @@ function bibRenderReader(chapData,idx,scrollToVerse){
   verses.forEach(function(v){
     var wrap=document.createElement('div');
     wrap.className='bib-verse';
-    wrap.id='v-'+v.id;
+    wrap.id='v-'+v.id; wrap.dataset.s=v.start||parseInt(v.num,10)||0; wrap.dataset.e=v.end||v.start||parseInt(v.num,10)||0;
     var numEl=document.createElement('div');
     numEl.className='bib-vnum'; numEl.textContent=v.num;
     var textEl=document.createElement('div');
@@ -4231,21 +4228,58 @@ function bibRenderReader(chapData,idx,scrollToVerse){
     wrap.onclick=(function(vv,rr,ww){return function(){bibToggleVerseSelect(ww,vv,rr);};})(v,ref,wrap);
     content.appendChild(wrap);
   });
-  if(BIB._focusVerse){var fv=content.querySelectorAll('.bib-verse')[BIB._focusVerse-1]; if(fv)fv.classList.add('bib-focus'); BIB._focusVerse=0;}
+  if(BIB._focusVerse){var fv=bibFindVerseEl(content,BIB._focusVerse); if(fv)fv.classList.add('bib-focus'); BIB._focusVerse=0;}
   // Scroll to target verse if specified
   if(BIB._scrollToVerse&&BIB._scrollToVerse>1){
     setTimeout(function(){
-      var verses2=content.querySelectorAll('.bib-verse');
-      var idx2=BIB._scrollToVerse-1;
-      if(verses2[idx2]){verses2[idx2].scrollIntoView({behavior:'smooth',block:'start'});}
+      var t2=bibFindVerseEl(content,BIB._scrollToVerse);
+      if(t2){t2.scrollIntoView({behavior:'smooth',block:'start'});}
     },200);
   }
 }
 
+// Caminho principal: cada trecho de texto da API.Bible informa a que versículo pertence (attrs.verseId).
+// Funciona também em tabelas, listas e versículos agrupados (ex.: NUM.1.5-NUM.1.15).
+function bibFindVerseEl(content,n){
+  var els=content.querySelectorAll('.bib-verse'), best=null;
+  for(var i=0;i<els.length;i++){var a=+els[i].dataset.s,b=+els[i].dataset.e; if(n>=a&&n<=b)return els[i]; if(a<=n)best=els[i];}
+  return best;
+}
+function bibExtractByVerseId(nodes){
+  var SKIP={title:1,heading:1,s:1,ms:1,h:1,mt:1,d:1,note:1,f:1,x:1,r:1};
+  var CELL={table:1,row:1,cell:1,tr:1,td:1,th:1,tc:1};
+  var map={},order=[],sep=false;
+  (function walk(arr){
+    if(!Array.isArray(arr))return;
+    for(var i=0;i<arr.length;i++){
+      var n=arr[i]; if(!n)continue; var tag=n.name||'';
+      if(n.type==='tag'&&SKIP[tag])continue;
+      if(n.type==='text'){
+        var a=n.attrs||{}, vid=a.verseId||(a.verseOrgIds&&a.verseOrgIds[0]); if(!vid)continue;
+        var tx=String(n.text||'').replace(/[\r\n]+/g,' '); if(!tx)continue;
+        vid=String(vid); var e=map[vid]; if(!e){e=map[vid]={vid:vid,text:''};order.push(e);}
+        if(sep&&e.text&&!/\s$/.test(e.text)&&!/^\s/.test(tx))e.text+=' ';
+        e.text+=tx; sep=false;
+      }else if(n.items){
+        if(n.type==='tag'&&(CELL[tag]||tag==='para'||/^(t[hc][rc]?\d*|q\d*|li\d*|b)$/.test(tag)))sep=true;
+        walk(n.items);
+      }
+    }
+  })(nodes);
+  var out=[];
+  order.forEach(function(e){
+    var ps=e.vid.split('-'), st=parseInt(ps[0].split('.').pop(),10), en=ps[1]?parseInt(ps[1].split('.').pop(),10):st;
+    if(!st)return; if(!en||en<st)en=st;
+    var text=e.text.replace(/[ \t]+/g,' ').trim(); if(!text)return;
+    out.push({id:'v'+st,num:en>st?st+'–'+en:String(st),start:st,end:en,text:text});
+  });
+  return out;
+}
 function bibExtractVerses(nodes){
+  var byId=bibExtractByVerseId(nodes); if(byId.length)return byId;
   var tokens=[];
   var SKIP_TAGS={title:1,heading:1,s:1,ms:1,h:1,mt:1,d:1,note:1,f:1,x:1};
-  var VERSE_TAGS={'verse-num':1,v:1,vn:1};
+  var VERSE_TAGS={'verse-num':1,v:1,vn:1,verse:1};
 
   function flatten(arr,skip){
     if(!Array.isArray(arr))return;
@@ -4255,7 +4289,7 @@ function bibExtractVerses(nodes){
       if(n.type==='tag'&&VERSE_TAGS[tag]){
         var num=String((n.attrs&&(n.attrs.value||n.attrs.number))||'');
         if(!num&&n.items)num=n.items.map(function(x){return x.text||'';}).join('');
-        num=num.replace(/[^0-9]/g,'');
+        var mm=/\d+/.exec(num); num=mm?mm[0]:'';
         if(num)tokens.push({t:'v',n:num});
       } else if(n.type==='tag'&&SKIP_TAGS[tag]){
         // skip
